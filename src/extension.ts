@@ -7,6 +7,7 @@ import { CodeActionProvider } from "./core/CodeActionProvider"
 import { DIFF_VIEW_URI_SCHEME } from "./integrations/editor/DiffViewProvider"
 import { handleUri, registerCommands, registerCodeActions, registerTerminalActions } from "./activate"
 import { McpServerManager } from "./services/mcp/McpServerManager"
+import { registerTests } from "./test/registerTests"
 
 /**
  * Built using https://github.com/microsoft/vscode-webview-ui-toolkit
@@ -34,6 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
 	if (!context.globalState.get("allowedCommands")) {
 		context.globalState.update("allowedCommands", defaultCommands)
 	}
+
+	// Register tests in development mode
+	registerTests(context).catch(err => {
+		console.error("Error registering tests:", err)
+	})
 
 	const sidebarProvider = new ClineProvider(context, outputChannel)
 

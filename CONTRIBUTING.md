@@ -8,30 +8,36 @@ This guide will help you contribute to the Roo Code VSCode extension, with a foc
 
 ```
 src/
-├── services/           # Service implementations
-│   └── service-name/   # Individual service
-│       ├── index.ts    # Service implementation
-│       ├── types.ts    # Service types
-│       └── README.md   # Service documentation
-├── test/
-│   ├── suite/         # Integration tests
-│   │   └── services/  # Service integration tests
-│   │       └── service-name/
-│   │           ├── feature.test.ts
-│   │           └── README.md
-│   └── __tests__/     # Unit tests
-└── __mocks__/         # Global mocks
+├── core/              # Core functionality
+│   └── __tests__/     # Core unit tests
+├── services/          # Service implementations
+│   └── service-name/  # Individual service
+│       ├── index.ts   # Service implementation
+│       ├── types.ts   # Service types
+│       └── __tests__/ # Unit tests
+└── test/
+    └── suite/         # Integration tests
+        ├── core/      # Core integration tests
+        │   ├── Cline.test.ts
+        │   └── mode-validator.test.ts
+        ├── services/  # Service integration tests
+        │   └── service-name/
+        │       ├── feature.test.ts
+        │       └── README.md
+        └── integration/ # Integration tests
+            └── extension.test.ts
 ```
 
 ### Test Types
 
-#### 1. Unit Tests (Jest)
-- **Location**: Next to implementation in `__tests__` directories
+#### 1. Unit Tests
+- **Location**: `src/**/__tests__/` directories and `src/test/suite/core/`
 - **Purpose**: Test individual components in isolation
-- **Tools**: Jest, mocking
+- **Tools**: Currently using Jest, migrating to VS Code Testing API
 - **Examples**: Service methods, utilities
+- **Documentation**: [Unit Testing Guide](docs/technical/testing/unit-tests.md)
 
-Example unit test:
+Example unit test (Jest):
 ```typescript
 // services/utils/__tests__/parser.test.ts
 import { parseConfig } from '../parser'
@@ -48,44 +54,104 @@ describe('parseConfig', () => {
 })
 ```
 
-#### 2. Integration Tests (VSCode Test Runner)
-- **Location**: `test/suite/`
+Example unit test (VS Code Testing API):
+```typescript
+// src/test/suite/core/parser.test.ts
+import * as assert from 'assert';
+import * as vscode from 'vscode';
+import { parseConfig } from '../../../services/utils/parser';
+
+const testController = vscode.test.createTestController('parserTests', 'Parser Tests');
+
+// Create test hierarchy
+const rootTest = testController.createTestItem('root', 'Parser Tests', vscode.Uri.file(__filename));
+testController.items.add(rootTest);
+
+// Add test cases
+rootTest.children.add(
+    createTest('valid-config', 'should parse valid config', async run => {
+        const result = parseConfig({ key: 'value' });
+        assert.ok(result);
+        run.passed();
+    })
+);
+
+rootTest.children.add(
+    createTest('invalid-input', 'should handle invalid input', async run => {
+        try {
+            parseConfig(null);
+            run.failed(new Error('Expected function to throw'));
+        } catch (e) {
+            run.passed();
+        }
+    })
+);
+```
+
+#### 2. Integration Tests (VS Code Test Runner)
+- **Location**: `test/suite/integration/`
 - **Purpose**: Test VSCode integration and extension features
-- **Tools**: @vscode/test-electron
+- **Tools**: VS Code Testing API, @vscode/test-electron
 - **Examples**: Extension activation, commands, UI interactions
+- **Documentation**: [Integration Testing Guide](docs/technical/testing/integration-tests.md)
 
 Example integration test:
 ```typescript
-// test/suite/extension.test.ts
-suite('Extension Test Suite', () => {
-    test('Extension should activate', async () => {
-        const ext = vscode.extensions.getExtension('rooveterinaryinc.roo-cline')
-        await ext?.activate()
-        assert.ok(ext?.isActive)
+// test/suite/integration/extension.test.ts
+import * as assert from 'assert';
+import * as vscode from 'vscode';
+
+const testController = vscode.test.createTestController('extensionTests', 'Extension Tests');
+
+// Create test hierarchy
+const rootTest = testController.createTestItem('root', 'Extension Tests', vscode.Uri.file(__filename));
+testController.items.add(rootTest);
+
+// Add test cases
+rootTest.children.add(
+    createTest('activation', 'Extension should activate', async run => {
+        const ext = vscode.extensions.getExtension('rooveterinaryinc.roo-cline');
+        await ext?.activate();
+        assert.ok(ext?.isActive);
+        run.passed();
     })
-})
+);
 ```
 
 #### 3. Service Tests
 - **Location**: `test/suite/services/`
 - **Purpose**: Test service boundaries and integration
-- **Documentation**: README.md per service
+- **Tools**: VS Code Testing API
+- **Documentation**: [Service Testing Guide](docs/technical/testing/service-tests.md)
 - **Examples**: API integration, caching, state management
+- **Organization**: Contract tests, integration tests, boundary tests
 
 Example service test:
 ```typescript
 // test/suite/services/cache/cache-tracker.test.ts
-describe('CacheTracker', () => {
-    it('should track cache usage', async () => {
-        const tracker = new CacheTracker()
+import * as assert from 'assert';
+import * as vscode from 'vscode';
+import { CacheTracker } from '../../../../services/cache/cache-tracker';
+
+const testController = vscode.test.createTestController('cacheTests', 'Cache Tests');
+
+// Create test hierarchy
+const rootTest = testController.createTestItem('root', 'Cache Tests', vscode.Uri.file(__filename));
+testController.items.add(rootTest);
+
+// Add test cases
+rootTest.children.add(
+    createTest('track-usage', 'should track cache usage', async run => {
+        const tracker = new CacheTracker();
         await tracker.trackUsage('request-id', {
             input_tokens: 100,
             cache_hits: 50
-        })
-        const metrics = tracker.getMetrics('request-id')
-        expect(metrics.hits).toBe(50)
+        });
+        const metrics = tracker.getMetrics('request-id');
+        assert.strictEqual(metrics.hits, 50);
+        run.passed();
     })
-})
+);
 ```
 
 ### Documentation Requirements
@@ -135,35 +201,44 @@ Example test documentation:
  * - Cleans up temporary files
  * - Resets mock data
  */
-describe('CacheTracker', () => {
-    // Tests follow...
-})
+const testController = vscode.test.createTestController('cacheTests', 'Cache Tests');
+// Tests follow...
 ```
 
 ### Best Practices
 
 #### 1. Test Organization
-- Group related tests using `describe` blocks
+- Group related tests using test hierarchies
 - Use clear, descriptive test names
 - Keep tests independent
 - Follow AAA pattern (Arrange, Act, Assert)
 
 ```typescript
-describe('UserService', () => {
-    describe('authentication', () => {
-        it('should authenticate valid credentials', async () => {
-            // Arrange
-            const service = new UserService()
-            const credentials = { username: 'test', password: 'valid' }
+const testController = vscode.test.createTestController('userTests', 'User Tests');
 
-            // Act
-            const result = await service.authenticate(credentials)
+// Create test hierarchy
+const rootTest = testController.createTestItem('root', 'User Tests', vscode.Uri.file(__filename));
+testController.items.add(rootTest);
 
-            // Assert
-            expect(result.authenticated).toBe(true)
-        })
+// Authentication tests
+const authTests = testController.createTestItem('auth', 'Authentication Tests', vscode.Uri.file(__filename));
+rootTest.children.add(authTests);
+
+// Add test cases
+authTests.children.add(
+    createTest('valid-credentials', 'should authenticate valid credentials', async run => {
+        // Arrange
+        const service = new UserService();
+        const credentials = { username: 'test', password: 'valid' };
+
+        // Act
+        const result = await service.authenticate(credentials);
+
+        // Assert
+        assert.strictEqual(result.authenticated, true);
+        run.passed();
     })
-})
+);
 ```
 
 #### 2. Mocking
@@ -173,43 +248,67 @@ describe('UserService', () => {
 - Reset mocks between tests
 
 ```typescript
-jest.mock('../api-client')
+// Using VS Code Testing API with mocks
+const testController = vscode.test.createTestController('serviceTests', 'Service Tests');
+const rootTest = testController.createTestItem('root', 'Service Tests', vscode.Uri.file(__filename));
+testController.items.add(rootTest);
 
-describe('Service', () => {
-    beforeEach(() => {
-        jest.clearAllMocks()
-    })
-
-    it('should handle API response', async () => {
-        apiClient.getData.mockResolvedValue({ success: true })
+rootTest.children.add(
+    createTest('api-response', 'should handle API response', async run => {
+        // Setup mock
+        const apiClient = {
+            getData: async () => ({ success: true })
+        };
+        
+        // Create service with mock
+        const service = new Service(apiClient);
+        
         // Test implementation
+        const result = await service.process();
+        assert.strictEqual(result.success, true);
+        run.passed();
     })
-})
+);
 ```
 
 #### 3. Assertions
-- Use specific assertions
+- Use VS Code's assert module
 - Test edge cases
 - Handle async operations properly
 - Include error cases
 
 ```typescript
-describe('DataProcessor', () => {
-    it('should process valid data', async () => {
-        const result = await processor.process(validData)
-        expect(result.status).toBe('success')
-        expect(result.items).toHaveLength(2)
-        expect(result.items[0]).toMatchObject({
-            id: expect.any(Number),
-            name: expect.any(String)
-        })
-    })
+// Using VS Code Testing API with assertions
+const testController = vscode.test.createTestController('processorTests', 'Processor Tests');
+const rootTest = testController.createTestItem('root', 'Processor Tests', vscode.Uri.file(__filename));
+testController.items.add(rootTest);
 
-    it('should handle invalid data', async () => {
-        await expect(processor.process(null))
-            .rejects.toThrow('Invalid data')
+// Valid data test
+rootTest.children.add(
+    createTest('valid-data', 'should process valid data', async run => {
+        const processor = new DataProcessor();
+        const result = await processor.process(validData);
+        assert.strictEqual(result.status, 'success');
+        assert.strictEqual(result.items.length, 2);
+        assert.ok(typeof result.items[0].id === 'number');
+        assert.ok(typeof result.items[0].name === 'string');
+        run.passed();
     })
-})
+);
+
+// Invalid data test
+rootTest.children.add(
+    createTest('invalid-data', 'should handle invalid data', async run => {
+        const processor = new DataProcessor();
+        try {
+            await processor.process(null);
+            run.failed(new Error('Expected function to throw'));
+        } catch (e) {
+            assert.ok(e.message.includes('Invalid data'));
+            run.passed();
+        }
+    })
+);
 ```
 
 #### 4. Test Coverage
@@ -252,11 +351,26 @@ npm test -- --coverage
 5. Add tests and implementation
 6. Submit pull request
 
+## Testing Framework Migration
+
+The project is currently migrating from Jest to VS Code's native Testing API, which provides:
+- Better integration with VS Code
+- Richer test discovery and execution
+- Improved result reporting
+- Native debugging capabilities
+
+For detailed information about the migration, refer to:
+- [Test Migration Plan](docs/technical/testing/test-migration-plan.md)
+- [VS Code Test Runner Guide](docs/technical/testing/vscode-test-runner.md)
+
 ## Resources
 
-- [Jest Tests Documentation](src/jest-tests.md)
-- [VSCode Integration Tests](src/test/VSCODE_INTEGRATION_TESTS.md)
-- [Test Templates](.github/TEMPLATES/TEST_TEMPLATE.md)
+- [Testing Guide](docs/TESTING.md)
+- [Unit Testing Guide](docs/technical/testing/unit-tests.md)
+- [Integration Testing Guide](docs/technical/testing/integration-tests.md)
+- [Service Testing Guide](docs/technical/testing/service-tests.md)
+- [VS Code Test Runner Guide](docs/technical/testing/vscode-test-runner.md)
+- [VS Code Testing API Guide](https://code.visualstudio.com/api/extension-guides/testing)
 
 ## Questions?
 

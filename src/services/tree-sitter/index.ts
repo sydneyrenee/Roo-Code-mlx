@@ -1,7 +1,7 @@
 import * as fs from "fs/promises"
 import * as path from "path"
 import { listFiles } from "../glob/list-files"
-import { LanguageParser, loadRequiredLanguageParsers } from "./languageParser"
+import { LanguageParser, ParserInstance, loadRequiredLanguageParsers } from "./languageParser"
 import { fileExistsAtPath } from "../../utils/fs"
 
 // TODO: implement caching behavior to avoid having to keep analyzing project for new tasks.
@@ -95,7 +95,16 @@ This approach allows us to focus on the most relevant parts of the code (defined
 - https://github.com/tree-sitter/tree-sitter/blob/master/lib/binding_web/test/helper.js
 - https://tree-sitter.github.io/tree-sitter/code-navigation-systems
 */
-async function parseFile(filePath: string, languageParsers: LanguageParser): Promise<string | undefined> {
+
+interface TreeSitterCapture {
+    node: {
+        startPosition: { row: number };
+        endPosition: { row: number };
+    };
+    name: string;
+}
+
+async function parseFile(filePath: string, languageParsers: Record<string, ParserInstance>): Promise<string | undefined> {
 	const fileContent = await fs.readFile(filePath, "utf8")
 	const ext = path.extname(filePath).toLowerCase().slice(1)
 
@@ -112,10 +121,10 @@ async function parseFile(filePath: string, languageParsers: LanguageParser): Pro
 
 		// Apply the query to the AST and get the captures
 		// Captures are specific parts of the AST that match our query patterns, each capture represents a node in the AST that we're interested in.
-		const captures = query.captures(tree.rootNode)
+		const captures: TreeSitterCapture[] = query.captures(tree.rootNode)
 
 		// Sort captures by their start position
-		captures.sort((a, b) => a.node.startPosition.row - b.node.startPosition.row)
+		captures.sort((a: TreeSitterCapture, b: TreeSitterCapture) => a.node.startPosition.row - b.node.startPosition.row)
 
 		// Split the file content into individual lines
 		const lines = fileContent.split("\n")
@@ -123,7 +132,7 @@ async function parseFile(filePath: string, languageParsers: LanguageParser): Pro
 		// Keep track of the last line we've processed
 		let lastLine = -1
 
-		captures.forEach((capture) => {
+		captures.forEach((capture: TreeSitterCapture) => {
 			const { node, name } = capture
 			// Get the start and end lines of the current AST node
 			const startLine = node.startPosition.row

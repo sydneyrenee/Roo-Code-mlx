@@ -1,131 +1,136 @@
-import * as path from "path"
-import Parser from "web-tree-sitter"
-import {
-	javascriptQuery,
-	typescriptQuery,
-	pythonQuery,
-	rustQuery,
-	goQuery,
-	cppQuery,
-	cQuery,
-	csharpQuery,
-	rubyQuery,
-	javaQuery,
-	phpQuery,
-	swiftQuery,
-} from "./queries"
+import path from "path"
+import fs from "fs/promises"
 
-export interface LanguageParser {
-	[key: string]: {
-		parser: Parser
-		query: Parser.Query
-	}
+// Core types for web-tree-sitter
+type WasmParser = any;
+type WasmLanguage = any;
+type WasmQuery = any;
+
+// Define the shape we need from tree-sitter
+interface TreeSitterConstructor {
+    new(): WasmParser;
+    init(): Promise<void>;
+    Language: {
+        load(path: string): Promise<WasmLanguage>;
+    };
 }
 
-async function loadLanguage(langName: string) {
-	return await Parser.Language.load(path.join(__dirname, `tree-sitter-${langName}.wasm`))
+export interface ParserInstance {
+    parser: WasmParser;
+    query: WasmQuery;
 }
 
-let isParserInitialized = false
+export class LanguageParser {
+    private parser?: WasmParser;
+    private static parsersMap = new Map<string, ParserInstance>();
+    private static treeSitterModule?: TreeSitterConstructor;
 
-async function initializeParser() {
-	if (!isParserInitialized) {
-		await Parser.init()
-		isParserInitialized = true
-	}
+    public static async getTreeSitter(): Promise<TreeSitterConstructor> {
+        if (!this.treeSitterModule) {
+            const module = await import("web-tree-sitter");
+            const Parser = module.default as unknown as TreeSitterConstructor;
+            await Parser.init();
+            this.treeSitterModule = Parser;
+        }
+        return this.treeSitterModule;
+    }
+
+    async init() {
+        if (!this.parser) {
+            const Parser = await LanguageParser.getTreeSitter();
+            this.parser = new Parser();
+        }
+    }
+
+    static async loadLanguage(langName: string): Promise<WasmLanguage> {
+        const Parser = await this.getTreeSitter();
+        return await Parser.Language.load(path.join(__dirname, `tree-sitter-${langName}.wasm`));
+    }
+
+    static async loadQueryContent(queryType: string): Promise<string> {
+        const queryPath = path.join(__dirname, 'queries', `${queryType}.scm`);
+        return await fs.readFile(queryPath, 'utf8');
+    }
+
+    static async initializeParser(ext: string, language: WasmLanguage, queryType: string): Promise<void> {
+        const Parser = await this.getTreeSitter();
+        const parser = new Parser();
+        await parser.setLanguage(language);
+
+        try {
+            const queryContent = await this.loadQueryContent(queryType);
+            const query = language.query(queryContent);
+            this.parsersMap.set(ext, { parser, query });
+        } catch (error) {
+            console.error(`Failed to load query for ${queryType}:`, error);
+            throw error;
+        }
+    }
+
+    getParser(ext: string): ParserInstance | undefined {
+        return LanguageParser.parsersMap.get(ext);
+    }
+
+    static async createParser(language: WasmLanguage): Promise<WasmParser> {
+        const Parser = await this.getTreeSitter();
+        const parser = new Parser();
+        await parser.setLanguage(language);
+        return parser;
+    }
+
+    static create(): LanguageParser {
+        return new LanguageParser();
+    }
 }
 
-/*
-Using node bindings for tree-sitter is problematic in vscode extensions 
-because of incompatibility with electron. Going the .wasm route has the 
-advantage of not having to build for multiple architectures.
+export async function loadRequiredLanguageParsers(filesToParse: string[]): Promise<Record<string, ParserInstance>> {
+    const Parser = await LanguageParser.getTreeSitter();
+    const extensionsToLoad = new Set(filesToParse.map((file) => path.extname(file).toLowerCase().slice(1)));
+    const parsers: Record<string, ParserInstance> = {};
 
-We use web-tree-sitter and tree-sitter-wasms which provides auto-updating prebuilt WASM binaries for tree-sitter's language parsers.
+    for (const ext of extensionsToLoad) {
+        const language = await LanguageParser.loadLanguage(getLangNameForExt(ext));
+        const queryContent = await LanguageParser.loadQueryContent(getLangNameForExt(ext));
+        const parser = new Parser();
+        await parser.setLanguage(language);
+        const query = language.query(queryContent);
+        parsers[ext] = { parser, query };
+    }
 
-This function loads WASM modules for relevant language parsers based on input files:
-1. Extracts unique file extensions
-2. Maps extensions to language names
-3. Loads corresponding WASM files (containing grammar rules)
-4. Uses WASM modules to initialize tree-sitter parsers
+    return parsers;
+}
 
-This approach optimizes performance by loading only necessary parsers once for all relevant files.
-
-Sources:
-- https://github.com/tree-sitter/node-tree-sitter/issues/169
-- https://github.com/tree-sitter/node-tree-sitter/issues/168
-- https://github.com/Gregoor/tree-sitter-wasms/blob/main/README.md
-- https://github.com/tree-sitter/tree-sitter/blob/master/lib/binding_web/README.md
-- https://github.com/tree-sitter/tree-sitter/blob/master/lib/binding_web/test/query-test.js
-*/
-export async function loadRequiredLanguageParsers(filesToParse: string[]): Promise<LanguageParser> {
-	await initializeParser()
-	const extensionsToLoad = new Set(filesToParse.map((file) => path.extname(file).toLowerCase().slice(1)))
-	const parsers: LanguageParser = {}
-	for (const ext of extensionsToLoad) {
-		let language: Parser.Language
-		let query: Parser.Query
-		switch (ext) {
-			case "js":
-			case "jsx":
-				language = await loadLanguage("javascript")
-				query = language.query(javascriptQuery)
-				break
-			case "ts":
-				language = await loadLanguage("typescript")
-				query = language.query(typescriptQuery)
-				break
-			case "tsx":
-				language = await loadLanguage("tsx")
-				query = language.query(typescriptQuery)
-				break
-			case "py":
-				language = await loadLanguage("python")
-				query = language.query(pythonQuery)
-				break
-			case "rs":
-				language = await loadLanguage("rust")
-				query = language.query(rustQuery)
-				break
-			case "go":
-				language = await loadLanguage("go")
-				query = language.query(goQuery)
-				break
-			case "cpp":
-			case "hpp":
-				language = await loadLanguage("cpp")
-				query = language.query(cppQuery)
-				break
-			case "c":
-			case "h":
-				language = await loadLanguage("c")
-				query = language.query(cQuery)
-				break
-			case "cs":
-				language = await loadLanguage("c_sharp")
-				query = language.query(csharpQuery)
-				break
-			case "rb":
-				language = await loadLanguage("ruby")
-				query = language.query(rubyQuery)
-				break
-			case "java":
-				language = await loadLanguage("java")
-				query = language.query(javaQuery)
-				break
-			case "php":
-				language = await loadLanguage("php")
-				query = language.query(phpQuery)
-				break
-			case "swift":
-				language = await loadLanguage("swift")
-				query = language.query(swiftQuery)
-				break
-			default:
-				throw new Error(`Unsupported language: ${ext}`)
-		}
-		const parser = new Parser()
-		parser.setLanguage(language)
-		parsers[ext] = { parser, query }
-	}
-	return parsers
+function getLangNameForExt(ext: string): string {
+    switch (ext) {
+        case "js":
+        case "jsx":
+            return "javascript";
+        case "ts":
+        case "tsx":
+            return "typescript";
+        case "py":
+            return "python";
+        case "rs":
+            return "rust";
+        case "go":
+            return "go";
+        case "cpp":
+        case "hpp":
+            return "cpp";
+        case "c":
+        case "h":
+            return "c";
+        case "cs":
+            return "c_sharp";
+        case "rb":
+            return "ruby";
+        case "java":
+            return "java";
+        case "php":
+            return "php";
+        case "swift":
+            return "swift";
+        default:
+            throw new Error(`Unsupported language extension: ${ext}`);
+    }
 }

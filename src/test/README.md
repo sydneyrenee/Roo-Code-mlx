@@ -1,175 +1,145 @@
-# Roo Code Test Documentation
+# Test Migration Guide
 
-Welcome to the Roo Code test documentation. This guide will help you find the right resources for testing your contributions.
+## Overview
 
-## Quick Links
+This project is migrating from Jest to VS Code's native Testing API. This document provides guidance on the migration process and how to run tests.
 
-- [Contributing Guidelines](../../CONTRIBUTING.md) - Start here for test organization and best practices
-- [Jest Unit Tests](../jest-tests.md) - Guide for writing and running unit tests
-- [VSCode Integration Tests](./VSCODE_INTEGRATION_TESTS.md) - Guide for integration testing
-- [Test Templates](../../.github/TEMPLATES/TEST_TEMPLATE.md) - Templates for new test files
+## Migration Status
 
-## Test Types
+The migration is in progress. Some tests have been migrated to the VS Code Testing API, while others still use Jest.
 
-### 1. Unit Tests (Jest)
-- **Location**: `src/**/__tests__/`
-- **Purpose**: Test individual components
-- **Documentation**: [Jest Tests Guide](../jest-tests.md)
-- **Run Command**: `npm test`
+### Migrated Tests
 
-### 2. Integration Tests
-- **Location**: `src/test/suite/`
-- **Purpose**: Test VSCode integration
-- **Documentation**: [Integration Tests Guide](./VSCODE_INTEGRATION_TESTS.md)
-- **Run Command**: `npm run test:integration`
+Tests that have been migrated to the VS Code Testing API:
 
-### 3. Service Tests
-- **Location**: `src/test/suite/services/`
-- **Purpose**: Test service boundaries
-- **Template**: [Service Test Template](../../.github/TEMPLATES/TEST_TEMPLATE.md)
-- **Examples**: See service-specific README files
+- `src/core/__tests__/CodeActionProvider.test.ts`
+- `src/api/transform/__tests__/bedrock-converse-format.test.ts`
+- `src/shared/__tests__/vsCodeSelectorUtils.test.ts`
+- `src/shared/__tests__/checkExistApiConfig.test.ts`
 
-## Directory Structure
+### Tests Still Using Jest
 
+All other tests in `src/**/__tests__/` directories still use Jest.
+
+## Migration Process
+
+To migrate a test file from Jest to VS Code Testing API:
+
+1. Convert the test file to use the VS Code Testing API pattern:
+   - Create an async function that takes a `vscode.ExtensionContext` parameter
+   - Create a test controller using `vscode.tests.createTestController`
+   - Create a test hierarchy using `testController.createTestItem`
+   - Add test cases to the hierarchy
+   - Create a run profile that executes the tests
+   - Export the function so it can be registered when the extension activates
+
+2. Add the test activation function to `src/test/registerTests.ts`
+
+Example of a migrated test file:
+
+```typescript
+import * as vscode from 'vscode'
+import * as assert from 'assert'
+
+export async function activateMyTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('myTests', 'My Tests')
+    context.subscriptions.push(testController)
+
+    const rootSuite = testController.createTestItem('my-tests', 'My Tests')
+    testController.items.add(rootSuite)
+
+    // Add test cases
+    rootSuite.children.add(testController.createTestItem(
+        'test-1',
+        'should do something'
+    ))
+
+    // Create run profile
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
+
+        const run = testController.createTestRun(request)
+
+        for (const test of queue) {
+            run.started(test)
+            try {
+                switch (test.id) {
+                    case 'test-1': {
+                        // Test implementation
+                        assert.strictEqual(result, expected)
+                        break
+                    }
+                }
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)))
+            }
+        }
+        run.end()
+    })
+}
 ```
-src/
-├── services/           # Service implementations
-│   └── service-name/   # Individual service
-│       └── __tests__/ # Unit tests
-├── test/
-│   ├── suite/         # Integration tests
-│   │   └── services/  # Service integration tests
-│   │       └── service-name/
-│   │           ├── feature.test.ts
-│   │           └── README.md
-│   └── README.md      # This file
-└── jest-tests.md      # Jest documentation
+
+## Running Tests
+
+### Running Jest Tests
+
+```bash
+npm run test:jest
 ```
 
-## Getting Started
+### Running VS Code Testing API Tests
 
-1. **New to Testing?**
-   - Read [Contributing Guidelines](../../CONTRIBUTING.md)
-   - Check test templates
-   - Review existing tests
+```bash
+# Run tests and save output to test-output.log
+npm run test:vscode
 
-2. **Adding Service Tests?**
-   - Use [Test Template](../../.github/TEMPLATES/TEST_TEMPLATE.md)
-   - Follow service test structure
-   - Add service README
+# Run tests and show only the last 100 lines of output
+npm run test:vscode:tail
+```
 
-3. **Running Tests**
-   ```bash
-   # Run all tests
-   npm test
+This will launch VS Code with the extension in development mode, which will register the VS Code Testing API tests. You can then run the tests using the VS Code Testing view.
 
-   # Run integration tests
-   npm run test:integration
+### Running All Tests
 
-   # Run specific tests
-   npx jest path/to/test
-   ```
+```bash
+npm test
+```
+
+This will run the integration tests using the VS Code Testing API.
+
+### Viewing Test Logs
+
+Since test output can be very large and might exceed buffer limits, we've added utilities to handle this:
+
+```bash
+# View and navigate test logs with the log viewer utility
+npm run test:log
+```
+
+The log viewer provides the following commands:
+- `n`: Next page
+- `p`: Previous page
+- `g <num>`: Go to page number
+- `f <text>`: Find text in logs
+- `q`: Quit
 
 ## Test Organization
 
-### Unit Tests
-- Located next to implementation
-- Focus on single components
-- Heavy use of mocking
-- Fast execution
+Tests are organized as follows:
 
-### Integration Tests
-- Located in test/suite/
-- Test VSCode features
-- Minimal mocking
-- Real VSCode instance
+- Unit Tests: Located in `src/**/__tests__/` directories
+- Integration Tests: Located in `test/suite/integration/`
+- Service Tests: Located in `test/suite/services/`
 
-### Service Tests
-- Located in test/suite/services/
-- Test service boundaries
-- Mix of unit and integration
-- Service-specific README
+## Assertions
 
-## Coverage Requirements
+- Jest tests use `expect()` assertions
+- VS Code Testing API tests use Node.js `assert` module
 
-All tests should maintain:
-- Statements: 80%
-- Branches: 80%
-- Functions: 80%
-- Lines: 80%
+## Test Discovery
 
-Check coverage:
-```bash
-npm test -- --coverage
-```
-
-## Best Practices
-
-1. **Test Organization**
-   - Group related tests
-   - Clear descriptions
-   - Independent tests
-   - Follow AAA pattern
-
-2. **Mocking**
-   - Mock external dependencies
-   - Reset between tests
-   - Document mock behavior
-   - Use __mocks__ directory
-
-3. **Assertions**
-   - Be specific
-   - Test edge cases
-   - Handle errors
-   - Include timeouts
-
-4. **Documentation**
-   - Update README files
-   - Document patterns
-   - Include examples
-   - Explain setup
-
-## Common Issues
-
-### Test Failures
-1. Check test isolation
-2. Verify mocks
-3. Check async operations
-4. Review error handling
-
-### Coverage Issues
-1. Add missing test cases
-2. Check edge cases
-3. Include error paths
-4. Test async flows
-
-### Integration Test Issues
-1. Check VSCode version
-2. Verify extension setup
-3. Review timeouts
-4. Check environment
-
-## Need Help?
-
-1. Check documentation:
-   - [Contributing Guidelines](../../CONTRIBUTING.md)
-   - [Jest Tests](../jest-tests.md)
-   - [Integration Tests](./VSCODE_INTEGRATION_TESTS.md)
-
-2. Review examples:
-   - Existing service tests
-   - Test templates
-   - Mock examples
-
-3. Get support:
-   - Open an issue
-   - Tag with 'question'
-   - Include relevant code
-
-## Contributing
-
-1. Follow guidelines
-2. Use templates
-3. Add documentation
-4. Maintain coverage
-5. Submit PR
+VS Code Testing API tests are registered in `src/test/registerTests.ts` and are automatically discovered when the extension activates in development mode.

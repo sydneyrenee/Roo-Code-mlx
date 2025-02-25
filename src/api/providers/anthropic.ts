@@ -9,6 +9,7 @@ import {
 } from "../../shared/api"
 import { ApiHandler, SingleCompletionHandler } from "../index"
 import { ApiStream } from "../transform/stream"
+import { SharedContentBlock, SharedTextBlock } from "../transform/shared-types"
 
 const ANTHROPIC_DEFAULT_TEMPERATURE = 0
 
@@ -25,7 +26,7 @@ export class AnthropicHandler implements ApiHandler, SingleCompletionHandler {
 	}
 
 	async *createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream {
-		let stream: AnthropicStream<Anthropic.Beta.PromptCaching.Messages.RawPromptCachingBetaMessageStreamEvent>
+		let stream: AnthropicStream<Anthropic.Messages.MessageStreamEvent>
 		const modelId = this.getModel().id
 		switch (modelId) {
 			// 'latest' alias does not support cache_control
@@ -33,21 +34,22 @@ export class AnthropicHandler implements ApiHandler, SingleCompletionHandler {
 			case "claude-3-5-haiku-20241022":
 			case "claude-3-opus-20240229":
 			case "claude-3-haiku-20240307": {
-				/*
-				The latest message will be the new user message, one before will be the assistant message from a previous request, and the user message before that will be a previously cached user message. So we need to mark the latest user message as ephemeral to cache it for the next request, and mark the second to last user message as ephemeral to let the server know the last message to retrieve from the cache for the current request..
-				*/
 				const userMsgIndices = messages.reduce(
 					(acc, msg, index) => (msg.role === "user" ? [...acc, index] : acc),
 					[] as number[],
 				)
 				const lastUserMsgIndex = userMsgIndices[userMsgIndices.length - 1] ?? -1
 				const secondLastMsgUserIndex = userMsgIndices[userMsgIndices.length - 2] ?? -1
-				stream = await this.client.beta.promptCaching.messages.create(
+				stream = await this.client.messages.create(
 					{
 						model: modelId,
 						max_tokens: this.getModel().info.maxTokens || 8192,
 						temperature: this.options.modelTemperature ?? ANTHROPIC_DEFAULT_TEMPERATURE,
-						system: [{ text: systemPrompt, type: "text", cache_control: { type: "ephemeral" } }], // setting cache breakpoint for system prompt so new tasks can reuse it
+						system: [{ 
+							text: systemPrompt, 
+							type: "text" as const,
+							cache_control: { type: "ephemeral" }
+						}],
 						messages: messages.map((message, index) => {
 							if (index === lastUserMsgIndex || index === secondLastMsgUserIndex) {
 								return {
@@ -56,55 +58,52 @@ export class AnthropicHandler implements ApiHandler, SingleCompletionHandler {
 										typeof message.content === "string"
 											? [
 													{
-														type: "text",
+														type: "text" as const,
 														text: message.content,
-														cache_control: { type: "ephemeral" },
+														cache_control: { type: "ephemeral" }
 													},
 												]
 											: message.content.map((content, contentIndex) =>
 													contentIndex === message.content.length - 1
-														? { ...content, cache_control: { type: "ephemeral" } }
+														? { 
+															...content, 
+															cache_control: { type: "ephemeral" }
+														}
 														: content,
 												),
 								}
 							}
-							return message
+							return {
+								...message,
+								content:
+									typeof message.content === "string"
+										? [{ type: "text" as const, text: message.content }]
+										: message.content,
+							}
 						}),
-						// tools, // cache breakpoints go from tools > system > messages, and since tools dont change, we can just set the breakpoint at the end of system (this avoids having to set a breakpoint at the end of tools which by itself does not meet min requirements for haiku caching)
-						// tool_choice: { type: "auto" },
-						// tools: tools,
 						stream: true,
 					},
-					(() => {
-						// prompt caching: https://x.com/alexalbert__/status/1823751995901272068
-						// https://github.com/anthropics/anthropic-sdk-typescript?tab=readme-ov-file#default-headers
-						// https://github.com/anthropics/anthropic-sdk-typescript/commit/c920b77fc67bd839bfeb6716ceab9d7c9bbe7393
-						switch (modelId) {
-							case "claude-3-5-sonnet-20241022":
-							case "claude-3-5-haiku-20241022":
-							case "claude-3-opus-20240229":
-							case "claude-3-haiku-20240307":
-								return {
-									headers: { "anthropic-beta": "prompt-caching-2024-07-31" },
-								}
-							default:
-								return undefined
-						}
-					})(),
+					{
+						headers: { "anthropic-beta": "prompt-caching-2024-07-31" },
+					},
 				)
 				break
 			}
 			default: {
-				stream = (await this.client.messages.create({
+				stream = await this.client.messages.create({
 					model: modelId,
 					max_tokens: this.getModel().info.maxTokens || 8192,
 					temperature: this.options.modelTemperature ?? ANTHROPIC_DEFAULT_TEMPERATURE,
-					system: [{ text: systemPrompt, type: "text" }],
-					messages,
-					// tools,
-					// tool_choice: { type: "auto" },
+					system: [{ text: systemPrompt, type: "text" as const }],
+					messages: messages.map(message => ({
+						...message,
+						content:
+							typeof message.content === "string"
+								? [{ type: "text" as const, text: message.content }]
+								: message.content,
+					})),
 					stream: true,
-				})) as any
+				})
 				break
 			}
 		}
@@ -182,7 +181,14 @@ export class AnthropicHandler implements ApiHandler, SingleCompletionHandler {
 				model: this.getModel().id,
 				max_tokens: this.getModel().info.maxTokens || 8192,
 				temperature: this.options.modelTemperature ?? ANTHROPIC_DEFAULT_TEMPERATURE,
-				messages: [{ role: "user", content: prompt }],
+				messages: [{ 
+					role: "user", 
+					content: [{ 
+						type: "text" as const, 
+						text: prompt,
+						citations: []
+					}]
+				}],
 				stream: false,
 			})
 

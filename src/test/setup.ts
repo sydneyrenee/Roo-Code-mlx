@@ -1,4 +1,5 @@
-import { expect } from '@jest/globals';
+import { expect, jest } from '@jest/globals';
 
-// Make Jest's expect available globally
+// Make Jest's expect and jest available globally
 (global as any).expect = expect;
+(global as any).jest = jest;

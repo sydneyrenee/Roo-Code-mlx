@@ -3,6 +3,20 @@ import os from "os"
 import * as path from "path"
 import * as vscode from "vscode"
 
+// Create type guard for valid content blocks
+type ValidContentBlock = 
+    | Anthropic.Messages.TextBlockParam 
+    | Anthropic.Messages.ImageBlockParam 
+    | Anthropic.Messages.ToolUseBlockParam 
+    | Anthropic.Messages.ToolResultBlockParam;
+
+function isValidContentBlock(block: any): block is ValidContentBlock {
+    return block.type === "text" ||
+           block.type === "image" ||
+           block.type === "tool_use" ||
+           block.type === "tool_result";
+}
+
 export async function downloadTask(dateTs: number, conversationHistory: Anthropic.MessageParam[]) {
 	// File name
 	const date = new Date(dateTs)
@@ -22,7 +36,10 @@ export async function downloadTask(dateTs: number, conversationHistory: Anthropi
 		.map((message) => {
 			const role = message.role === "user" ? "**User:**" : "**Assistant:**"
 			const content = Array.isArray(message.content)
-				? message.content.map((block) => formatContentBlockToMarkdown(block)).join("\n")
+				? message.content
+					.filter(isValidContentBlock)
+					.map((block) => formatContentBlockToMarkdown(block))
+					.join("\n")
 				: message.content
 			return `${role}\n\n${content}\n\n`
 		})
@@ -65,18 +82,21 @@ export function formatContentBlockToMarkdown(
 			}
 			return `[Tool Use: ${block.name}]\n${input}`
 		case "tool_result":
-			// For now we're not doing tool name lookup since we don't use tools anymore
-			// const toolName = findToolName(block.tool_use_id, messages)
 			const toolName = "Tool"
 			if (typeof block.content === "string") {
 				return `[${toolName}${block.is_error ? " (Error)" : ""}]\n${block.content}`
 			} else if (Array.isArray(block.content)) {
 				return `[${toolName}${block.is_error ? " (Error)" : ""}]\n${block.content
-					.map((contentBlock) => formatContentBlockToMarkdown(contentBlock))
+					.filter(item => item.type === "text" || item.type === "image")
+					.map(item => {
+						if (item.type === "text") return item.text
+						if (item.type === "image") return `[Image: ${item.source.media_type}]`
+						return ""
+					})
+					.filter(Boolean)
 					.join("\n")}`
-			} else {
-				return `[${toolName}${block.is_error ? " (Error)" : ""}]`
 			}
+			return `[${toolName}${block.is_error ? " (Error)" : ""}]`
 		default:
 			return "[Unexpected content type]"
 	}

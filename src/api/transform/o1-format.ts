@@ -373,6 +373,7 @@ export function convertO1ResponseToAnthropicMessage(
 			{
 				type: "text",
 				text: normalText,
+				citations: null,
 			},
 		],
 		model: completion.model,
@@ -393,15 +394,17 @@ export function convertO1ResponseToAnthropicMessage(
 		usage: {
 			input_tokens: completion.usage?.prompt_tokens || 0,
 			output_tokens: completion.usage?.completion_tokens || 0,
+			cache_creation_input_tokens: null,
+			cache_read_input_tokens: null,
 		},
 	}
 
 	if (toolCalls.length > 0) {
 		anthropicMessage.content.push(
-			...toolCalls.map((toolCall: ToolCall, index: number): Anthropic.ToolUseBlock => {
+			...toolCalls.map((toolCall: ToolCall): Anthropic.ToolUseBlock => {
 				return {
 					type: "tool_use",
-					id: `call_${index}_${Date.now()}`, // Generate a unique ID for each tool call
+					id: `call_${Date.now()}_${Math.random().toString(36).slice(2)}`,
 					name: toolCall.tool,
 					input: toolCall.tool_input,
 				}
@@ -427,3 +430,17 @@ export function convertO1ResponseToAnthropicMessage(
 // };
 // const anthropicMessage = convertO1ResponseToAnthropicMessage(openAICompletion);
 // console.log(anthropicMessage);
+
+export function convertToAnthropicMessage(text: string): Anthropic.Messages.MessageParam {
+	const normalText = text.trim()
+	return {
+		role: "assistant",
+		content: [
+			{
+				type: "text",
+				text: normalText,
+				citations: null,
+			},
+		],
+	}
+}

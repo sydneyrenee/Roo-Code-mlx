@@ -625,9 +625,29 @@ export class Cline {
 				const previousAssistantMessage: Anthropic.Messages.MessageParam | undefined =
 					existingApiConversationHistory[existingApiConversationHistory.length - 2]
 
-				const existingUserContent: UserContent = Array.isArray(lastMessage.content)
-					? lastMessage.content
-					: [{ type: "text", text: lastMessage.content }]
+				type ValidUserContent = Array<
+					| Anthropic.Messages.TextBlockParam
+					| Anthropic.Messages.ImageBlockParam
+					| Anthropic.Messages.ToolUseBlockParam
+					| Anthropic.Messages.ToolResultBlockParam
+				>
+
+				const convertToTextBlock = (text: string): Anthropic.Messages.TextBlockParam => ({
+					type: "text" as const,
+					text,
+					citations: null,
+				})
+
+				const existingUserContent = Array.isArray(lastMessage.content)
+					? lastMessage.content.filter(
+							(block): block is ValidUserContent[number] =>
+								block.type === "text" ||
+								block.type === "image" ||
+								block.type === "tool_use" ||
+								block.type === "tool_result",
+					  )
+					: [convertToTextBlock(lastMessage.content)]
+
 				if (previousAssistantMessage && previousAssistantMessage.role === "assistant") {
 					const assistantContent = Array.isArray(previousAssistantMessage.content)
 						? previousAssistantMessage.content
@@ -653,14 +673,14 @@ export class Cline {
 							}))
 
 						modifiedApiConversationHistory = existingApiConversationHistory.slice(0, -1) // removes the last user message
-						modifiedOldUserContent = [...existingUserContent, ...missingToolResponses]
+						modifiedOldUserContent = [...existingUserContent, ...missingToolResponses] as ValidUserContent
 					} else {
 						modifiedApiConversationHistory = existingApiConversationHistory.slice(0, -1)
-						modifiedOldUserContent = [...existingUserContent]
+						modifiedOldUserContent = [...existingUserContent] as ValidUserContent
 					}
 				} else {
 					modifiedApiConversationHistory = existingApiConversationHistory.slice(0, -1)
-					modifiedOldUserContent = [...existingUserContent]
+					modifiedOldUserContent = [...existingUserContent] as ValidUserContent
 				}
 			} else {
 				throw new Error("Unexpected: Last message is not a user or assistant message")
@@ -1129,7 +1149,9 @@ export class Cline {
 						case "attempt_completion":
 							return `[${block.name}]`
 						case "switch_mode":
-							return `[${block.name} to '${block.params.mode_slug}'${block.params.reason ? ` because: ${block.params.reason}` : ""}]`
+							return `[${block.name} to '${block.params.mode_slug}'${
+								block.params.reason ? ` because: ${block.params.reason}` : ""
+							}]`
 						case "new_task": {
 							const mode = block.params.mode ?? defaultModeSlug
 							const message = block.params.message ?? "(no message)"

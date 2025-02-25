@@ -1,6 +1,15 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 
+interface OpenAIMessage {
+    role: string;
+    content: string | null;
+    usage?: {
+        input_tokens?: number;
+        output_tokens?: number;
+    };
+}
+
 export function convertToOpenAiMessages(
 	anthropicMessages: Anthropic.Messages.MessageParam[],
 ): OpenAI.Chat.ChatCompletionMessageParam[] {
@@ -153,11 +162,12 @@ export function convertToAnthropicMessage(
 	const anthropicMessage: Anthropic.Messages.Message = {
 		id: completion.id,
 		type: "message",
-		role: openAiMessage.role, // always "assistant"
+		role: "assistant", // OpenAI responses are always from the assistant
 		content: [
 			{
 				type: "text",
 				text: openAiMessage.content || "",
+				citations: null,
 			},
 		],
 		model: completion.model,
@@ -178,6 +188,8 @@ export function convertToAnthropicMessage(
 		usage: {
 			input_tokens: completion.usage?.prompt_tokens || 0,
 			output_tokens: completion.usage?.completion_tokens || 0,
+			cache_creation_input_tokens: null,
+			cache_read_input_tokens: null
 		},
 	}
 
@@ -200,4 +212,16 @@ export function convertToAnthropicMessage(
 		)
 	}
 	return anthropicMessage
+}
+
+// Convert simple OpenAI message to Anthropic format
+export function convertSimpleOpenAiToAnthropicMessage(openAiMessage: OpenAIMessage): Anthropic.Messages.MessageParam {
+    return {
+        role: openAiMessage.role === "assistant" ? "assistant" : "user",
+        content: [{ 
+            type: "text", 
+            text: openAiMessage.content || "",
+            citations: null
+        }]
+    }
 }

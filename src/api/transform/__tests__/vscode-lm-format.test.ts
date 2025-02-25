@@ -1,6 +1,6 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import * as vscode from "vscode"
-import { convertToVsCodeLmMessages, convertToAnthropicRole, convertToAnthropicMessage } from "../vscode-lm-format"
+import { convertToVsCodeLmMessages, convertToAnthropicRole, convertVSCodeToAnthropicMessage } from "../vscode-lm-format"
 
 // Mock crypto
 const mockCrypto = {
@@ -201,7 +201,7 @@ describe("vscode-lm-format", () => {
 		})
 	})
 
-	describe("convertToAnthropicMessage", () => {
+	describe("convertVSCodeToAnthropicMessage", () => {
 		it("should convert assistant message with text content", async () => {
 			const vsCodeMessage = {
 				role: "assistant",
@@ -209,7 +209,7 @@ describe("vscode-lm-format", () => {
 				content: [new vscode.LanguageModelTextPart("Hello")],
 			}
 
-			const result = await convertToAnthropicMessage(vsCodeMessage as any)
+			const result = await convertVSCodeToAnthropicMessage(vsCodeMessage as any)
 
 			expect(result.role).toBe("assistant")
 			expect(result.content).toHaveLength(1)
@@ -229,7 +229,7 @@ describe("vscode-lm-format", () => {
 				],
 			}
 
-			const result = await convertToAnthropicMessage(vsCodeMessage as any)
+			const result = await convertVSCodeToAnthropicMessage(vsCodeMessage as any)
 
 			expect(result.content).toHaveLength(1)
 			expect(result.content[0]).toEqual({
@@ -248,7 +248,7 @@ describe("vscode-lm-format", () => {
 				content: [new vscode.LanguageModelTextPart("Hello")],
 			}
 
-			await expect(convertToAnthropicMessage(vsCodeMessage as any)).rejects.toThrow(
+			await expect(convertVSCodeToAnthropicMessage(vsCodeMessage as any)).rejects.toThrow(
 				"Roo Code <Language Model API>: Only assistant messages are supported.",
 			)
 		})

@@ -1,129 +1,135 @@
 import * as vscode from "vscode"
+import * as assert from "assert"
 import { CodeActionProvider, ACTION_NAMES } from "../CodeActionProvider"
 import { EditorUtils } from "../EditorUtils"
 
-// Mock VSCode API
-jest.mock("vscode", () => ({
-	CodeAction: jest.fn().mockImplementation((title, kind) => ({
-		title,
-		kind,
-		command: undefined,
-	})),
-	CodeActionKind: {
-		QuickFix: { value: "quickfix" },
-		RefactorRewrite: { value: "refactor.rewrite" },
-	},
-	Range: jest.fn().mockImplementation((startLine, startChar, endLine, endChar) => ({
-		start: { line: startLine, character: startChar },
-		end: { line: endLine, character: endChar },
-	})),
-	DiagnosticSeverity: {
-		Error: 0,
-		Warning: 1,
-		Information: 2,
-		Hint: 3,
-	},
-}))
+export async function activateCodeActionProviderTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('codeActionProviderTests', 'Code Action Provider Tests')
+    context.subscriptions.push(testController)
 
-// Mock EditorUtils
-jest.mock("../EditorUtils", () => ({
-	EditorUtils: {
-		getEffectiveRange: jest.fn(),
-		getFilePath: jest.fn(),
-		hasIntersectingRange: jest.fn(),
-		createDiagnosticData: jest.fn(),
-	},
-}))
+    const rootSuite = testController.createTestItem('code-action-provider', 'Code Action Provider')
+    testController.items.add(rootSuite)
 
-describe("CodeActionProvider", () => {
-	let provider: CodeActionProvider
-	let mockDocument: any
-	let mockRange: any
-	let mockContext: any
+    // Add test cases
+    rootSuite.children.add(testController.createTestItem(
+        'default-actions',
+        'should provide explain, improve, fix logic, and add to context actions by default'
+    ))
 
-	beforeEach(() => {
-		provider = new CodeActionProvider()
+    rootSuite.children.add(testController.createTestItem(
+        'diagnostic-actions',
+        'should provide fix action instead of fix logic when diagnostics exist'
+    ))
 
-		// Mock document
-		mockDocument = {
-			getText: jest.fn(),
-			lineAt: jest.fn(),
-			lineCount: 10,
-			uri: { fsPath: "/test/file.ts" },
-		}
+    rootSuite.children.add(testController.createTestItem(
+        'no-range',
+        'should return empty array when no effective range'
+    ))
 
-		// Mock range
-		mockRange = new vscode.Range(0, 0, 0, 10)
+    rootSuite.children.add(testController.createTestItem(
+        'error-handling',
+        'should handle errors gracefully'
+    ))
 
-		// Mock context
-		mockContext = {
-			diagnostics: [],
-		}
+    // Create run profile
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
 
-		// Setup default EditorUtils mocks
-		;(EditorUtils.getEffectiveRange as jest.Mock).mockReturnValue({
-			range: mockRange,
-			text: "test code",
-		})
-		;(EditorUtils.getFilePath as jest.Mock).mockReturnValue("/test/file.ts")
-		;(EditorUtils.hasIntersectingRange as jest.Mock).mockReturnValue(true)
-		;(EditorUtils.createDiagnosticData as jest.Mock).mockImplementation((d) => d)
-	})
+        const run = testController.createTestRun(request)
 
-	describe("provideCodeActions", () => {
-		it("should provide explain, improve, fix logic, and add to context actions by default", () => {
-			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+        // Mock setup
+        const mockDocument = {
+            getText: () => "test code",
+            lineAt: () => ({ text: "test code" }),
+            lineCount: 10,
+            uri: { fsPath: "/test/file.ts" }
+        }
 
-			expect(actions).toHaveLength(7) // 2 explain + 2 fix logic + 2 improve + 1 add to context
-			expect((actions as any)[0].title).toBe(`${ACTION_NAMES.EXPLAIN} in New Task`)
-			expect((actions as any)[1].title).toBe(`${ACTION_NAMES.EXPLAIN} in Current Task`)
-			expect((actions as any)[2].title).toBe(`${ACTION_NAMES.FIX_LOGIC} in New Task`)
-			expect((actions as any)[3].title).toBe(`${ACTION_NAMES.FIX_LOGIC} in Current Task`)
-			expect((actions as any)[4].title).toBe(`${ACTION_NAMES.IMPROVE} in New Task`)
-			expect((actions as any)[5].title).toBe(`${ACTION_NAMES.IMPROVE} in Current Task`)
-			expect((actions as any)[6].title).toBe(ACTION_NAMES.ADD_TO_CONTEXT)
-		})
+        const mockRange = new vscode.Range(0, 0, 0, 10)
 
-		it("should provide fix action instead of fix logic when diagnostics exist", () => {
-			mockContext.diagnostics = [
-				{
-					message: "test error",
-					severity: vscode.DiagnosticSeverity.Error,
-					range: mockRange,
-				},
-			]
+        const mockContext = {
+            diagnostics: []
+        }
 
-			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+        // Mock EditorUtils methods
+        EditorUtils.getEffectiveRange = () => ({
+            range: mockRange,
+            text: "test code"
+        })
+        EditorUtils.getFilePath = () => "/test/file.ts"
+        EditorUtils.hasIntersectingRange = () => true
+        EditorUtils.createDiagnosticData = (d: any) => d
 
-			expect(actions).toHaveLength(7) // 2 explain + 2 fix + 2 improve + 1 add to context
-			expect((actions as any).some((a: any) => a.title === `${ACTION_NAMES.FIX} in New Task`)).toBe(true)
-			expect((actions as any).some((a: any) => a.title === `${ACTION_NAMES.FIX} in Current Task`)).toBe(true)
-			expect((actions as any).some((a: any) => a.title === `${ACTION_NAMES.FIX_LOGIC} in New Task`)).toBe(false)
-			expect((actions as any).some((a: any) => a.title === `${ACTION_NAMES.FIX_LOGIC} in Current Task`)).toBe(
-				false,
-			)
-		})
+        for (const test of queue) {
+            run.started(test)
+            try {
+                const provider = new CodeActionProvider()
 
-		it("should return empty array when no effective range", () => {
-			;(EditorUtils.getEffectiveRange as jest.Mock).mockReturnValue(null)
+                switch (test.id) {
+                    case 'default-actions': {
+                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        
+                        assert.strictEqual(actions.length, 7, "Expected 7 actions")
+                        assert.strictEqual(actions[0].title, `${ACTION_NAMES.EXPLAIN} in New Task`)
+                        assert.strictEqual(actions[1].title, `${ACTION_NAMES.EXPLAIN} in Current Task`)
+                        assert.strictEqual(actions[2].title, `${ACTION_NAMES.FIX_LOGIC} in New Task`)
+                        assert.strictEqual(actions[3].title, `${ACTION_NAMES.FIX_LOGIC} in Current Task`)
+                        assert.strictEqual(actions[4].title, `${ACTION_NAMES.IMPROVE} in New Task`)
+                        assert.strictEqual(actions[5].title, `${ACTION_NAMES.IMPROVE} in Current Task`)
+                        assert.strictEqual(actions[6].title, ACTION_NAMES.ADD_TO_CONTEXT)
+                        break
+                    }
+                    case 'diagnostic-actions': {
+                        mockContext.diagnostics = [{
+                            message: "test error",
+                            severity: vscode.DiagnosticSeverity.Error,
+                            range: mockRange
+                        }]
 
-			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        
+                        assert.strictEqual(actions.length, 7, "Expected 7 actions")
+                        assert.ok(actions.some(a => a.title === `${ACTION_NAMES.FIX} in New Task`))
+                        assert.ok(actions.some(a => a.title === `${ACTION_NAMES.FIX} in Current Task`))
+                        assert.ok(!actions.some(a => a.title === `${ACTION_NAMES.FIX_LOGIC} in New Task`))
+                        assert.ok(!actions.some(a => a.title === `${ACTION_NAMES.FIX_LOGIC} in Current Task`))
+                        break
+                    }
+                    case 'no-range': {
+                        EditorUtils.getEffectiveRange = () => null
+                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        assert.deepStrictEqual(actions, [])
+                        break
+                    }
+                    case 'error-handling': {
+                        const consoleError = console.error
+                        const errors: any[] = []
+                        console.error = (...args: any[]) => errors.push(args)
 
-			expect(actions).toEqual([])
-		})
+                        EditorUtils.getEffectiveRange = () => {
+                            throw new Error("Test error")
+                        }
 
-		it("should handle errors gracefully", () => {
-			const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {})
-			;(EditorUtils.getEffectiveRange as jest.Mock).mockImplementation(() => {
-				throw new Error("Test error")
-			})
+                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        
+                        assert.deepStrictEqual(actions, [])
+                        assert.ok(errors.some(args => 
+                            args[0] === "Error providing code actions:" && 
+                            args[1] instanceof Error
+                        ))
 
-			const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
-
-			expect(actions).toEqual([])
-			expect(consoleErrorSpy).toHaveBeenCalledWith("Error providing code actions:", expect.any(Error))
-
-			consoleErrorSpy.mockRestore()
-		})
-	})
-})
+                        console.error = consoleError
+                        break
+                    }
+                }
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)))
+            }
+        }
+        run.end()
+    })
+}
