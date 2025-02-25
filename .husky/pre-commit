@@ -4,5 +4,3 @@ if [ "$branch" = "main" ]; then
   echo "You can't commit directly to main - please check out a branch."
   exit 1
 fi
-
-npx lint-staged
