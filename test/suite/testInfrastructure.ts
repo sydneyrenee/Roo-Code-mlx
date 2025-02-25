@@ -87,4 +87,4 @@ export class TestInfrastructure {
     static async assertDeepEqual(actual: any, expected: any, message?: string) {
         assert.deepStrictEqual(actual, expected, message);
     }
-}
+}// Test comment
