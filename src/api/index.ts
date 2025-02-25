@@ -18,48 +18,48 @@ import { UnboundHandler } from "./providers/unbound"
 import { RequestyHandler } from "./providers/requesty"
 
 export interface SingleCompletionHandler {
-	completePrompt(prompt: string): Promise<string>
+    completePrompt(prompt: string): Promise<string>
 }
 
 export interface ApiHandler {
-	createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
-	getModel(): { id: string; info: ModelInfo }
+    createMessage(systemPrompt: string, messages: Anthropic.Messages.MessageParam[]): ApiStream
+    getModel(): { id: string; info: ModelInfo }
 }
 
 export function buildApiHandler(configuration: ApiConfiguration): ApiHandler {
-	const { apiProvider, ...options } = configuration
-	switch (apiProvider) {
-		case "anthropic":
-			return new AnthropicHandler(options)
-		case "glama":
-			return new GlamaHandler(options)
-		case "openrouter":
-			return new OpenRouterHandler(options)
-		case "bedrock":
-			return new AwsBedrockHandler(options)
-		case "vertex":
-			return new VertexHandler(options)
-		case "openai":
-			return new OpenAiHandler(options)
-		case "ollama":
-			return new OllamaHandler(options)
-		case "lmstudio":
-			return new LmStudioHandler(options)
-		case "gemini":
-			return new GeminiHandler(options)
-		case "openai-native":
-			return new OpenAiNativeHandler(options)
-		case "deepseek":
-			return new DeepSeekHandler(options)
-		case "vscode-lm":
-			return new VsCodeLmHandler(options)
-		case "mistral":
-			return new MistralHandler(options)
-		case "unbound":
-			return new UnboundHandler(options)
-		case "requesty":
-			return new RequestyHandler(options)
-		default:
-			return new AnthropicHandler(options)
-	}
+    const { apiProvider, ...options } = configuration
+    switch (apiProvider) {
+        case "anthropic":
+            return new AnthropicHandler(options)
+        case "glama":
+            return new GlamaHandler(options)
+        case "openrouter":
+            return new OpenRouterHandler(options)
+        case "bedrock":
+            return new AwsBedrockHandler(options)
+        case "vertex":
+            return new VertexHandler(options)
+        case "openai":
+            return new OpenAiHandler(options)
+        case "ollama":
+            return new OllamaHandler(options)
+        case "lmstudio":
+            return new LmStudioHandler(options)
+        case "gemini":
+            return new GeminiHandler(options)
+        case "openai-native":
+            return new OpenAiNativeHandler(options)
+        case "deepseek":
+            return new DeepSeekHandler(options)
+        case "vscode-lm":
+            return new VsCodeLmHandler(options)
+        case "mistral":
+            return new MistralHandler(options)
+        case "unbound":
+            return new UnboundHandler(options)
+        case "requesty":
+            return new RequestyHandler(options)
+        default:
+            return new AnthropicHandler(options)
+    }
 }

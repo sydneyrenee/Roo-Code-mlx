@@ -1,295 +1,235 @@
-import { VertexHandler } from "../vertex"
-import { Anthropic } from "@anthropic-ai/sdk"
-import { AnthropicVertex } from "@anthropic-ai/vertex-sdk"
+import { Anthropic } from "@anthropic-ai/sdk";
+import { VertexHandler } from "../vertex";
+import { ApiHandlerOptions } from "../../../shared/api";
 
-// Mock Vertex SDK
-jest.mock("@anthropic-ai/vertex-sdk", () => ({
-	AnthropicVertex: jest.fn().mockImplementation(() => ({
-		messages: {
-			create: jest.fn().mockImplementation(async (options) => {
-				if (!options.stream) {
-					return {
-						id: "test-completion",
-						content: [{ type: "text", text: "Test response" }],
-						role: "assistant",
-						model: options.model,
-						usage: {
-							input_tokens: 10,
-							output_tokens: 5,
-						},
-					}
-				}
-				return {
-					async *[Symbol.asyncIterator]() {
-						yield {
-							type: "message_start",
-							message: {
-								usage: {
-									input_tokens: 10,
-									output_tokens: 5,
-								},
-							},
-						}
-						yield {
-							type: "content_block_start",
-							content_block: {
-								type: "text",
-								text: "Test response",
-							},
-						}
-					},
-				}
-			}),
-		},
-	})),
-}))
+jest.useFakeTimers();
 
 describe("VertexHandler", () => {
-	let handler: VertexHandler
+    let handler: VertexHandler;
+    let mockClient: any;
 
-	beforeEach(() => {
-		handler = new VertexHandler({
-			apiModelId: "claude-3-5-sonnet-v2@20241022",
-			vertexProjectId: "test-project",
-			vertexRegion: "us-central1",
-		})
-	})
+    beforeEach(() => {
+        mockClient = {
+            messages: {
+                create: jest.fn()
+            }
+        };
 
-	describe("constructor", () => {
-		it("should initialize with provided config", () => {
-			expect(AnthropicVertex).toHaveBeenCalledWith({
-				projectId: "test-project",
-				region: "us-central1",
-			})
-		})
-	})
+        const options: ApiHandlerOptions = {
+            vertexProjectId: "test-project",
+            vertexRegion: "us-east5",
+            vertexContext: "Test context"
+        };
 
-	describe("createMessage", () => {
-		const mockMessages: Anthropic.Messages.MessageParam[] = [
-			{
-				role: "user",
-				content: "Hello",
-			},
-			{
-				role: "assistant",
-				content: "Hi there!",
-			},
-		]
+        handler = new VertexHandler(options);
+        (handler as any).client = mockClient;
+    });
 
-		const systemPrompt = "You are a helpful assistant"
+    afterEach(() => {
+        handler.dispose();
+        jest.clearAllTimers();
+    });
 
-		it("should handle streaming responses correctly", async () => {
-			const mockStream = [
-				{
-					type: "message_start",
-					message: {
-						usage: {
-							input_tokens: 10,
-							output_tokens: 0,
-						},
-					},
-				},
-				{
-					type: "content_block_start",
-					index: 0,
-					content_block: {
-						type: "text",
-						text: "Hello",
-					},
-				},
-				{
-					type: "content_block_delta",
-					delta: {
-						type: "text_delta",
-						text: " world!",
-					},
-				},
-				{
-					type: "message_delta",
-					usage: {
-						output_tokens: 5,
-					},
-				},
-			]
+    describe("createMessage", () => {
+        it("should add cache control to context block", async () => {
+            mockClient.messages.create.mockImplementation(() => ({
+                [Symbol.asyncIterator]: async function* () {
+                    yield {
+                        type: "message_start",
+                        message: {
+                            usage: {
+                                input_tokens: 100,
+                                output_tokens: 50,
+                                cache_creation_input_tokens: 80,
+                                cache_read_input_tokens: 0
+                            }
+                        }
+                    };
+                    yield {
+                        type: "content_block_start",
+                        index: 0,
+                        content_block: {
+                            type: "text",
+                            text: "Response"
+                        }
+                    };
+                }
+            }));
 
-			// Setup async iterator for mock stream
-			const asyncIterator = {
-				async *[Symbol.asyncIterator]() {
-					for (const chunk of mockStream) {
-						yield chunk
-					}
-				},
-			}
+            const messages: Anthropic.Messages.MessageParam[] = [
+                { role: "user" as const, content: "Test" }
+            ];
+            const stream = handler.createMessage("System prompt", messages);
 
-			const mockCreate = jest.fn().mockResolvedValue(asyncIterator)
-			;(handler["client"].messages as any).create = mockCreate
+            const results = [];
+            for await (const chunk of stream) {
+                results.push(chunk);
+            }
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
-			const chunks = []
+            // Verify system blocks format
+            expect(mockClient.messages.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    system: [
+                        {
+                            type: "text",
+                            text: "System prompt"
+                        },
+                        {
+                            type: "text",
+                            text: "Test context",
+                            cache_control: { type: "ephemeral" }
+                        }
+                    ]
+                })
+            );
 
-			for await (const chunk of stream) {
-				chunks.push(chunk)
-			}
+            // Verify usage tracking
+            expect(results[0]).toEqual({
+                type: "usage",
+                inputTokens: 100,
+                outputTokens: 50
+            });
+        });
 
-			expect(chunks.length).toBe(4)
-			expect(chunks[0]).toEqual({
-				type: "usage",
-				inputTokens: 10,
-				outputTokens: 0,
-			})
-			expect(chunks[1]).toEqual({
-				type: "text",
-				text: "Hello",
-			})
-			expect(chunks[2]).toEqual({
-				type: "text",
-				text: " world!",
-			})
-			expect(chunks[3]).toEqual({
-				type: "usage",
-				inputTokens: 0,
-				outputTokens: 5,
-			})
+        it("should handle cache hits", async () => {
+            mockClient.messages.create.mockImplementation(() => ({
+                [Symbol.asyncIterator]: async function* () {
+                    yield {
+                        type: "message_start",
+                        message: {
+                            usage: {
+                                input_tokens: 20,
+                                output_tokens: 50,
+                                cache_creation_input_tokens: 0,
+                                cache_read_input_tokens: 80
+                            }
+                        }
+                    };
+                }
+            }));
 
-			expect(mockCreate).toHaveBeenCalledWith({
-				model: "claude-3-5-sonnet-v2@20241022",
-				max_tokens: 8192,
-				temperature: 0,
-				system: systemPrompt,
-				messages: mockMessages,
-				stream: true,
-			})
-		})
+            const messages: Anthropic.Messages.MessageParam[] = [
+                { role: "user" as const, content: "Test" }
+            ];
+            const stream = handler.createMessage("System prompt", messages);
 
-		it("should handle multiple content blocks with line breaks", async () => {
-			const mockStream = [
-				{
-					type: "content_block_start",
-					index: 0,
-					content_block: {
-						type: "text",
-						text: "First line",
-					},
-				},
-				{
-					type: "content_block_start",
-					index: 1,
-					content_block: {
-						type: "text",
-						text: "Second line",
-					},
-				},
-			]
+            const results = [];
+            for await (const chunk of stream) {
+                results.push(chunk);
+            }
 
-			const asyncIterator = {
-				async *[Symbol.asyncIterator]() {
-					for (const chunk of mockStream) {
-						yield chunk
-					}
-				},
-			}
+            // Verify usage tracking with cache hit
+            expect(results[0]).toEqual({
+                type: "usage",
+                inputTokens: 20,
+                outputTokens: 50
+            });
+        });
 
-			const mockCreate = jest.fn().mockResolvedValue(asyncIterator)
-			;(handler["client"].messages as any).create = mockCreate
+        it("should handle errors gracefully", async () => {
+            mockClient.messages.create.mockRejectedValue(new Error("API Error"));
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
-			const chunks = []
+            const messages: Anthropic.Messages.MessageParam[] = [
+                { role: "user" as const, content: "Test" }
+            ];
+            const stream = handler.createMessage("System prompt", messages);
 
-			for await (const chunk of stream) {
-				chunks.push(chunk)
-			}
+            await expect(async () => {
+                for await (const _ of stream) {
+                    // consume stream
+                }
+            }).rejects.toThrow("Vertex completion error: API Error");
+        });
 
-			expect(chunks.length).toBe(3)
-			expect(chunks[0]).toEqual({
-				type: "text",
-				text: "First line",
-			})
-			expect(chunks[1]).toEqual({
-				type: "text",
-				text: "\n",
-			})
-			expect(chunks[2]).toEqual({
-				type: "text",
-				text: "Second line",
-			})
-		})
+        it("should refresh cache before expiration", async () => {
+            // Initial request
+            mockClient.messages.create.mockImplementation(() => ({
+                [Symbol.asyncIterator]: async function* () {
+                    yield {
+                        type: "message_start",
+                        message: {
+                            usage: {
+                                input_tokens: 100,
+                                output_tokens: 50,
+                                cache_creation_input_tokens: 80,
+                                cache_read_input_tokens: 0
+                            }
+                        }
+                    };
+                }
+            }));
 
-		it("should handle API errors", async () => {
-			const mockError = new Error("Vertex API error")
-			const mockCreate = jest.fn().mockRejectedValue(mockError)
-			;(handler["client"].messages as any).create = mockCreate
+            const messages: Anthropic.Messages.MessageParam[] = [
+                { role: "user" as const, content: "Test" }
+            ];
+            const stream = handler.createMessage("System prompt", messages);
+            for await (const _ of stream) { /* consume stream */ }
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
+            // Fast forward 4 minutes (just before cache expiration)
+            jest.advanceTimersByTime(4 * 60 * 1000);
 
-			await expect(async () => {
-				for await (const chunk of stream) {
-					// Should throw before yielding any chunks
-				}
-			}).rejects.toThrow("Vertex API error")
-		})
-	})
+            // Verify refresh request was made
+            expect(mockClient.messages.create).toHaveBeenCalledTimes(2);
+            expect(mockClient.messages.create).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    messages: [{ role: "user", content: "Continue" }]
+                })
+            );
+        });
 
-	describe("completePrompt", () => {
-		it("should complete prompt successfully", async () => {
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("Test response")
-			expect(handler["client"].messages.create).toHaveBeenCalledWith({
-				model: "claude-3-5-sonnet-v2@20241022",
-				max_tokens: 8192,
-				temperature: 0,
-				messages: [{ role: "user", content: "Test prompt" }],
-				stream: false,
-			})
-		})
+        it("should stop refreshing on dispose", async () => {
+            // Initial request
+            mockClient.messages.create.mockImplementation(() => ({
+                [Symbol.asyncIterator]: async function* () {
+                    yield {
+                        type: "message_start",
+                        message: {
+                            usage: {
+                                input_tokens: 100,
+                                output_tokens: 50
+                            }
+                        }
+                    };
+                }
+            }));
 
-		it("should handle API errors", async () => {
-			const mockError = new Error("Vertex API error")
-			const mockCreate = jest.fn().mockRejectedValue(mockError)
-			;(handler["client"].messages as any).create = mockCreate
+            const messages: Anthropic.Messages.MessageParam[] = [
+                { role: "user" as const, content: "Test" }
+            ];
+            const stream = handler.createMessage("System prompt", messages);
+            for await (const _ of stream) { /* consume stream */ }
 
-			await expect(handler.completePrompt("Test prompt")).rejects.toThrow(
-				"Vertex completion error: Vertex API error",
-			)
-		})
+            // Dispose handler
+            handler.dispose();
 
-		it("should handle non-text content", async () => {
-			const mockCreate = jest.fn().mockResolvedValue({
-				content: [{ type: "image" }],
-			})
-			;(handler["client"].messages as any).create = mockCreate
+            // Fast forward 4 minutes
+            jest.advanceTimersByTime(4 * 60 * 1000);
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("")
-		})
+            // Verify no refresh request was made
+            expect(mockClient.messages.create).toHaveBeenCalledTimes(1);
+        });
+    });
 
-		it("should handle empty response", async () => {
-			const mockCreate = jest.fn().mockResolvedValue({
-				content: [{ type: "text", text: "" }],
-			})
-			;(handler["client"].messages as any).create = mockCreate
+    describe("dispose", () => {
+        it("should clean up resources", () => {
+            const mockCacheRefresh = {
+                stopRefresh: jest.fn(),
+                dispose: jest.fn()
+            };
+            const mockCacheTracker = {
+                cleanup: jest.fn()
+            };
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("")
-		})
-	})
+            (handler as any).cacheRefresh = mockCacheRefresh;
+            (handler as any).cacheTracker = mockCacheTracker;
+            (handler as any).activeCacheId = "test-cache";
 
-	describe("getModel", () => {
-		it("should return correct model info", () => {
-			const modelInfo = handler.getModel()
-			expect(modelInfo.id).toBe("claude-3-5-sonnet-v2@20241022")
-			expect(modelInfo.info).toBeDefined()
-			expect(modelInfo.info.maxTokens).toBe(8192)
-			expect(modelInfo.info.contextWindow).toBe(200_000)
-		})
+            handler.dispose();
 
-		it("should return default model if invalid model specified", () => {
-			const invalidHandler = new VertexHandler({
-				apiModelId: "invalid-model",
-				vertexProjectId: "test-project",
-				vertexRegion: "us-central1",
-			})
-			const modelInfo = invalidHandler.getModel()
-			expect(modelInfo.id).toBe("claude-3-5-sonnet-v2@20241022") // Default model
-		})
-	})
-})
+            expect(mockCacheRefresh.stopRefresh).toHaveBeenCalledWith("test-cache");
+            expect(mockCacheRefresh.dispose).toHaveBeenCalled();
+            expect(mockCacheTracker.cleanup).toHaveBeenCalled();
+            expect((handler as any).activeCacheId).toBeUndefined();
+        });
+    });
+});

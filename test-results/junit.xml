@@ -1,0 +1,1819 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="843" failures="0" errors="0" time="3.773">
+  <testsuite name="main" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="0.931" tests="21">
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should use default confidence threshold when not provided" time="0.003">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should use provided confidence threshold" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should enforce minimum confidence threshold" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should return tool description with correct cwd" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should apply simple diff correctly" time="0.007">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle multiple hunks" time="0.002">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle complex large" time="0.002">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle indentation changes" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle high level edits" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="it should handle very complex edits" time="0.008">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should reject completely invalid diff format" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should reject diff with invalid hunk format" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should fail when diff tries to modify non-existent content" time="0.024">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle overlapping hunks" time="0.061">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle empty lines modifications" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle mixed line endings in diff" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle partial line modifications" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle slightly malformed but recoverable diff" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should correctly modify the right section when similar code exists" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle multiple similar sections with correct context" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/new-unified.test.ts" name="should handle large diffs with multiple non-contiguous changes" time="0.071">
+    </testcase>
+  </testsuite>
+  <testsuite name="SearchReplaceDiffStrategy" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="0.931" tests="55">
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should replace matching content" time="0.004">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should match content with different surrounding whitespace" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should match content with different indentation in search block" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle tab-based indentation" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve mixed tabs and spaces" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle additional indentation with tabs" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve exact indentation characters when adding lines" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle Windows-style CRLF line endings" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should return false if search content does not match" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should return false if diff format is invalid" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle multiple lines with proper indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve whitespace exactly in the output" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve indentation when adding new lines after existing content" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle varying indentation levels correctly" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle mixed indentation styles in the same file" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle Python-style significant whitespace" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve empty lines with indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle indentation when replacing entire blocks" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle negative indentation relative to search content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle extreme negative indentation (no indent)" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle mixed indentation changes in replace block" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should find matches from middle out" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should strip line numbers from both search and replace sections" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should strip line numbers with leading spaces" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should not strip when not all lines have numbers in either section" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve content that naturally starts with pipe" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve indentation when stripping line numbers" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle different line numbers between sections" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should not strip content that starts with pipe but no line number" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle mix of line-numbered and pipe-only content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should delete code when replace block is empty" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should delete multiple lines when replace block is empty" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve indentation when deleting nested code" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should insert code at specified line when search block is empty" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should preserve indentation when inserting at nested location" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle insertion at start of file" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle insertion at end of file" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should error if no start_line is provided for insertion" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should match content with small differences (&gt;90% similar)" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should not match when content is too different (&lt;90% similar)" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should match content with extra whitespace" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should not exact match empty lines" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should find and replace within specified line range" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should find and replace within buffer zone (5 lines before/after)" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should not find matches outside search range and buffer zone" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle search range at start of file" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should handle search range at end of file" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should match specific instance of duplicate code using line numbers" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should search from start line to end of file when only start_line is provided" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should search from start of file to end line when only end_line is provided" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should prioritize exact line match over expanded search" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should fall back to expanded search only if exact match fails" time="0.006">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should include the current working directory" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should include required format elements" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/search-replace.test.ts" name="should document start_line and end_line parameters" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Vertex Handler Cache Integration" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="0.937" tests="12">
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should add cache control to context block" time="0.004">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should not add cache control without context" time="0.002">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should handle different temperature settings" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should track cache write usage" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should track cache hit usage" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should handle zero token usage" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should handle API errors gracefully" time="0.008">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should handle stream errors" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should start cache refresh when context is provided" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should clean up refresh on dispose" time="0.013">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should handle cache in non-streaming mode" time="0.01">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/vertex-handler-cache.test.ts" name="should handle empty or invalid response" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="ClineProvider" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="1.062" tests="40">
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="constructor initializes correctly" time="0.004">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="resolveWebviewView sets up webview correctly" time="0.004">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="resolveWebviewView sets up webview correctly in development mode even if local server is not running" time="0.005">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="postMessageToWebview sends message to webview" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles webviewDidLaunch message" time="0.02">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="clearTask aborts current task" time="0.002">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="getState returns correct initial state" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="preferredLanguage defaults to VSCode language when not set" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="preferredLanguage defaults to English for unsupported VSCode language" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="diffEnabled defaults to true when not set" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="writeDelayMs defaults to 1000ms" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles writeDelayMs message" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="updates sound utility when sound setting changes" time="0.016">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="requestDelaySeconds defaults to 5 seconds" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="alwaysApproveResubmit defaults to false" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="loads saved API config when switching modes" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="saves current config when switching to mode without config" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="saves config as default for current mode when loading config" time="0.006">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles request delay settings messages" time="0.004">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles updatePrompt message correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="customModePrompts defaults to empty object" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="uses mode-specific custom instructions in Cline initialization" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles mode-specific custom instructions updates" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="saves mode config when updating API configuration" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="file content includes line numbers" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles &quot;Just this message&quot; deletion correctly" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles &quot;This and all subsequent messages&quot; deletion correctly" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles Cancel correctly" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles mcpEnabled setting correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles errors gracefully" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="uses code mode custom instructions" time="0.002">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="passes diffStrategy and diffEnabled to SYSTEM_PROMPT when previewing" time="0.002">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="passes diffEnabled: false to SYSTEM_PROMPT when diff is disabled" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="uses correct mode-specific instructions when mode is specified" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="loads saved API config when switching modes" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="saves current config when switching to mode without config" time="0.001">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="updates both file and state when updating custom mode" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles error in upsertApiConfiguration gracefully" time="0">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles successful upsertApiConfiguration" time="0.003">
+    </testcase>
+    <testcase classname="src/core/webview/__tests__/ClineProvider.test.ts" name="handles buildApiHandler error in updateApiConfiguration" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Tree-sitter Service" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.13" tests="8">
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should handle non-existent directory" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should handle empty directory" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should parse TypeScript files correctly" time="0.002">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should handle multiple definition types" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should handle parsing errors gracefully" time="0.065">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should respect file limit" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should handle various supported file extensions" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/index.test.ts" name="should normalize paths in output" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="OpenRouterHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.282" tests="10">
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="constructor initializes with correct options" time="0.038">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="getModel returns correct model info when options are provided" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="getModel returns default model info when options are not provided" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="createMessage generates correct stream chunks" time="0.018">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="createMessage with middle-out transform enabled" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="createMessage with Claude model adds cache control" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="createMessage handles API errors" time="0.032">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="completePrompt returns correct response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="completePrompt handles API errors" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openrouter.test.ts" name="completePrompt handles unexpected errors" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="VsCodeLmHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.304" tests="11">
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should initialize with provided options" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should handle configuration changes" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should create client with selector" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should return default client when no models available" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should stream text responses" time="0.108">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should handle tool calls" time="0.006">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should handle errors" time="0.067">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should return model info when client exists" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should return fallback model info when no client exists" time="0.012">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should complete single prompt" time="0.05">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vscode-lm.test.ts" name="should handle errors during completion" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="CustomModesManager" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.166" tests="11">
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="should merge modes with .roomodes taking precedence" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="should handle missing .roomodes file" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="should handle invalid JSON in .roomodes" time="0.01">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="should update mode in settings file while preserving .roomodes precedence" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="queues write operations" time="0.006">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="creates settings directory if it doesn&apos;t exist" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="creates default config if file doesn&apos;t exist" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="watches file for changes" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="deletes mode from settings file" time="0.044">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="handles errors gracefully" time="0.011">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesManager.test.ts" name="handles corrupted JSON content gracefully" time="0.038">
+    </testcase>
+  </testsuite>
+  <testsuite name="SYSTEM_PROMPT" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.372" tests="35">
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should maintain consistent system prompt" time="0.003">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include browser actions when supportsComputerUse is true" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include MCP server info when mcpHub is provided" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should explicitly handle undefined mcpHub" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should handle different browser viewport sizes" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include diff strategy tool description when diffEnabled is true" time="0.002">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should exclude diff strategy tool description when diffEnabled is false" time="0.021">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should exclude diff strategy tool description when diffEnabled is undefined" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include preferred language in custom instructions" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include custom mode role definition at top and instructions at bottom" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should use promptComponent roleDefinition when available" time="0.003">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should fallback to modeConfig roleDefinition when promptComponent has no roleDefinition" time="0.013">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should disable experimental tools by default" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should enable experimental tools when explicitly enabled" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should selectively enable experimental tools" time="0.005">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should list all available editing tools in base instruction" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should provide detailed instructions for each enabled tool" time="0.006">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should generate correct prompt for architect mode" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should generate correct prompt for ask mode" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include MCP server creation info when enabled" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should exclude MCP server creation info when disabled" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should prioritize mode-specific rules for code mode" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should prioritize mode-specific rules for ask mode" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should prioritize mode-specific rules for architect mode" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should prioritize mode-specific rules for test engineer mode" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should prioritize mode-specific rules for code reviewer mode" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should fall back to generic rules when mode-specific rules not found" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include preferred language when provided" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should include custom instructions when provided" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should combine all custom instructions" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should handle undefined mode-specific instructions" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should trim mode-specific instructions" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should handle empty mode-specific instructions" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should combine global and mode-specific instructions" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/system.test.ts" name="should prioritize mode-specific instructions after global ones" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="vscode-lm-format" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.095" tests="10">
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should convert simple string messages" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should handle complex user messages with tool results" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should handle complex assistant messages with tool calls" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should handle image blocks with appropriate placeholders" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should convert assistant role correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should convert user role correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should return null for unknown roles" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should convert assistant message with text content" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should convert assistant message with tool calls" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/vscode-lm-format.test.ts" name="should throw error for non-assistant messages" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="MistralHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.347" tests="4">
+    <testcase classname="src/api/providers/__tests__/mistral.test.ts" name="should initialize with provided options" time="0.068">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/mistral.test.ts" name="should throw error if API key is missing" time="0.003">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/mistral.test.ts" name="should return correct model info" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/mistral.test.ts" name="should use default model if none specified" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="TerminalProcess" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.112" tests="9">
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="handles shell integration commands correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="handles terminals without shell integration" time="0">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="sets hot state for compiling commands" time="0.017">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="correctly processes and emits lines" time="0.003">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="handles Windows-style line endings" time="0">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="removes terminal artifacts from output" time="0.011">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="stops listening and emits continue event" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="returns and clears unretrieved output" time="0">
+    </testcase>
+    <testcase classname="src/integrations/terminal/__tests__/TerminalProcess.test.ts" name="merges promise methods with terminal process" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="VertexHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.17" tests="6">
+    <testcase classname="src/api/providers/__tests__/vertex.test.ts" name="should add cache control to context block" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vertex.test.ts" name="should handle cache hits" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vertex.test.ts" name="should handle errors gracefully" time="0.002">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vertex.test.ts" name="should refresh cache before expiration" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vertex.test.ts" name="should stop refreshing on dispose" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/vertex.test.ts" name="should clean up resources" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="CodeActionProvider" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.074" tests="4">
+    <testcase classname="src/core/__tests__/CodeActionProvider.test.ts" name="should provide explain, improve, fix logic, and add to context actions by default" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/CodeActionProvider.test.ts" name="should provide fix action instead of fix logic when diagnostics exist" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/CodeActionProvider.test.ts" name="should return empty array when no effective range" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/CodeActionProvider.test.ts" name="should handle errors gracefully" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="AwsBedrockHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.59" tests="14">
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should initialize with provided config" time="0.005">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should initialize with missing AWS credentials" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should initialize with AWS profile credentials" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should initialize with AWS profile enabled but no profile set" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should configure client with profile credentials when profile mode is enabled" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should handle text messages correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should handle API errors" time="0.197">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should complete prompt successfully" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should handle API errors" time="0.003">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should handle invalid response format" time="0.002">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should handle empty response" time="0.025">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should handle cross-region inference" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should return correct model info in test environment" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/bedrock.test.ts" name="should return test model info for invalid model in test environment" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="ConfigManager" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.127" tests="23">
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should not write to storage when secrets.get returns null" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should not initialize config if it exists" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should generate IDs for configs that lack them" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error if secrets storage fails" time="0.003">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should list all available configs" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should handle empty config file" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error if reading from secrets fails" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should save new config" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should update existing config" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error if secrets storage fails" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should delete existing config" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error when trying to delete non-existent config" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error when trying to delete last remaining config" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should load config and update current config name" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error when config does not exist" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error if secrets storage fails" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should set current config" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error when config does not exist" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error if secrets storage fails" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should delete all stored configs" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should return true for existing config" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should return false for non-existent config" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/ConfigManager.test.ts" name="should throw error if secrets storage fails" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="RequestyHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.377" tests="9">
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should initialize with correct options" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should handle streaming response correctly" time="0.002">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should not include max_tokens when includeMaxTokens is false" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should handle deepseek-reasoner model format" time="0.035">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should handle non-streaming response correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should return correct model information" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should use sane defaults when no model info provided" time="0.043">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should complete prompt successfully" time="0.086">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/requesty.test.ts" name="should handle errors correctly" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="CompactLogger" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.147" tests="25">
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="debug level logs correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="info level logs correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="warn level logs correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="error level logs correctly" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="fatal level logs correctly" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="logs with simple metadata" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles undefined metadata" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="strips empty metadata" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles Error objects in error level" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles Error objects in fatal level" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles Error objects with custom metadata" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="creates child logger with inherited metadata" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="child logger respects parent context when not overridden" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="closes transport on logger close" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="generates increasing timestamps" time="0.002">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles empty string messages" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles metadata with undefined values" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles metadata with null values" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="maintains metadata value types" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="deeply nested child loggers maintain correct metadata inheritance" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="child logger with empty metadata inherits parent metadata unchanged" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles custom error types" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="handles errors without stack traces" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="uses current timestamp for entries" time="0">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactLogger.test.ts" name="timestamps reflect time progression" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Shell Detection Tests" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.179" tests="21">
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="uses explicit PowerShell 7 path from VS Code config (profile path)" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="uses PowerShell 7 path if source is &apos;PowerShell&apos; but no explicit path" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to legacy PowerShell if profile includes &apos;powershell&apos; but no path/source" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="uses WSL bash when profile indicates WSL source" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="uses WSL bash when profile name includes &apos;wsl&apos;" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="defaults to cmd.exe if no special profile is matched" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="handles undefined profile gracefully" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="respects userInfo() if no VS Code config is available" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="respects an odd COMSPEC if no userInfo shell is available" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="uses VS Code profile path if available" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to userInfo().shell if no VS Code config is available" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to SHELL env var if no userInfo shell is found" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to /bin/zsh if no config, userInfo, or env variable is set" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="uses VS Code profile path if available" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to userInfo().shell if no VS Code config is available" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to SHELL env var if no userInfo shell is found" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to /bin/bash if nothing is set" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back to /bin/sh for unknown platforms" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="handles VS Code config errors gracefully, falling back to userInfo shell if present" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="handles userInfo errors gracefully, falling back to environment variable if present" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/shell.test.ts" name="falls back fully to default shell paths if everything fails" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="AnthropicHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.038" tests="10">
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should initialize with provided options" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should initialize with undefined API key" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should use custom base URL if provided" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should handle prompt caching for supported models" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should complete prompt successfully" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should handle API errors" time="0.002">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should handle non-text content" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should return default model if no model ID is provided" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/anthropic.test.ts" name="should return specified model if valid model ID is provided" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="bedrock-converse-format" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.087" tests="9">
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts simple text messages correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts messages with images correctly" time="0.002">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts tool use messages correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts tool result messages correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="handles text content correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts metadata events correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts content block start events correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts content block delta events correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/bedrock-converse-format.test.ts" name="converts message stop events correctly" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="EditorUtils" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.237" tests="8">
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return selected text when available" time="0.006">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return null for empty line" time="0.024">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should expand empty selection to full lines" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return false for ranges that only touch boundaries" time="0.006">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return true for overlapping ranges" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return false for non-overlapping ranges" time="0.003">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return relative path when in workspace" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/EditorUtils.test.ts" name="should return absolute path when not in workspace" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="insertMention" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.056" tests="17">
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should insert mention at cursor position when no @ symbol exists" time="0.001">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should replace text after last @ symbol" time="0.001">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should handle empty text" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should remove mention when cursor is at end of mention" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should not remove text when not at end of mention" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should handle text without mentions" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return all option types for empty query" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should filter by selected type when query is empty" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should match git commands" time="0.002">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should match git commit hashes" time="0.001">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return NoResults when no matches found" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return true for @ symbol" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return true for @ followed by text" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return false when no @ symbol exists" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return false for @ followed by whitespace" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return false for @ in URL" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/context-mentions.test.ts" name="should return false for @problems" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="mentions" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.313" tests="4">
+    <testcase classname="src/core/mentions/__tests__/index.test.ts" name="should parse git commit mentions" time="0">
+    </testcase>
+    <testcase classname="src/core/mentions/__tests__/index.test.ts" name="should handle errors fetching git info" time="0.001">
+    </testcase>
+    <testcase classname="src/core/mentions/__tests__/index.test.ts" name="should handle file paths and problems" time="0.008">
+    </testcase>
+    <testcase classname="src/core/mentions/__tests__/index.test.ts" name="should handle URLs" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="CustomModeSchema" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.064" tests="12">
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="accepts valid mode configuration" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="accepts mode with multiple groups" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="accepts mode with optional customInstructions" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="rejects missing required fields" time="0.003">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="rejects invalid slug format" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="rejects empty strings in required fields" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="rejects invalid group configurations" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="handles null and undefined gracefully" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="rejects non-object inputs" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="validates a mode with file restrictions and descriptions" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="validates file regex patterns" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSchema.test.ts" name="prevents duplicate groups" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="GlamaHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.077" tests="8">
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should initialize with provided options" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should handle streaming responses" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should handle API errors" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should complete prompt successfully" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should handle API errors" time="0.004">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should not set max_tokens for non-Anthropic models" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/glama.test.ts" name="should return model info" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="OpenAiHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.05" tests="11">
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should initialize with provided options" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should use custom base URL if provided" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle non-streaming mode" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle streaming responses" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle API errors" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle rate limiting" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should complete prompt successfully" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle API errors" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle empty response" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should return model info with sane defaults" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai.test.ts" name="should handle undefined model ID" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="GeminiHandler" errors="0" failures="0" skipped="1" timestamp="2025-02-21T22:19:08" time="0.109" tests="9">
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should initialize with provided config" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should throw if API key is missing" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should handle text messages correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should handle API errors" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should complete prompt successfully" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should handle API errors" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should return correct model info" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/gemini.test.ts" name="should return default model if invalid model specified" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="VertexCacheTracker" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.099" tests="12">
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should track initial cache write" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should track cache hits" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle missing cache prices" time="0.003">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle zero token usage" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should track concurrent requests independently" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should calculate savings with different price models" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle very large token counts without overflow" time="0.002">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle malformed usage data" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle race conditions in concurrent operations" time="0.025">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should remove old metrics" time="0.007">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle cleanup with no metrics" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-tracker.test.ts" name="should handle cleanup during concurrent operations" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="CompactTransport" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.057" tests="6">
+    <testcase classname="src/utils/logging/__tests__/CompactTransport.test.ts" name="creates new log file on initialization" time="0.005">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactTransport.test.ts" name="appends entries after initialization" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactTransport.test.ts" name="writes session end marker on close" time="0.006">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactTransport.test.ts" name="handles file path with deep directories" time="0.002">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactTransport.test.ts" name="handles concurrent writes" time="0.016">
+    </testcase>
+    <testcase classname="src/utils/logging/__tests__/CompactTransport.test.ts" name="converts absolute timestamps to deltas" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="addCustomInstructions" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.096" tests="4">
+    <testcase classname="src/core/prompts/__tests__/sections.test.ts" name="adds preferred language to custom instructions" time="0.016">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/sections.test.ts" name="works without preferred language" time="0.001">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/sections.test.ts" name="includes apply_diff in capabilities when diffStrategy is provided" time="0">
+    </testcase>
+    <testcase classname="src/core/prompts/__tests__/sections.test.ts" name="excludes apply_diff from capabilities when diffStrategy is undefined" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Language Parser" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.04" tests="9">
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should initialize parser only once" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should load JavaScript parser for .js and .jsx files" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should load TypeScript parser for .ts and .tsx files" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should load Python parser for .py files" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should load multiple language parsers as needed" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should handle C/C++ files correctly" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should throw error for unsupported file extensions" time="0.003">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should load each language only once for multiple files" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/tree-sitter/languageParser.test.ts" name="should set language for each parser instance" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Code Action Prompts" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.077" tests="10">
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should format explain prompt correctly" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should format fix prompt without diagnostics" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should format fix prompt with diagnostics" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should format improve prompt correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should format enhance prompt correctly" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should return default template when no custom prompts provided" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should return custom template when provided" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should return default template when custom prompts does not include type" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should use custom template when provided" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/support-prompts.test.ts" name="should use default template when custom prompts does not include type" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="mode-validator" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.063" tests="16">
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="allows all code mode tools" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="disallows unknown tools" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="allows configured tools" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="allows configured tools" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="allows tools from custom mode configuration" time="0.003">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="allows custom mode to override built-in mode" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="respects tool requirements in custom modes" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="respects tool requirements when provided" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="allows tools when their requirements are not specified" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="handles undefined and empty requirements" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="prioritizes requirements over mode configuration" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="throws error for disallowed tools in architect mode" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="does not throw for allowed tools in architect mode" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="throws error when tool requirement is not met" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="does not throw when tool requirement is met" time="0">
+    </testcase>
+    <testcase classname="src/core/__tests__/mode-validator.test.ts" name="handles undefined requirements gracefully" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="TerminalRegistry" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.017" tests="1">
+    <testcase classname="src/integrations/terminal/__tests__/TerminalRegistry.test.ts" name="creates terminal with PAGER set to cat" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="VertexCacheRefresh" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.216" tests="10">
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should schedule periodic refresh" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should handle refresh errors" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should maintain multiple refreshes" time="0.038">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should maintain accurate refresh timing" time="0.144">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should handle concurrent refreshes with different contexts independently" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should handle system prompt changes" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should stop specific refresh" time="0.001">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should handle stopping non-existent refresh" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should stop all refreshes" time="0">
+    </testcase>
+    <testcase classname="src/test/suite/services/vertex/cache-refresh.test.ts" name="should handle multiple dispose calls" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="git utils" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:08" time="0.196" tests="11">
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return commits when git is installed and repo exists" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return empty array when git is not installed" time="0.154">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return empty array when not in a git repository" time="0.002">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should handle hash search when grep search returns no results" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return formatted commit info" time="0.004">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return error message when git is not installed" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return error message when not in a git repository" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return working directory changes" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return message when working directory is clean" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return error message when git is not installed" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/git.test.ts" name="should return error message when not in a git repository" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="detectCodeOmission" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.129" tests="18">
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should skip comment checks for files under 100 lines" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not detect regular comments without omission keywords" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not detect when comment is part of original content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not detect code that happens to contain omission keywords" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should detect suspicious single-line comment when content is more than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag suspicious single-line comment when content is less than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should detect suspicious Python-style comment when content is more than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag suspicious Python-style comment when content is less than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should detect suspicious multi-line comment when content is more than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag suspicious multi-line comment when content is less than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should detect suspicious JSX comment when content is more than 20% shorter" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag suspicious JSX comment when content is less than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should detect suspicious HTML comment when content is more than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag suspicious HTML comment when content is less than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should detect suspicious square bracket notation when content is more than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag suspicious square bracket notation when content is less than 20% shorter" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag content very close to predicted length" time="0">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/detect-omission.test.ts" name="should not flag when content is longer than predicted" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Path Utilities" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.068" tests="18">
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should convert backslashes to forward slashes" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should not modify paths with forward slashes" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should preserve extended-length Windows paths" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should compare paths case-insensitively" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle different path separators" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should normalize paths with ../" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should compare paths case-sensitively" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should normalize paths" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle trailing slashes" time="0.004">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle undefined paths" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle root paths with trailing slashes" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should return basename when path equals cwd" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should return relative path when inside cwd" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should return absolute path when outside cwd" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle Desktop as cwd" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle undefined relative path" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should handle parent directory traversal" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/path.test.ts" name="should normalize paths with redundant segments" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Cost Utility" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.048" tests="8">
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should calculate basic input/output costs correctly" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle cache writes cost" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle cache reads cost" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle all cost components together" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle missing prices gracefully" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle zero tokens" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle undefined cache values" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/cost.test.ts" name="should handle missing cache prices" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="isToolAllowedForMode" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.099" tests="15">
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="allows always available tools" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="allows unrestricted tools" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="allows editing matching files" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="rejects editing non-matching files" time="0.012">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="handles partial streaming cases (path only, no content/diff)" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="applies restrictions to both write_to_file and apply_diff" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="uses description in file restriction error for custom modes" time="0.002">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="allows architect mode to edit markdown files only" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="handles non-existent modes" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="respects tool requirements" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="disables tools when experiment is disabled" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="allows tools when experiment is enabled" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="allows non-experimental tools when experiments are disabled" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="formats error message with pattern when no description provided" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/modes.test.ts" name="formats error message with description when provided" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="CustomModesSettings" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.114" tests="12">
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="accepts valid settings" time="0.003">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="accepts empty custom modes array" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="accepts multiple custom modes" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="rejects missing customModes field" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="rejects invalid mode in array" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="rejects non-array customModes" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="rejects null or undefined" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="rejects duplicate mode slugs" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="rejects invalid group configurations in modes" time="0.039">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="handles multiple groups" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="inferred type includes all required fields" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/CustomModesSettings.test.ts" name="inferred type allows optional fields" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnifiedDiffStrategy" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.187" tests="6">
+    <testcase classname="src/core/diff/strategies/__tests__/unified.test.ts" name="should return tool description with correct cwd" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/unified.test.ts" name="should successfully apply a function modification diff" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/unified.test.ts" name="should successfully apply a diff adding a new method" time="0.004">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/unified.test.ts" name="should successfully apply a diff modifying imports" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/unified.test.ts" name="should successfully apply a diff with multiple hunks" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/__tests__/unified.test.ts" name="should handle empty original content" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="API Stream Types" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.036" tests="9">
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should correctly handle text chunks" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should correctly handle usage chunks with cache information" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle usage chunks without cache tokens" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle text chunks with empty strings" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle usage chunks with zero tokens" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle usage chunks with large token counts" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle text chunks with special characters" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle text chunks with unicode characters" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/stream.test.ts" name="should handle text chunks with multiline content" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="findExactMatch" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.213" tests="59">
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if the search string is not found" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match if the search string is found" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with correct index when startIndex is provided" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if there are more lines in content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the search string is at the beginning of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the search string is at the end of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match for a multi-line search string" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if a multi-line search string is not found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with indentation" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with more complex indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed indentation and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if mixed indentation and multi-line is not found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with leading and trailing spaces" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with leading and trailing tabs" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed leading and trailing spaces and tabs" time="0.002">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed leading and trailing spaces and tabs and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if mixed leading and trailing spaces and tabs and multi-line is not found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if no anchors are found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if anchor positions cannot be validated" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match if anchor positions can be validated" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with correct index when startIndex is provided" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if there are more lines in content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the anchor is at the beginning of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the anchor is at the end of the content" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if no valid anchor is found" time="0.003">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if the search string is not found" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match if the search string is found" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with correct index when startIndex is provided" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if there are more lines in content" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the search string is at the beginning of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the search string is at the end of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match for a multi-line search string" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if a multi-line search string is not found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with more complex indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed indentation and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if mixed indentation and multi-line is not found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with leading and trailing spaces" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with leading and trailing tabs" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed leading and trailing spaces and tabs" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed leading and trailing spaces and tabs and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if mixed leading and trailing spaces and tabs and multi-line is not found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return no match if the search string is not found" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match if the search string is found" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with correct index when startIndex is provided" time="0.004">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if there are more lines in content" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the search string is at the beginning of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match even if the search string is at the end of the content" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match for a multi-line search string" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with indentation" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with more complex indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed indentation and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with leading and trailing spaces" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with leading and trailing tabs" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed leading and trailing spaces and tabs" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts" name="should return a match with mixed leading and trailing spaces and tabs and multi-line" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="OllamaHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.043" tests="8">
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should initialize with provided options" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should use default base URL if not provided" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should handle streaming responses" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should handle API errors" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should complete prompt successfully" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should handle API errors" time="0.002">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/ollama.test.ts" name="should return model info" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="OpenAI Format Transformations" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.036" tests="7">
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should convert simple text messages" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should handle messages with image content" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should handle assistant messages with tool use" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should handle user messages with tool results" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should convert simple completion" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should handle tool calls in completion" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/openai-format.test.ts" name="should handle invalid tool call arguments" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="LmStudioHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.213" tests="8">
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should initialize with provided options" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should use default base URL if not provided" time="0.003">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should handle streaming responses" time="0.002">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should handle API errors" time="0.003">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should complete prompt successfully" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should handle API errors" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/lmstudio.test.ts" name="should return model info" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="addLineNumbers" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.42" tests="24">
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should add line numbers starting from 1 by default" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should add line numbers starting from specified line number" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle empty content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle single line content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should pad line numbers based on the highest line number" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should return true for content with line numbers" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should return true for content with padded line numbers" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should return false for content without line numbers" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should return false for mixed content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle empty content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should return false for content with pipe but no line numbers" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should strip line numbers from content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should strip padded line numbers" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle content without line numbers" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle empty content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should preserve content with pipe but no line numbers" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle windows-style line endings" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="should handle content with varying line number widths" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="returns original content when no line limit provided" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="returns original content when lines are under limit" time="0.058">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="truncates content with 20/80 split when over limit" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="handles empty content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="handles single line content" time="0">
+    </testcase>
+    <testcase classname="src/integrations/misc/__tests__/extract-text.test.ts" name="handles windows-style line endings" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="GroupConfigSchema" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.128" tests="7">
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="accepts single group" time="0.001">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="accepts multiple groups" time="0.011">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="accepts all available groups" time="0.002">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="rejects non-array group format" time="0.003">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="rejects invalid group names" time="0.003">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="rejects duplicate groups" time="0">
+    </testcase>
+    <testcase classname="src/core/config/__tests__/GroupConfigSchema.test.ts" name="rejects null or undefined groups" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Command Validation" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.039" tests="15">
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="splits commands by chain operators" time="0.001">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="preserves quoted content" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles subshell patterns" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles empty and whitespace input" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles PowerShell specific patterns" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="matches commands case-insensitively" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="matches command prefixes" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="rejects non-matching commands" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles undefined/empty allowed commands" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="validates simple commands" time="0.002">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="validates chained commands" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles quoted content correctly" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles subshell execution attempts" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles PowerShell patterns" time="0">
+    </testcase>
+    <testcase classname="webview-ui/src/utils/__tests__/command-validation.test.ts" name="handles empty input" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="simple-format" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.032" tests="9">
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="returns string content as-is" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="extracts text from text blocks" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="converts image blocks to descriptive text" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="converts tool use blocks to descriptive text" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="handles string tool result content" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="handles array tool result content with text and images" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="filters out empty strings" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="converts messages with string content" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/simple-format.test.ts" name="converts messages with complex content" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="enhancePrompt" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.029" tests="7">
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="enhances prompt using default enhancement prompt when no custom prompt provided" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="enhances prompt using custom enhancement prompt when provided" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="throws error for empty prompt input" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="throws error for missing API configuration" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="throws error for API provider that does not support prompt enhancement" time="0.001">
+    </testcase>
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="uses appropriate model based on provider" time="0">
+    </testcase>
+    <testcase classname="src/utils/__tests__/enhance-prompt.test.ts" name="propagates API errors" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="convertToR1Format" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.055" tests="7">
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should convert basic text messages" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should merge consecutive messages with same role" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should handle image content" time="0.008">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should handle mixed text and image content" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should merge mixed content messages with same role" time="0.001">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should handle empty messages array" time="0">
+    </testcase>
+    <testcase classname="src/api/transform/__tests__/r1-format.test.ts" name="should handle messages with empty content" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="WorkspaceTracker" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="2.479" tests="6">
+    <testcase classname="src/integrations/workspace/__tests__/WorkspaceTracker.test.ts" name="should initialize with workspace files" time="0.004">
+    </testcase>
+    <testcase classname="src/integrations/workspace/__tests__/WorkspaceTracker.test.ts" name="should handle file creation events" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/workspace/__tests__/WorkspaceTracker.test.ts" name="should handle file deletion events" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/workspace/__tests__/WorkspaceTracker.test.ts" name="should handle directory paths correctly" time="0">
+    </testcase>
+    <testcase classname="src/integrations/workspace/__tests__/WorkspaceTracker.test.ts" name="should respect file limits" time="1.796">
+    </testcase>
+    <testcase classname="src/integrations/workspace/__tests__/WorkspaceTracker.test.ts" name="should clean up watchers and timers on dispose" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="checkExistKey" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.021" tests="6">
+    <testcase classname="src/shared/__tests__/checkExistApiConfig.test.ts" name="should return false for undefined config" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/checkExistApiConfig.test.ts" name="should return false for empty config" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/checkExistApiConfig.test.ts" name="should return true when one key is defined" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/checkExistApiConfig.test.ts" name="should return true when multiple keys are defined" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/checkExistApiConfig.test.ts" name="should return true when only non-key fields are undefined" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/checkExistApiConfig.test.ts" name="should return false when all key fields are undefined" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="UnboundHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.055" tests="9">
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should initialize with provided options" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should handle streaming responses with text and usage data" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should handle API errors" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should complete prompt successfully" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should handle API errors" time="0.003">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should not set max_tokens for non-Anthropic models" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should return model info" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/unbound.test.ts" name="should return default model when invalid model provided" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="vsCodeSelectorUtils" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.026" tests="4">
+    <testcase classname="src/shared/__tests__/vsCodeSelectorUtils.test.ts" name="should join all defined selector properties with separator" time="0.001">
+    </testcase>
+    <testcase classname="src/shared/__tests__/vsCodeSelectorUtils.test.ts" name="should skip undefined properties" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/vsCodeSelectorUtils.test.ts" name="should handle empty selector" time="0">
+    </testcase>
+    <testcase classname="src/shared/__tests__/vsCodeSelectorUtils.test.ts" name="should handle selector with only one property" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="DiffViewProvider" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.076" tests="3">
+    <testcase classname="src/integrations/editor/__tests__/DiffViewProvider.test.ts" name="should preserve empty last line when original content has one" time="0.001">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/DiffViewProvider.test.ts" name="should not add extra newline when accumulated content already ends with one" time="0.003">
+    </testcase>
+    <testcase classname="src/integrations/editor/__tests__/DiffViewProvider.test.ts" name="should not add newline when original content does not end with one" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="OpenAiNativeHandler" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:09" time="0.179" tests="17">
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should initialize with provided options" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should initialize with empty API key" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle streaming responses" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle API errors" time="0.074">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle missing content in response for o1 model" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle o3-mini model family correctly" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle streaming response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle empty delta content" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should complete prompt successfully with gpt-4o model" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should complete prompt successfully with o1 model" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should complete prompt successfully with o1-preview model" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should complete prompt successfully with o1-mini model" time="0.057">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should complete prompt successfully with o3-mini model" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle API errors" time="0.008">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle empty response" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should return model info" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/openai-native.test.ts" name="should handle undefined model ID" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="DeepSeekHandler" errors="0" failures="0" skipped="1" timestamp="2025-02-21T22:19:09" time="0.191" tests="11">
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should initialize with provided options" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should throw error if API key is missing" time="0">
+      <skipped/>
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should use default model ID if not provided" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should use default base URL if not provided" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should use custom base URL if provided" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should set includeMaxTokens to true" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should return model info for valid model ID" time="0.055">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should return provided model ID with default model info if model does not exist" time="0">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should return default model if no model ID is provided" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should handle streaming responses" time="0.001">
+    </testcase>
+    <testcase classname="src/api/providers/__tests__/deepseek.test.ts" name="should include usage information" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="McpHub" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="3.064" tests="16">
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should add tool to always allow list when enabling" time="0.02">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should remove tool from always allow list when disabling" time="0.002">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should initialize alwaysAllow if it does not exist" time="0.003">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should toggle server disabled state" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should filter out disabled servers from getServers" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should prevent calling tools on disabled servers" time="0.002">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should prevent reading resources from disabled servers" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should execute tool successfully" time="0.01">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should throw error if server not found" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should validate timeout values" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should use default timeout of 60 seconds if not specified" time="0">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should apply configured timeout to tool calls" time="0">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should update server timeout in settings file" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should fallback to default timeout when config has invalid timeout" time="0.003">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should accept valid timeout values" time="0.001">
+    </testcase>
+    <testcase classname="src/services/mcp/__tests__/McpHub.test.ts" name="should notify webview after updating timeout" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Cline" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="3.243" tests="11">
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should respect provided settings" time="0.005">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should use default fuzzy match threshold when not provided" time="0.037">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should use provided fuzzy match threshold" time="0.003">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should pass default threshold to diff strategy when not provided" time="0.003">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should require either task or historyItem" time="0.003">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should include timezone information in environment details" time="0.001">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should clean conversation history before sending to API" time="0.057">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should handle image blocks based on model capabilities" time="0.015">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should handle API retry with countdown" time="0.015">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should not apply retry delay twice" time="0.006">
+    </testcase>
+    <testcase classname="src/core/__tests__/Cline.test.ts" name="should process mentions in task and feedback tags" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="applyContextMatching" errors="0" failures="0" skipped="0" timestamp="2025-02-21T22:19:07" time="3.356" tests="28">
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should return original content if no match is found" time="0.003">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a simple add change" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a simple remove change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a simple context change" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a multi-line add change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a multi-line remove change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a multi-line context change" time="0.025">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a change with indentation" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a change with mixed indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a change with mixed indentation and multi-line" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a complex change with mixed indentation and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a complex change with mixed indentation and multi-line and context" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a complex change with mixed indentation and multi-line and context and a different match position" time="0.005">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should return original content if no match is found" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a simple add change" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a simple remove change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a simple context change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a multi-line add change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a multi-line remove change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a multi-line context change" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a change with indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a change with mixed indentation" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a change with mixed indentation and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a complex change with mixed indentation and multi-line" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a complex change with mixed indentation and multi-line and context" time="0">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should apply a complex change with mixed indentation and multi-line and context and a different match position" time="0.001">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should successfully apply changes using git operations" time="0.889">
+    </testcase>
+    <testcase classname="src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts" name="should return original content with 0 confidence when changes cannot be applied" time="1.63">
+    </testcase>
+  </testsuite>
+</testsuites>

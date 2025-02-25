@@ -1,0 +1,35 @@
+{
+  "extension": {
+    "name": "my-extension-name",
+    "displayName": "My Extension",
+    "description": "A brief description of your extension",
+    "version": "1.0.0",
+    "publisher": "YourPublisherName",
+    "author": {
+      "name": "Your Name"
+    }
+  },
+  "repository": {
+    "url": "https://github.com/yourusername/your-repo",
+    "homepage": "https://github.com/yourusername/your-repo"
+  },
+  "branding": {
+    "commandPrefix": "My Extension",
+    "activityBarTitle": "My Extension",
+    "colors": {
+      "galleryBanner": "#4A90E2",
+      "theme": "dark"
+    },
+    "icons": {
+      "extension": "assets/icons/your-icon.png",
+      "activityBar": "$(star)"
+    }
+  },
+  "keywords": [
+    "ai",
+    "coding",
+    "agent",
+    "autonomous",
+    "your-keyword"
+  ]
+}

@@ -1,6 +1,10 @@
 import * as vscode from "vscode"
 import { ClineProvider } from "../core/webview/ClineProvider"
 import { ClineAPI } from "./cline"
+import { Mode } from "../shared/modes"
+import { ExtensionMessage, ExtensionState } from "../shared/ExtensionMessage"
+
+export type { ClineAPI } from "./cline"
 
 export function createClineAPI(outputChannel: vscode.OutputChannel, sidebarProvider: ClineProvider): ClineAPI {
 	const api: ClineAPI = {
@@ -55,6 +59,25 @@ export function createClineAPI(outputChannel: vscode.OutputChannel, sidebarProvi
 				type: "invoke",
 				invoke: "secondaryButtonClick",
 			})
+		},
+
+		getProvider: () => {
+			return sidebarProvider
+		},
+
+		switchMode: async (mode: Mode) => {
+			outputChannel.appendLine(`Switching to mode: ${mode}`)
+			await sidebarProvider.postMessageToWebview({
+				type: "state",
+				state: {
+					mode: mode
+				}
+			} as ExtensionMessage)
+		},
+
+		getCurrentMode: async () => {
+			const state = await sidebarProvider.getState()
+			return state.mode as Mode
 		},
 
 		sidebarProvider: sidebarProvider,

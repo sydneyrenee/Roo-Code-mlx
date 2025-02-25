@@ -1,135 +1,276 @@
+import * as vscode from 'vscode'
+import * as assert from 'assert'
 import { arePathsEqual, getReadablePath } from "../path"
 import * as path from "path"
 import os from "os"
 
-describe("Path Utilities", () => {
-	const originalPlatform = process.platform
+export async function activatePathTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('pathTests', 'Path Tests')
+    context.subscriptions.push(testController)
 
-	afterEach(() => {
-		Object.defineProperty(process, "platform", {
-			value: originalPlatform,
-		})
-	})
+    const rootSuite = testController.createTestItem('path', 'Path Utils')
+    testController.items.add(rootSuite)
 
-	describe("String.prototype.toPosix", () => {
-		it("should convert backslashes to forward slashes", () => {
-			const windowsPath = "C:\\Users\\test\\file.txt"
-			expect(windowsPath.toPosix()).toBe("C:/Users/test/file.txt")
-		})
+    const originalPlatform = process.platform
 
-		it("should not modify paths with forward slashes", () => {
-			const unixPath = "/home/user/file.txt"
-			expect(unixPath.toPosix()).toBe("/home/user/file.txt")
-		})
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
 
-		it("should preserve extended-length Windows paths", () => {
-			const extendedPath = "\\\\?\\C:\\Very\\Long\\Path"
-			expect(extendedPath.toPosix()).toBe("\\\\?\\C:\\Very\\Long\\Path")
-		})
-	})
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
 
-	describe("arePathsEqual", () => {
-		describe("on Windows", () => {
-			beforeEach(() => {
-				Object.defineProperty(process, "platform", {
-					value: "win32",
-				})
-			})
+        const run = testController.createTestRun(request)
 
-			it("should compare paths case-insensitively", () => {
-				expect(arePathsEqual("C:\\Users\\Test", "c:\\users\\test")).toBe(true)
-			})
+        for (const test of queue) {
+            run.started(test)
 
-			it("should handle different path separators", () => {
-				// Convert both paths to use forward slashes after normalization
-				const path1 = path.normalize("C:\\Users\\Test").replace(/\\/g, "/")
-				const path2 = path.normalize("C:/Users/Test").replace(/\\/g, "/")
-				expect(arePathsEqual(path1, path2)).toBe(true)
-			})
+            try {
+                switch (test.id) {
+                    case 'posix.backslashes': {
+                        const windowsPath = "C:\\Users\\test\\file.txt"
+                        assert.strictEqual(windowsPath.toPosix(), "C:/Users/test/file.txt")
+                        break
+                    }
 
-			it("should normalize paths with ../", () => {
-				// Convert both paths to use forward slashes after normalization
-				const path1 = path.normalize("C:\\Users\\Test\\..\\Test").replace(/\\/g, "/")
-				const path2 = path.normalize("C:\\Users\\Test").replace(/\\/g, "/")
-				expect(arePathsEqual(path1, path2)).toBe(true)
-			})
-		})
+                    case 'posix.forwardslashes': {
+                        const unixPath = "/home/user/file.txt"
+                        assert.strictEqual(unixPath.toPosix(), "/home/user/file.txt")
+                        break
+                    }
 
-		describe("on POSIX", () => {
-			beforeEach(() => {
-				Object.defineProperty(process, "platform", {
-					value: "darwin",
-				})
-			})
+                    case 'posix.extended': {
+                        const extendedPath = "\\\\?\\C:\\Very\\Long\\Path"
+                        assert.strictEqual(extendedPath.toPosix(), "\\\\?\\C:\\Very\\Long\\Path")
+                        break
+                    }
 
-			it("should compare paths case-sensitively", () => {
-				expect(arePathsEqual("/Users/Test", "/Users/test")).toBe(false)
-			})
+                    case 'windows.caseinsensitive': {
+                        Object.defineProperty(process, "platform", { value: "win32" })
+                        assert.strictEqual(arePathsEqual("C:\\Users\\Test", "c:\\users\\test"), true)
+                        Object.defineProperty(process, "platform", { value: originalPlatform })
+                        break
+                    }
 
-			it("should normalize paths", () => {
-				expect(arePathsEqual("/Users/./Test", "/Users/Test")).toBe(true)
-			})
+                    case 'windows.separators': {
+                        Object.defineProperty(process, "platform", { value: "win32" })
+                        const path1 = path.normalize("C:\\Users\\Test").replace(/\\/g, "/")
+                        const path2 = path.normalize("C:/Users/Test").replace(/\\/g, "/")
+                        assert.strictEqual(arePathsEqual(path1, path2), true)
+                        Object.defineProperty(process, "platform", { value: originalPlatform })
+                        break
+                    }
 
-			it("should handle trailing slashes", () => {
-				expect(arePathsEqual("/Users/Test/", "/Users/Test")).toBe(true)
-			})
-		})
+                    case 'windows.normalize': {
+                        Object.defineProperty(process, "platform", { value: "win32" })
+                        const path1 = path.normalize("C:\\Users\\Test\\..\\Test").replace(/\\/g, "/")
+                        const path2 = path.normalize("C:\\Users\\Test").replace(/\\/g, "/")
+                        assert.strictEqual(arePathsEqual(path1, path2), true)
+                        Object.defineProperty(process, "platform", { value: originalPlatform })
+                        break
+                    }
 
-		describe("edge cases", () => {
-			it("should handle undefined paths", () => {
-				expect(arePathsEqual(undefined, undefined)).toBe(true)
-				expect(arePathsEqual("/test", undefined)).toBe(false)
-				expect(arePathsEqual(undefined, "/test")).toBe(false)
-			})
+                    case 'posix.casesensitive': {
+                        Object.defineProperty(process, "platform", { value: "darwin" })
+                        assert.strictEqual(arePathsEqual("/Users/Test", "/Users/test"), false)
+                        Object.defineProperty(process, "platform", { value: originalPlatform })
+                        break
+                    }
 
-			it("should handle root paths with trailing slashes", () => {
-				expect(arePathsEqual("/", "/")).toBe(true)
-				expect(arePathsEqual("C:\\", "C:\\")).toBe(true)
-			})
-		})
-	})
+                    case 'posix.normalize': {
+                        Object.defineProperty(process, "platform", { value: "darwin" })
+                        assert.strictEqual(arePathsEqual("/Users/./Test", "/Users/Test"), true)
+                        Object.defineProperty(process, "platform", { value: originalPlatform })
+                        break
+                    }
 
-	describe("getReadablePath", () => {
-		const homeDir = os.homedir()
-		const desktop = path.join(homeDir, "Desktop")
+                    case 'posix.trailingslash': {
+                        Object.defineProperty(process, "platform", { value: "darwin" })
+                        assert.strictEqual(arePathsEqual("/Users/Test/", "/Users/Test"), true)
+                        Object.defineProperty(process, "platform", { value: originalPlatform })
+                        break
+                    }
 
-		it("should return basename when path equals cwd", () => {
-			const cwd = "/Users/test/project"
-			expect(getReadablePath(cwd, cwd)).toBe("project")
-		})
+                    case 'edge.undefined': {
+                        assert.strictEqual(arePathsEqual(undefined, undefined), true)
+                        assert.strictEqual(arePathsEqual("/test", undefined), false)
+                        assert.strictEqual(arePathsEqual(undefined, "/test"), false)
+                        break
+                    }
 
-		it("should return relative path when inside cwd", () => {
-			const cwd = "/Users/test/project"
-			const filePath = "/Users/test/project/src/file.txt"
-			expect(getReadablePath(cwd, filePath)).toBe("src/file.txt")
-		})
+                    case 'edge.root': {
+                        assert.strictEqual(arePathsEqual("/", "/"), true)
+                        assert.strictEqual(arePathsEqual("C:\\", "C:\\"), true)
+                        break
+                    }
 
-		it("should return absolute path when outside cwd", () => {
-			const cwd = "/Users/test/project"
-			const filePath = "/Users/test/other/file.txt"
-			expect(getReadablePath(cwd, filePath)).toBe("/Users/test/other/file.txt")
-		})
+                    case 'readable.cwdbase': {
+                        const cwd = "/Users/test/project"
+                        assert.strictEqual(getReadablePath(cwd, cwd), "project")
+                        break
+                    }
 
-		it("should handle Desktop as cwd", () => {
-			const filePath = path.join(desktop, "file.txt")
-			expect(getReadablePath(desktop, filePath)).toBe(filePath.toPosix())
-		})
+                    case 'readable.relative': {
+                        const cwd = "/Users/test/project"
+                        const filePath = "/Users/test/project/src/file.txt"
+                        assert.strictEqual(getReadablePath(cwd, filePath), "src/file.txt")
+                        break
+                    }
 
-		it("should handle undefined relative path", () => {
-			const cwd = "/Users/test/project"
-			expect(getReadablePath(cwd)).toBe("project")
-		})
+                    case 'readable.absolute': {
+                        const cwd = "/Users/test/project"
+                        const filePath = "/Users/test/other/file.txt"
+                        assert.strictEqual(getReadablePath(cwd, filePath), "/Users/test/other/file.txt")
+                        break
+                    }
 
-		it("should handle parent directory traversal", () => {
-			const cwd = "/Users/test/project"
-			const filePath = "../../other/file.txt"
-			expect(getReadablePath(cwd, filePath)).toBe("/Users/other/file.txt")
-		})
+                    case 'readable.desktop': {
+                        const homeDir = os.homedir()
+                        const desktop = path.join(homeDir, "Desktop")
+                        const filePath = path.join(desktop, "file.txt")
+                        assert.strictEqual(getReadablePath(desktop, filePath), filePath.toPosix())
+                        break
+                    }
 
-		it("should normalize paths with redundant segments", () => {
-			const cwd = "/Users/test/project"
-			const filePath = "/Users/test/project/./src/../src/file.txt"
-			expect(getReadablePath(cwd, filePath)).toBe("src/file.txt")
-		})
-	})
-})
+                    case 'readable.undefined': {
+                        const cwd = "/Users/test/project"
+                        assert.strictEqual(getReadablePath(cwd), "project")
+                        break
+                    }
+
+                    case 'readable.parentdir': {
+                        const cwd = "/Users/test/project"
+                        const filePath = "../../other/file.txt"
+                        assert.strictEqual(getReadablePath(cwd, filePath), "/Users/other/file.txt")
+                        break
+                    }
+
+                    case 'readable.normalize': {
+                        const cwd = "/Users/test/project"
+                        const filePath = "/Users/test/project/./src/../src/file.txt"
+                        assert.strictEqual(getReadablePath(cwd, filePath), "src/file.txt")
+                        break
+                    }
+                }
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(`Test failed: ${err}`))
+            }
+
+            // Restore original platform after each test
+            Object.defineProperty(process, "platform", { value: originalPlatform })
+        }
+
+        run.end()
+    })
+
+    // String.prototype.toPosix tests
+    const posixSuite = testController.createTestItem('toPosix', 'String.prototype.toPosix')
+    rootSuite.children.add(posixSuite)
+
+    posixSuite.children.add(testController.createTestItem(
+        'posix.backslashes',
+        'should convert backslashes to forward slashes'
+    ))
+
+    posixSuite.children.add(testController.createTestItem(
+        'posix.forwardslashes',
+        'should not modify paths with forward slashes'
+    ))
+
+    posixSuite.children.add(testController.createTestItem(
+        'posix.extended',
+        'should preserve extended-length Windows paths'
+    ))
+
+    // arePathsEqual Windows tests
+    const windowsSuite = testController.createTestItem('windows', 'arePathsEqual on Windows')
+    rootSuite.children.add(windowsSuite)
+
+    windowsSuite.children.add(testController.createTestItem(
+        'windows.caseinsensitive',
+        'should compare paths case-insensitively'
+    ))
+
+    windowsSuite.children.add(testController.createTestItem(
+        'windows.separators',
+        'should handle different path separators'
+    ))
+
+    windowsSuite.children.add(testController.createTestItem(
+        'windows.normalize',
+        'should normalize paths with ../'
+    ))
+
+    // arePathsEqual POSIX tests
+    const posixPathSuite = testController.createTestItem('posixPath', 'arePathsEqual on POSIX')
+    rootSuite.children.add(posixPathSuite)
+
+    posixPathSuite.children.add(testController.createTestItem(
+        'posix.casesensitive',
+        'should compare paths case-sensitively'
+    ))
+
+    posixPathSuite.children.add(testController.createTestItem(
+        'posix.normalize',
+        'should normalize paths'
+    ))
+
+    posixPathSuite.children.add(testController.createTestItem(
+        'posix.trailingslash',
+        'should handle trailing slashes'
+    ))
+
+    // Edge cases
+    const edgeSuite = testController.createTestItem('edge', 'Edge Cases')
+    rootSuite.children.add(edgeSuite)
+
+    edgeSuite.children.add(testController.createTestItem(
+        'edge.undefined',
+        'should handle undefined paths'
+    ))
+
+    edgeSuite.children.add(testController.createTestItem(
+        'edge.root',
+        'should handle root paths with trailing slashes'
+    ))
+
+    // getReadablePath tests
+    const readableSuite = testController.createTestItem('readable', 'getReadablePath')
+    rootSuite.children.add(readableSuite)
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.cwdbase',
+        'should return basename when path equals cwd'
+    ))
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.relative',
+        'should return relative path when inside cwd'
+    ))
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.absolute',
+        'should return absolute path when outside cwd'
+    ))
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.desktop',
+        'should handle Desktop as cwd'
+    ))
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.undefined',
+        'should handle undefined relative path'
+    ))
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.parentdir',
+        'should handle parent directory traversal'
+    ))
+
+    readableSuite.children.add(testController.createTestItem(
+        'readable.normalize',
+        'should normalize paths with redundant segments'
+    ))
+}

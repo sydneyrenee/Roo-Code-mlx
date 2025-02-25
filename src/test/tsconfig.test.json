@@ -1,0 +1,46 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "commonjs",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "skipLibCheck": true,
+        "noEmit": false,
+        "sourceMap": true,
+        "outDir": "../../out/test",
+        "strict": true,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "noImplicitThis": false,
+        "alwaysStrict": true,
+        "types": [
+            "node",
+            "vscode",
+            "mocha"
+        ],
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {
+            "*": ["*"]
+        },
+        "rootDir": "."
+    },
+    "include": [
+        "./suite/core/test-helpers/mock-cline.test.ts",
+        "./suite/core/test-helpers/mock-cline.ts",
+        "./suite/core/test-helpers/mock-provider.ts",
+        "./suite/core/test-helpers/mock-types.ts",
+        "./suite/index.ts",
+        "./suite/testController.ts",
+        "./testUtils.ts",
+        "./runTest.ts"
+    ],
+    "exclude": [
+        "**/*.js",
+        "node_modules",
+        ".vscode-test"
+    ]
+}

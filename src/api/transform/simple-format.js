@@ -1,0 +1,57 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.convertToSimpleContent = convertToSimpleContent;
+exports.convertToSimpleMessages = convertToSimpleMessages;
+/**
+ * Convert complex content blocks to simple string content
+ */
+function convertToSimpleContent(content) {
+    if (typeof content === "string") {
+        return content;
+    }
+    // Extract text from content blocks
+    return content
+        .map((block) => {
+        if (block.type === "text") {
+            return block.text;
+        }
+        if (block.type === "image") {
+            return `[Image: ${block.source.media_type}]`;
+        }
+        if (block.type === "tool_use") {
+            return `[Tool Use: ${block.name}]`;
+        }
+        if (block.type === "tool_result") {
+            if (typeof block.content === "string") {
+                return block.content;
+            }
+            if (Array.isArray(block.content)) {
+                return block.content
+                    .map((part) => {
+                    if (part.type === "text") {
+                        return part.text;
+                    }
+                    if (part.type === "image") {
+                        return `[Image: ${part.source.media_type}]`;
+                    }
+                    return "";
+                })
+                    .join("\n");
+            }
+            return "";
+        }
+        return "";
+    })
+        .filter(Boolean)
+        .join("\n");
+}
+/**
+ * Convert Anthropic messages to simple format with string content
+ */
+function convertToSimpleMessages(messages) {
+    return messages.map((message) => ({
+        role: message.role,
+        content: convertToSimpleContent(message.content),
+    }));
+}
+//# sourceMappingURL=simple-format.js.map

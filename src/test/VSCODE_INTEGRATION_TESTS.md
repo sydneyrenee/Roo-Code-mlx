@@ -58,10 +58,10 @@ The following global objects are available in tests:
 
 ```typescript
 declare global {
-	var api: ClineAPI
-	var provider: ClineProvider
-	var extension: vscode.Extension<ClineAPI>
-	var panel: vscode.WebviewPanel
+    var api: ClineAPI
+    var provider: ClineProvider
+    var extension: vscode.Extension<ClineAPI>
+    var panel: vscode.WebviewPanel
 }
 ```
 
@@ -75,7 +75,15 @@ declare global {
 npm run test:integration
 ```
 
-3. If you want to run a specific test, you can use the `test.only` function in the test file. This will run only the test you specify and ignore the others. Be sure to remove the `test.only` function before committing your changes.
+3. Run specific test files:
+
+```bash
+# Run a specific test file
+npm run test:integration -- --testFile=extension.test.ts
+
+# Run tests matching a pattern
+npm run test:integration -- --testFile="**/modes*.test.ts"
+```
 
 The tests will:
 
@@ -97,9 +105,9 @@ import * as assert from "assert"
 import * as vscode from "vscode"
 
 suite("Your Test Suite Name", () => {
-	test("Should do something specific", async function () {
-		// Your test code here
-	})
+    test("Should do something specific", async function () {
+        // Your test code here
+    })
 })
 ```
 
@@ -131,9 +139,9 @@ assert.ok(condition, "Descriptive message about what failed")
 
 ```typescript
 try {
-	// Test code
+    // Test code
 } finally {
-	// Cleanup code
+    // Cleanup code
 }
 ```
 
@@ -142,15 +150,133 @@ try {
 ```typescript
 let startTime = Date.now()
 while (Date.now() - startTime < timeout) {
-	if (condition) break
-	await new Promise((resolve) => setTimeout(resolve, interval))
+    if (condition) break
+    await new Promise((resolve) => setTimeout(resolve, interval))
 }
 ```
 
-6. **Grading**: When grading tests, use the `Grade:` format to ensure the test is graded correctly (See modes.test.ts for an example).
+6. **Grading**: When grading tests, use the `Grade:` format:
 
 ```typescript
 await globalThis.api.startNewTask(
-	`Given this prompt: ${testPrompt} grade the response from 1 to 10 in the format of "Grade: (1-10)": ${output} \n Be sure to say 'I AM DONE GRADING' after the task is complete`,
+    `Given this prompt: ${testPrompt} grade the response from 1 to 10 in the format of "Grade: (1-10)": ${output} \n Be sure to say 'I AM DONE GRADING' after the task is complete`,
 )
 ```
+
+## Common Test Patterns
+
+### 1. Testing Command Registration
+
+```typescript
+test("Commands should be registered", async () => {
+    const commands = await vscode.commands.getCommands()
+    const expectedCommands = [
+        "roo-cline.plusButtonClicked",
+        "roo-cline.mcpButtonClicked",
+        // ... other commands
+    ]
+    
+    for (const cmd of expectedCommands) {
+        assert.ok(commands.includes(cmd), `Command ${cmd} should be registered`)
+    }
+})
+```
+
+### 2. Testing Mode Switching
+
+```typescript
+test("Should switch modes correctly", async () => {
+    await globalThis.api.switchMode("code")
+    const currentMode = await globalThis.provider.getGlobalState("mode")
+    assert.strictEqual(currentMode, "code", "Mode should be set to code")
+})
+```
+
+### 3. Testing WebView Interactions
+
+```typescript
+test("Should handle webview messages", async () => {
+    const message = { type: "testMessage", data: {} }
+    await globalThis.provider.postMessageToWebview(message)
+    // Assert expected behavior
+})
+```
+
+## CI/CD Integration
+
+### GitHub Actions Configuration
+
+The integration tests are run in CI using GitHub Actions:
+
+```yaml
+name: Integration Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run integration tests
+        run: xvfb-run -a npm run test:integration
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+```
+
+### Test Reports
+
+Integration test results are:
+- Published as GitHub Actions artifacts
+- Available in the Actions tab
+- Included in PR status checks
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Test Timeouts**
+   - Increase timeout in test file
+   - Check for hanging async operations
+   - Verify API key configuration
+
+2. **WebView Issues**
+   - Ensure panel is initialized
+   - Check message passing
+   - Verify state management
+
+3. **Environment Setup**
+   - Verify .env.integration file
+   - Check API key format
+   - Confirm VSCode version
+
+### Debug Mode
+
+Run tests in debug mode:
+```bash
+npm run test:integration:debug
+```
+
+Then:
+1. Open VSCode Debug view
+2. Select "Attach to Integration Tests"
+3. Set breakpoints and debug
+
+## Relationship to Jest Tests
+
+While integration tests verify the extension in VSCode, unit tests (using Jest) verify individual components:
+
+- Integration tests: `src/test/suite/*.test.ts`
+- Unit tests: `src/**/__tests__/*.test.ts`
+
+Choose the appropriate test type:
+- Use integration tests for VSCode-specific functionality
+- Use Jest tests for isolated component testing
+- Consider both for critical features
+
+See [Jest Test Documentation](../jest-tests.md) for unit testing details.

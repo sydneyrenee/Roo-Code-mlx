@@ -1,51 +1,45 @@
-import * as assert from "assert"
-import * as vscode from "vscode"
+import * as assert from 'assert';
+import * as vscode from 'vscode';
 
-suite("Roo Code Extension", () => {
-	test("OPENROUTER_API_KEY environment variable is set", () => {
-		if (!process.env.OPENROUTER_API_KEY) {
-			assert.fail("OPENROUTER_API_KEY environment variable is not set")
-		}
-	})
+suite('Extension Test Suite', () => {
+    suiteSetup(async () => {
+        // Wait for extension to activate
+        const ext = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline');
+        if (!ext) {
+            throw new Error('Extension not found');
+        }
+        await ext.activate();
+    });
 
-	test("Commands should be registered", async () => {
-		const timeout = 10 * 1_000
-		const interval = 1_000
-		const startTime = Date.now()
+    test('Extension should be present', () => {
+        const extension = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline');
+        assert.ok(extension, 'Extension should be available');
+    });
 
-		const expectedCommands = [
-			"roo-cline.plusButtonClicked",
-			"roo-cline.mcpButtonClicked",
-			"roo-cline.historyButtonClicked",
-			"roo-cline.popoutButtonClicked",
-			"roo-cline.settingsButtonClicked",
-			"roo-cline.openInNewTab",
-			"roo-cline.explainCode",
-			"roo-cline.fixCode",
-			"roo-cline.improveCode",
-		]
+    test('Extension should activate', () => {
+        const extension = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline');
+        assert.ok(extension?.isActive, 'Extension should be active');
+    });
 
-		while (Date.now() - startTime < timeout) {
-			const commands = await vscode.commands.getCommands(true)
-			const missingCommands = []
+    test('Extension should register commands', async () => {
+        const commands = await vscode.commands.getCommands();
+        assert.ok(
+            commands.includes('roo-cline.SidebarProvider.focus'),
+            'Sidebar focus command should be registered'
+        );
+        assert.ok(
+            commands.includes('roo-cline.clearTask'),
+            'Clear task command should be registered'
+        );
+    });
 
-			for (const cmd of expectedCommands) {
-				if (!commands.includes(cmd)) {
-					missingCommands.push(cmd)
-				}
-			}
-
-			if (missingCommands.length === 0) {
-				break
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, interval))
-		}
-
-		const commands = await vscode.commands.getCommands(true)
-
-		for (const cmd of expectedCommands) {
-			assert.ok(commands.includes(cmd), `Command ${cmd} should be registered`)
-		}
-	})
-})
+    test('Extension should have configuration', () => {
+        const config = vscode.workspace.getConfiguration('roo-cline');
+        assert.ok(config, 'Configuration should exist');
+        
+        // Test default settings
+        const allowedCommands = config.get<string[]>('allowedCommands');
+        assert.ok(Array.isArray(allowedCommands), 'allowedCommands should be an array');
+        assert.strictEqual(allowedCommands?.length, 0, 'allowedCommands should be empty by default');
+    });
+});

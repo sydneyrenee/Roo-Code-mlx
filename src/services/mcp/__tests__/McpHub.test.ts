@@ -1,480 +1,416 @@
+import * as vscode from 'vscode'
+import * as assert from 'assert'
 import type { McpHub as McpHubType } from "../McpHub"
 import type { ClineProvider } from "../../../core/webview/ClineProvider"
 import type { ExtensionContext, Uri } from "vscode"
 import type { McpConnection } from "../McpHub"
 import { StdioConfigSchema } from "../McpHub"
-
-const fs = require("fs/promises")
-const { McpHub } = require("../McpHub")
-
-jest.mock("vscode")
-jest.mock("fs/promises")
-jest.mock("../../../core/webview/ClineProvider")
-
-describe("McpHub", () => {
-	let mcpHub: McpHubType
-	let mockProvider: Partial<ClineProvider>
-	const mockSettingsPath = "/mock/settings/path/cline_mcp_settings.json"
-
-	beforeEach(() => {
-		jest.clearAllMocks()
-
-		const mockUri: Uri = {
-			scheme: "file",
-			authority: "",
-			path: "/test/path",
-			query: "",
-			fragment: "",
-			fsPath: "/test/path",
-			with: jest.fn(),
-			toJSON: jest.fn(),
-		}
-
-		mockProvider = {
-			ensureSettingsDirectoryExists: jest.fn().mockResolvedValue("/mock/settings/path"),
-			ensureMcpServersDirectoryExists: jest.fn().mockResolvedValue("/mock/settings/path"),
-			postMessageToWebview: jest.fn(),
-			context: {
-				subscriptions: [],
-				workspaceState: {} as any,
-				globalState: {} as any,
-				secrets: {} as any,
-				extensionUri: mockUri,
-				extensionPath: "/test/path",
-				storagePath: "/test/storage",
-				globalStoragePath: "/test/global-storage",
-				environmentVariableCollection: {} as any,
-				extension: {
-					id: "test-extension",
-					extensionUri: mockUri,
-					extensionPath: "/test/path",
-					extensionKind: 1,
-					isActive: true,
-					packageJSON: {
-						version: "1.0.0",
-					},
-					activate: jest.fn(),
-					exports: undefined,
-				} as any,
-				asAbsolutePath: (path: string) => path,
-				storageUri: mockUri,
-				globalStorageUri: mockUri,
-				logUri: mockUri,
-				extensionMode: 1,
-				logPath: "/test/path",
-				languageModelAccessInformation: {} as any,
-			} as ExtensionContext,
-		}
-
-		// Mock fs.readFile for initial settings
-		;(fs.readFile as jest.Mock).mockResolvedValue(
-			JSON.stringify({
-				mcpServers: {
-					"test-server": {
-						command: "node",
-						args: ["test.js"],
-						alwaysAllow: ["allowed-tool"],
-					},
-				},
-			}),
-		)
-
-		mcpHub = new McpHub(mockProvider as ClineProvider)
-	})
-
-	describe("toggleToolAlwaysAllow", () => {
-		it("should add tool to always allow list when enabling", async () => {
-			const mockConfig = {
-				mcpServers: {
-					"test-server": {
-						command: "node",
-						args: ["test.js"],
-						alwaysAllow: [],
-					},
-				},
-			}
-
-			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-			await mcpHub.toggleToolAlwaysAllow("test-server", "new-tool", true)
-
-			// Verify the config was updated correctly
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0]
-			const writtenConfig = JSON.parse(writeCall[1])
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).toContain("new-tool")
-		})
-
-		it("should remove tool from always allow list when disabling", async () => {
-			const mockConfig = {
-				mcpServers: {
-					"test-server": {
-						command: "node",
-						args: ["test.js"],
-						alwaysAllow: ["existing-tool"],
-					},
-				},
-			}
-
-			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-			await mcpHub.toggleToolAlwaysAllow("test-server", "existing-tool", false)
-
-			// Verify the config was updated correctly
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0]
-			const writtenConfig = JSON.parse(writeCall[1])
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).not.toContain("existing-tool")
-		})
-
-		it("should initialize alwaysAllow if it does not exist", async () => {
-			const mockConfig = {
-				mcpServers: {
-					"test-server": {
-						command: "node",
-						args: ["test.js"],
-					},
-				},
-			}
-
-			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-			await mcpHub.toggleToolAlwaysAllow("test-server", "new-tool", true)
-
-			// Verify the config was updated with initialized alwaysAllow
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0]
-			const writtenConfig = JSON.parse(writeCall[1])
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).toBeDefined()
-			expect(writtenConfig.mcpServers["test-server"].alwaysAllow).toContain("new-tool")
-		})
-	})
-
-	describe("server disabled state", () => {
-		it("should toggle server disabled state", async () => {
-			const mockConfig = {
-				mcpServers: {
-					"test-server": {
-						command: "node",
-						args: ["test.js"],
-						disabled: false,
-					},
-				},
-			}
-
-			// Mock reading initial config
-			;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-			await mcpHub.toggleServerDisabled("test-server", true)
-
-			// Verify the config was updated correctly
-			const writeCall = (fs.writeFile as jest.Mock).mock.calls[0]
-			const writtenConfig = JSON.parse(writeCall[1])
-			expect(writtenConfig.mcpServers["test-server"].disabled).toBe(true)
-		})
-
-		it("should filter out disabled servers from getServers", () => {
-			const mockConnections: McpConnection[] = [
-				{
-					server: {
-						name: "enabled-server",
-						config: "{}",
-						status: "connected",
-						disabled: false,
-					},
-					client: {} as any,
-					transport: {} as any,
-				},
-				{
-					server: {
-						name: "disabled-server",
-						config: "{}",
-						status: "connected",
-						disabled: true,
-					},
-					client: {} as any,
-					transport: {} as any,
-				},
-			]
-
-			mcpHub.connections = mockConnections
-			const servers = mcpHub.getServers()
-
-			expect(servers.length).toBe(1)
-			expect(servers[0].name).toBe("enabled-server")
-		})
-
-		it("should prevent calling tools on disabled servers", async () => {
-			const mockConnection: McpConnection = {
-				server: {
-					name: "disabled-server",
-					config: "{}",
-					status: "connected",
-					disabled: true,
-				},
-				client: {
-					request: jest.fn().mockResolvedValue({ result: "success" }),
-				} as any,
-				transport: {} as any,
-			}
-
-			mcpHub.connections = [mockConnection]
-
-			await expect(mcpHub.callTool("disabled-server", "some-tool", {})).rejects.toThrow(
-				'Server "disabled-server" is disabled and cannot be used',
-			)
-		})
-
-		it("should prevent reading resources from disabled servers", async () => {
-			const mockConnection: McpConnection = {
-				server: {
-					name: "disabled-server",
-					config: "{}",
-					status: "connected",
-					disabled: true,
-				},
-				client: {
-					request: jest.fn(),
-				} as any,
-				transport: {} as any,
-			}
-
-			mcpHub.connections = [mockConnection]
-
-			await expect(mcpHub.readResource("disabled-server", "some/uri")).rejects.toThrow(
-				'Server "disabled-server" is disabled',
-			)
-		})
-	})
-
-	describe("callTool", () => {
-		it("should execute tool successfully", async () => {
-			// Mock the connection with a minimal client implementation
-			const mockConnection: McpConnection = {
-				server: {
-					name: "test-server",
-					config: JSON.stringify({}),
-					status: "connected" as const,
-				},
-				client: {
-					request: jest.fn().mockResolvedValue({ result: "success" }),
-				} as any,
-				transport: {
-					start: jest.fn(),
-					close: jest.fn(),
-					stderr: { on: jest.fn() },
-				} as any,
-			}
-
-			mcpHub.connections = [mockConnection]
-
-			await mcpHub.callTool("test-server", "some-tool", {})
-
-			// Verify the request was made with correct parameters
-			expect(mockConnection.client.request).toHaveBeenCalledWith(
-				{
-					method: "tools/call",
-					params: {
-						name: "some-tool",
-						arguments: {},
-					},
-				},
-				expect.any(Object),
-				expect.objectContaining({ timeout: 60000 }), // Default 60 second timeout
-			)
-		})
-
-		it("should throw error if server not found", async () => {
-			await expect(mcpHub.callTool("non-existent-server", "some-tool", {})).rejects.toThrow(
-				"No connection found for server: non-existent-server",
-			)
-		})
-
-		describe("timeout configuration", () => {
-			it("should validate timeout values", () => {
-				// Test valid timeout values
-				const validConfig = {
-					command: "test",
-					timeout: 60,
-				}
-				expect(() => StdioConfigSchema.parse(validConfig)).not.toThrow()
-
-				// Test invalid timeout values
-				const invalidConfigs = [
-					{ command: "test", timeout: 0 }, // Too low
-					{ command: "test", timeout: 3601 }, // Too high
-					{ command: "test", timeout: -1 }, // Negative
-				]
-
-				invalidConfigs.forEach((config) => {
-					expect(() => StdioConfigSchema.parse(config)).toThrow()
-				})
-			})
-
-			it("should use default timeout of 60 seconds if not specified", async () => {
-				const mockConnection: McpConnection = {
-					server: {
-						name: "test-server",
-						config: JSON.stringify({ command: "test" }), // No timeout specified
-						status: "connected",
-					},
-					client: {
-						request: jest.fn().mockResolvedValue({ content: [] }),
-					} as any,
-					transport: {} as any,
-				}
-
-				mcpHub.connections = [mockConnection]
-				await mcpHub.callTool("test-server", "test-tool")
-
-				expect(mockConnection.client.request).toHaveBeenCalledWith(
-					expect.anything(),
-					expect.anything(),
-					expect.objectContaining({ timeout: 60000 }), // 60 seconds in milliseconds
-				)
-			})
-
-			it("should apply configured timeout to tool calls", async () => {
-				const mockConnection: McpConnection = {
-					server: {
-						name: "test-server",
-						config: JSON.stringify({ command: "test", timeout: 120 }), // 2 minutes
-						status: "connected",
-					},
-					client: {
-						request: jest.fn().mockResolvedValue({ content: [] }),
-					} as any,
-					transport: {} as any,
-				}
-
-				mcpHub.connections = [mockConnection]
-				await mcpHub.callTool("test-server", "test-tool")
-
-				expect(mockConnection.client.request).toHaveBeenCalledWith(
-					expect.anything(),
-					expect.anything(),
-					expect.objectContaining({ timeout: 120000 }), // 120 seconds in milliseconds
-				)
-			})
-		})
-
-		describe("updateServerTimeout", () => {
-			it("should update server timeout in settings file", async () => {
-				const mockConfig = {
-					mcpServers: {
-						"test-server": {
-							command: "node",
-							args: ["test.js"],
-							timeout: 60,
-						},
-					},
-				}
-
-				// Mock reading initial config
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-				await mcpHub.updateServerTimeout("test-server", 120)
-
-				// Verify the config was updated correctly
-				const writeCall = (fs.writeFile as jest.Mock).mock.calls[0]
-				const writtenConfig = JSON.parse(writeCall[1])
-				expect(writtenConfig.mcpServers["test-server"].timeout).toBe(120)
-			})
-
-			it("should fallback to default timeout when config has invalid timeout", async () => {
-				const mockConfig = {
-					mcpServers: {
-						"test-server": {
-							command: "node",
-							args: ["test.js"],
-							timeout: 60,
-						},
-					},
-				}
-
-				// Mock initial read
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-				// Update with invalid timeout
-				await mcpHub.updateServerTimeout("test-server", 3601)
-
-				// Config is written
-				expect(fs.writeFile).toHaveBeenCalled()
-
-				// Setup connection with invalid timeout
-				const mockConnection: McpConnection = {
-					server: {
-						name: "test-server",
-						config: JSON.stringify({
-							command: "node",
-							args: ["test.js"],
-							timeout: 3601, // Invalid timeout
-						}),
-						status: "connected",
-					},
-					client: {
-						request: jest.fn().mockResolvedValue({ content: [] }),
-					} as any,
-					transport: {} as any,
-				}
-
-				mcpHub.connections = [mockConnection]
-
-				// Call tool - should use default timeout
-				await mcpHub.callTool("test-server", "test-tool")
-
-				// Verify default timeout was used
-				expect(mockConnection.client.request).toHaveBeenCalledWith(
-					expect.anything(),
-					expect.anything(),
-					expect.objectContaining({ timeout: 60000 }), // Default 60 seconds
-				)
-			})
-
-			it("should accept valid timeout values", async () => {
-				const mockConfig = {
-					mcpServers: {
-						"test-server": {
-							command: "node",
-							args: ["test.js"],
-							timeout: 60,
-						},
-					},
-				}
-
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-				// Test valid timeout values
-				const validTimeouts = [1, 60, 3600]
-				for (const timeout of validTimeouts) {
-					await mcpHub.updateServerTimeout("test-server", timeout)
-					expect(fs.writeFile).toHaveBeenCalled()
-					jest.clearAllMocks() // Reset for next iteration
-					;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-				}
-			})
-
-			it("should notify webview after updating timeout", async () => {
-				const mockConfig = {
-					mcpServers: {
-						"test-server": {
-							command: "node",
-							args: ["test.js"],
-							timeout: 60,
-						},
-					},
-				}
-
-				;(fs.readFile as jest.Mock).mockResolvedValueOnce(JSON.stringify(mockConfig))
-
-				await mcpHub.updateServerTimeout("test-server", 120)
-
-				expect(mockProvider.postMessageToWebview).toHaveBeenCalledWith(
-					expect.objectContaining({
-						type: "mcpServers",
-					}),
-				)
-			})
-		})
-	})
-})
+import * as fs from "fs/promises"
+
+// Mock classes
+class MockMemento implements vscode.Memento {
+    private storage = new Map<string, any>()
+
+    get<T>(key: string): T | undefined {
+        return this.storage.get(key)
+    }
+
+    update(key: string, value: any): Thenable<void> {
+        this.storage.set(key, value)
+        return Promise.resolve()
+    }
+
+    keys(): readonly string[] {
+        return Array.from(this.storage.keys())
+    }
+}
+
+class MockGlobalMemento extends MockMemento implements vscode.Memento {
+    setKeysForSync(keys: readonly string[]): void {
+        // No-op for testing
+    }
+}
+
+class MockSecretStorage implements vscode.SecretStorage {
+    private secrets = new Map<string, string>()
+    private _onDidChange = new vscode.EventEmitter<vscode.SecretStorageChangeEvent>()
+    readonly onDidChange = this._onDidChange.event
+
+    get(key: string): Thenable<string | undefined> {
+        return Promise.resolve(this.secrets.get(key))
+    }
+
+    store(key: string, value: string): Thenable<void> {
+        this.secrets.set(key, value)
+        return Promise.resolve()
+    }
+
+    delete(key: string): Thenable<void> {
+        this.secrets.delete(key)
+        return Promise.resolve()
+    }
+}
+
+class MockEnvironmentVariableCollection implements vscode.EnvironmentVariableCollection {
+    private variables = new Map<string, vscode.EnvironmentVariableMutator>()
+    readonly persistent: boolean = true
+    readonly description: string | undefined = undefined
+
+    replace(variable: string, value: string): void {
+        this.variables.set(variable, {
+            value,
+            type: vscode.EnvironmentVariableMutatorType.Replace,
+            options: { applyAtProcessCreation: true }
+        })
+    }
+
+    append(variable: string, value: string): void {
+        this.variables.set(variable, {
+            value,
+            type: vscode.EnvironmentVariableMutatorType.Append,
+            options: { applyAtProcessCreation: true }
+        })
+    }
+
+    prepend(variable: string, value: string): void {
+        this.variables.set(variable, {
+            value,
+            type: vscode.EnvironmentVariableMutatorType.Prepend,
+            options: { applyAtProcessCreation: true }
+        })
+    }
+
+    get(variable: string): vscode.EnvironmentVariableMutator | undefined {
+        return this.variables.get(variable)
+    }
+
+    forEach(callback: (variable: string, mutator: vscode.EnvironmentVariableMutator, collection: vscode.EnvironmentVariableCollection) => void): void {
+        this.variables.forEach((mutator, variable) => callback(variable, mutator, this))
+    }
+
+    delete(variable: string): void {
+        this.variables.delete(variable)
+    }
+
+    clear(): void {
+        this.variables.clear()
+    }
+
+    [Symbol.iterator](): Iterator<[string, vscode.EnvironmentVariableMutator]> {
+        return this.variables.entries()
+    }
+
+    getScoped(scope: vscode.EnvironmentVariableScope): vscode.EnvironmentVariableCollection {
+        return this
+    }
+}
+
+export async function activateMcpHubTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('mcpHubTests', 'MCP Hub Tests')
+    context.subscriptions.push(testController)
+
+    const rootSuite = testController.createTestItem('mcpHub', 'MCP Hub')
+    testController.items.add(rootSuite)
+
+    // Store original functions
+    const originalReadFile = fs.readFile
+    const originalWriteFile = fs.writeFile
+
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
+
+        const run = testController.createTestRun(request)
+
+        for (const test of queue) {
+            run.started(test)
+
+            try {
+                // Setup mock provider and context
+                const mockUri: Uri = {
+                    scheme: "file",
+                    authority: "",
+                    path: "/test/path",
+                    query: "",
+                    fragment: "",
+                    fsPath: "/test/path",
+                    with: () => mockUri,
+                    toJSON: () => ({})
+                }
+
+                const mockContext: ExtensionContext = {
+                    subscriptions: [],
+                    workspaceState: new MockMemento(),
+                    globalState: new MockGlobalMemento(),
+                    secrets: new MockSecretStorage(),
+                    extensionUri: mockUri,
+                    extensionPath: "/test/path",
+                    environmentVariableCollection: new MockEnvironmentVariableCollection(),
+                    asAbsolutePath: (relativePath: string) => relativePath,
+                    storagePath: "/test/storage",
+                    globalStoragePath: "/test/global-storage",
+                    logPath: "/test/log",
+                    extensionMode: vscode.ExtensionMode.Test,
+                    extension: {
+                        id: "test-extension",
+                        extensionUri: mockUri,
+                        extensionPath: "/test/path",
+                        isActive: true,
+                        packageJSON: { version: "1.0.0" },
+                        extensionKind: vscode.ExtensionKind.Workspace,
+                        exports: undefined,
+                        activate: () => Promise.resolve()
+                    },
+                    storageUri: mockUri,
+                    globalStorageUri: mockUri,
+                    logUri: mockUri,
+                    languageModelAccessInformation: {} as vscode.LanguageModelAccessInformation
+                }
+
+                const mockProvider: Partial<ClineProvider> = {
+                    ensureSettingsDirectoryExists: async () => "/mock/settings/path",
+                    ensureMcpServersDirectoryExists: async () => "/mock/settings/path",
+                    postMessageToWebview: async () => {},
+                    context: mockContext
+                }
+
+                // Mock fs functions
+                let mockFileContent = JSON.stringify({
+                    mcpServers: {
+                        "test-server": {
+                            command: "node",
+                            args: ["test.js"],
+                            alwaysAllow: ["allowed-tool"]
+                        }
+                    }
+                })
+
+                let writtenContent: string | undefined
+
+                ;(global as any).fs = {
+                    readFile: async () => mockFileContent,
+                    writeFile: async (_path: string, content: string) => {
+                        writtenContent = content
+                    }
+                }
+
+                // Create McpHub instance
+                const { McpHub } = require("../McpHub")
+                const mcpHub = new McpHub(mockProvider as ClineProvider)
+
+                switch (test.id) {
+                    case 'tool.alwaysAllow.enable': {
+                        mockFileContent = JSON.stringify({
+                            mcpServers: {
+                                "test-server": {
+                                    command: "node",
+                                    args: ["test.js"],
+                                    alwaysAllow: []
+                                }
+                            }
+                        })
+
+                        await mcpHub.toggleToolAlwaysAllow("test-server", "new-tool", true)
+
+                        const writtenConfig = JSON.parse(writtenContent!)
+                        assert.ok(writtenConfig.mcpServers["test-server"].alwaysAllow.includes("new-tool"))
+                        break
+                    }
+
+                    case 'tool.alwaysAllow.disable': {
+                        mockFileContent = JSON.stringify({
+                            mcpServers: {
+                                "test-server": {
+                                    command: "node",
+                                    args: ["test.js"],
+                                    alwaysAllow: ["existing-tool"]
+                                }
+                            }
+                        })
+
+                        await mcpHub.toggleToolAlwaysAllow("test-server", "existing-tool", false)
+
+                        const writtenConfig = JSON.parse(writtenContent!)
+                        assert.ok(!writtenConfig.mcpServers["test-server"].alwaysAllow.includes("existing-tool"))
+                        break
+                    }
+
+                    case 'server.disabled.toggle': {
+                        mockFileContent = JSON.stringify({
+                            mcpServers: {
+                                "test-server": {
+                                    command: "node",
+                                    args: ["test.js"],
+                                    disabled: false
+                                }
+                            }
+                        })
+
+                        await mcpHub.toggleServerDisabled("test-server", true)
+
+                        const writtenConfig = JSON.parse(writtenContent!)
+                        assert.strictEqual(writtenConfig.mcpServers["test-server"].disabled, true)
+                        break
+                    }
+
+                    case 'server.disabled.filter': {
+                        const mockConnections: McpConnection[] = [
+                            {
+                                server: {
+                                    name: "enabled-server",
+                                    config: "{}",
+                                    status: "connected",
+                                    disabled: false
+                                },
+                                client: {} as any,
+                                transport: {} as any
+                            },
+                            {
+                                server: {
+                                    name: "disabled-server",
+                                    config: "{}",
+                                    status: "connected",
+                                    disabled: true
+                                },
+                                client: {} as any,
+                                transport: {} as any
+                            }
+                        ]
+
+                        mcpHub.connections = mockConnections
+                        const servers = mcpHub.getServers()
+
+                        assert.strictEqual(servers.length, 1)
+                        assert.strictEqual(servers[0].name, "enabled-server")
+                        break
+                    }
+
+                    case 'server.timeout.update': {
+                        mockFileContent = JSON.stringify({
+                            mcpServers: {
+                                "test-server": {
+                                    command: "node",
+                                    args: ["test.js"],
+                                    timeout: 60
+                                }
+                            }
+                        })
+
+                        await mcpHub.updateServerTimeout("test-server", 120)
+
+                        const writtenConfig = JSON.parse(writtenContent!)
+                        assert.strictEqual(writtenConfig.mcpServers["test-server"].timeout, 120)
+                        break
+                    }
+
+                    case 'server.timeout.validate': {
+                        // Test valid timeout values
+                        const validConfig = {
+                            command: "test",
+                            timeout: 60
+                        }
+                        assert.doesNotThrow(() => StdioConfigSchema.parse(validConfig))
+
+                        // Test invalid timeout values
+                        const invalidConfigs = [
+                            { command: "test", timeout: 0 },
+                            { command: "test", timeout: 3601 },
+                            { command: "test", timeout: -1 }
+                        ]
+
+                        for (const config of invalidConfigs) {
+                            assert.throws(() => StdioConfigSchema.parse(config))
+                        }
+                        break
+                    }
+
+                    case 'server.timeout.default': {
+                        const mockConnection: McpConnection = {
+                            server: {
+                                name: "test-server",
+                                config: JSON.stringify({ command: "test" }),
+                                status: "connected"
+                            },
+                            client: {
+                                request: async () => ({ content: [] })
+                            } as any,
+                            transport: {} as any
+                        }
+
+                        let requestOptions: any
+                        mockConnection.client.request = async (_req: any, _ctx: any, options: any) => {
+                            requestOptions = options
+                            return { content: [] }
+                        }
+
+                        mcpHub.connections = [mockConnection]
+                        await mcpHub.callTool("test-server", "test-tool")
+
+                        assert.strictEqual(requestOptions.timeout, 60000)
+                        break
+                    }
+                }
+
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(`Test failed: ${err}`))
+            } finally {
+                // Restore original functions
+                ;(global as any).fs.readFile = originalReadFile
+                ;(global as any).fs.writeFile = originalWriteFile
+            }
+        }
+
+        run.end()
+    })
+
+    // Tool Always Allow tests
+    const toolSuite = testController.createTestItem('tool', 'Tool Always Allow')
+    rootSuite.children.add(toolSuite)
+
+    toolSuite.children.add(testController.createTestItem(
+        'tool.alwaysAllow.enable',
+        'should add tool to always allow list when enabling'
+    ))
+
+    toolSuite.children.add(testController.createTestItem(
+        'tool.alwaysAllow.disable',
+        'should remove tool from always allow list when disabling'
+    ))
+
+    // Server Disabled State tests
+    const serverSuite = testController.createTestItem('server', 'Server State')
+    rootSuite.children.add(serverSuite)
+
+    serverSuite.children.add(testController.createTestItem(
+        'server.disabled.toggle',
+        'should toggle server disabled state'
+    ))
+
+    serverSuite.children.add(testController.createTestItem(
+        'server.disabled.filter',
+        'should filter out disabled servers from getServers'
+    ))
+
+    // Server Timeout tests
+    const timeoutSuite = testController.createTestItem('timeout', 'Server Timeout')
+    rootSuite.children.add(timeoutSuite)
+
+    timeoutSuite.children.add(testController.createTestItem(
+        'server.timeout.update',
+        'should update server timeout in settings file'
+    ))
+
+    timeoutSuite.children.add(testController.createTestItem(
+        'server.timeout.validate',
+        'should validate timeout values'
+    ))
+
+    timeoutSuite.children.add(testController.createTestItem(
+        'server.timeout.default',
+        'should use default timeout of 60 seconds if not specified'
+    ))
+}

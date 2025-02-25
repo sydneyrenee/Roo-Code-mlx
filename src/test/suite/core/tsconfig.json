@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "forceConsistentCasingInFileNames": true,
+        "target": "ES2022",
+        "module": "commonjs",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "skipLibCheck": true,
+        "noEmit": false,
+        "sourceMap": true,
+        "outDir": "../../../../out/test",
+        "strict": true,
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "noImplicitThis": false,
+        "alwaysStrict": true,
+        "types": [
+            "node",
+            "vscode",
+            "mocha"
+        ],
+        "esModuleInterop": true,
+        "baseUrl": "../../../.."
+    },
+    "include": [
+        ".",
+        "../testController.ts",
+        "../../testUtils.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        ".vscode-test"
+    ]
+}

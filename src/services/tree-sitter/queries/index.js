@@ -1,0 +1,31 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.swiftQuery = exports.goQuery = exports.csharpQuery = exports.cQuery = exports.cppQuery = exports.rubyQuery = exports.rustQuery = exports.javaQuery = exports.javascriptQuery = exports.pythonQuery = exports.typescriptQuery = exports.phpQuery = void 0;
+var php_1 = require("./php");
+Object.defineProperty(exports, "phpQuery", { enumerable: true, get: function () { return __importDefault(php_1).default; } });
+var typescript_1 = require("./typescript");
+Object.defineProperty(exports, "typescriptQuery", { enumerable: true, get: function () { return __importDefault(typescript_1).default; } });
+var python_1 = require("./python");
+Object.defineProperty(exports, "pythonQuery", { enumerable: true, get: function () { return __importDefault(python_1).default; } });
+var javascript_1 = require("./javascript");
+Object.defineProperty(exports, "javascriptQuery", { enumerable: true, get: function () { return __importDefault(javascript_1).default; } });
+var java_1 = require("./java");
+Object.defineProperty(exports, "javaQuery", { enumerable: true, get: function () { return __importDefault(java_1).default; } });
+var rust_1 = require("./rust");
+Object.defineProperty(exports, "rustQuery", { enumerable: true, get: function () { return __importDefault(rust_1).default; } });
+var ruby_1 = require("./ruby");
+Object.defineProperty(exports, "rubyQuery", { enumerable: true, get: function () { return __importDefault(ruby_1).default; } });
+var cpp_1 = require("./cpp");
+Object.defineProperty(exports, "cppQuery", { enumerable: true, get: function () { return __importDefault(cpp_1).default; } });
+var c_1 = require("./c");
+Object.defineProperty(exports, "cQuery", { enumerable: true, get: function () { return __importDefault(c_1).default; } });
+var c_sharp_1 = require("./c-sharp");
+Object.defineProperty(exports, "csharpQuery", { enumerable: true, get: function () { return __importDefault(c_sharp_1).default; } });
+var go_1 = require("./go");
+Object.defineProperty(exports, "goQuery", { enumerable: true, get: function () { return __importDefault(go_1).default; } });
+var swift_1 = require("./swift");
+Object.defineProperty(exports, "swiftQuery", { enumerable: true, get: function () { return __importDefault(swift_1).default; } });
+//# sourceMappingURL=index.js.map

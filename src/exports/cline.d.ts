@@ -1,3 +1,6 @@
+import { ClineProvider } from "../core/webview/ClineProvider"
+import { Mode } from "../shared/modes"
+
 export interface ClineAPI {
 	/**
 	 * Sets the custom instructions in the global storage.
@@ -36,7 +39,23 @@ export interface ClineAPI {
 	pressSecondaryButton(): Promise<void>
 
 	/**
+	 * Gets the provider instance.
+	 */
+	getProvider(): ClineProvider
+
+	/**
+	 * Switches to a different mode.
+	 * @param mode The mode to switch to.
+	 */
+	switchMode(mode: Mode): Promise<void>
+
+	/**
+	 * Gets the current mode.
+	 */
+	getCurrentMode(): Promise<Mode>
+
+	/**
 	 * The sidebar provider instance.
 	 */
-	sidebarProvider: ClineSidebarProvider
+	sidebarProvider: ClineProvider
 }

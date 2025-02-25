@@ -1,0 +1,2550 @@
+
+> roo-cline@3.3.20 pretest
+> npm run compile && npm run compile:integration
+
+
+> roo-cline@3.3.20 compile
+> tsc -p . --outDir out && node esbuild.js
+
+[watch] build started
+[watch] build finished
+
+> roo-cline@3.3.20 compile:integration
+> tsc -p tsconfig.integration.json
+
+
+> roo-cline@3.3.20 test
+> jest && npm run test:webview --coverage src/ 1
+
+  console.log
+    Full hunk application failed, trying sub-hunks strategy
+
+      at NewUnifiedDiffStrategy.applyDiff (src/core/diff/strategies/new-unified/index.ts:258:13)
+
+  console.log
+    Full hunk application failed, trying sub-hunks strategy
+
+      at NewUnifiedDiffStrategy.applyDiff (src/core/diff/strategies/new-unified/index.ts:258:13)
+
+(node:92298) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS Roo Code Tests src/test/suite/services/vertex/vertex-handler-cache.test.ts
+  Vertex Handler Cache Integration
+    Cache Control
+      ✓ should add cache control to context block (7 ms)
+      ✓ should not add cache control without context
+      ✓ should handle different temperature settings (1 ms)
+    Cache Usage Tracking
+      ✓ should track cache write usage (1 ms)
+      ✓ should track cache hit usage
+      ✓ should handle zero token usage (1 ms)
+    Error Handling
+      ✓ should handle API errors gracefully (3 ms)
+      ✓ should handle stream errors (1 ms)
+    Cache Refresh
+      ✓ should start cache refresh when context is provided (1 ms)
+      ✓ should clean up refresh on dispose
+    completePrompt
+      ✓ should handle cache in non-streaming mode (1 ms)
+      ✓ should handle empty or invalid response
+
+PASS Roo Code Tests src/core/diff/strategies/__tests__/search-replace.test.ts
+  SearchReplaceDiffStrategy
+    exact matching
+      ✓ should replace matching content (3 ms)
+      ✓ should match content with different surrounding whitespace
+      ✓ should match content with different indentation in search block
+      ✓ should handle tab-based indentation
+      ✓ should preserve mixed tabs and spaces (1 ms)
+      ✓ should handle additional indentation with tabs
+      ✓ should preserve exact indentation characters when adding lines (1 ms)
+      ✓ should handle Windows-style CRLF line endings
+      ✓ should return false if search content does not match
+      ✓ should return false if diff format is invalid (1 ms)
+      ✓ should handle multiple lines with proper indentation
+      ✓ should preserve whitespace exactly in the output
+      ✓ should preserve indentation when adding new lines after existing content
+      ✓ should handle varying indentation levels correctly (1 ms)
+      ✓ should handle mixed indentation styles in the same file
+      ✓ should handle Python-style significant whitespace
+      ✓ should preserve empty lines with indentation
+      ✓ should handle indentation when replacing entire blocks (1 ms)
+      ✓ should handle negative indentation relative to search content
+      ✓ should handle extreme negative indentation (no indent)
+      ✓ should handle mixed indentation changes in replace block
+      ✓ should find matches from middle out
+    line number stripping
+      line number stripping
+        ✓ should strip line numbers from both search and replace sections
+        ✓ should strip line numbers with leading spaces (8 ms)
+        ✓ should not strip when not all lines have numbers in either section
+        ✓ should preserve content that naturally starts with pipe
+        ✓ should preserve indentation when stripping line numbers (1 ms)
+        ✓ should handle different line numbers between sections
+        ✓ should not strip content that starts with pipe but no line number
+        ✓ should handle mix of line-numbered and pipe-only content
+    insertion/deletion
+      deletion
+        ✓ should delete code when replace block is empty (1 ms)
+        ✓ should delete multiple lines when replace block is empty
+        ✓ should preserve indentation when deleting nested code
+      insertion
+        ✓ should insert code at specified line when search block is empty
+        ✓ should preserve indentation when inserting at nested location (1 ms)
+        ✓ should handle insertion at start of file
+        ✓ should handle insertion at end of file
+        ✓ should error if no start_line is provided for insertion
+    fuzzy matching
+      ✓ should match content with small differences (>90% similar)
+      ✓ should not match when content is too different (<90% similar) (1 ms)
+      ✓ should match content with extra whitespace
+      ✓ should not exact match empty lines
+    line-constrained search
+      ✓ should find and replace within specified line range
+      ✓ should find and replace within buffer zone (5 lines before/after)
+      ✓ should not find matches outside search range and buffer zone (1 ms)
+      ✓ should handle search range at start of file
+      ✓ should handle search range at end of file
+      ✓ should match specific instance of duplicate code using line numbers (3 ms)
+      ✓ should search from start line to end of file when only start_line is provided
+      ✓ should search from start of file to end line when only end_line is provided (1 ms)
+      ✓ should prioritize exact line match over expanded search
+      ✓ should fall back to expanded search only if exact match fails (2 ms)
+    getToolDescription
+      ✓ should include the current working directory
+      ✓ should include required format elements
+      ✓ should document start_line and end_line parameters (1 ms)
+
+PASS Roo Code Tests src/core/diff/strategies/__tests__/new-unified.test.ts
+  main
+    ✓ should apply simple diff correctly (2 ms)
+    ✓ should handle multiple hunks (1 ms)
+    ✓ should handle complex large (2 ms)
+    ✓ should handle indentation changes (1 ms)
+    ✓ should handle high level edits (1 ms)
+    ✓ it should handle very complex edits (16 ms)
+    constructor
+      ✓ should use default confidence threshold when not provided (3 ms)
+      ✓ should use provided confidence threshold
+      ✓ should enforce minimum confidence threshold (2 ms)
+    getToolDescription
+      ✓ should return tool description with correct cwd (1 ms)
+    error handling and edge cases
+      ✓ should reject completely invalid diff format
+      ✓ should reject diff with invalid hunk format
+      ✓ should fail when diff tries to modify non-existent content (12 ms)
+      ✓ should handle overlapping hunks (1 ms)
+      ✓ should handle empty lines modifications (1 ms)
+      ✓ should handle mixed line endings in diff
+      ✓ should handle partial line modifications
+      ✓ should handle slightly malformed but recoverable diff (26 ms)
+    similar code sections
+      ✓ should correctly modify the right section when similar code exists (1 ms)
+      ✓ should handle multiple similar sections with correct context
+    hunk splitting
+      ✓ should handle large diffs with multiple non-contiguous changes (34 ms)
+
+PASS Roo Code Tests src/api/providers/__tests__/glama.test.ts
+  GlamaHandler
+    constructor
+      ✓ should initialize with provided options (1 ms)
+    createMessage
+      ✓ should handle streaming responses (1 ms)
+      ✓ should handle API errors
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle API errors (3 ms)
+      ✓ should handle empty response (1 ms)
+      ✓ should not set max_tokens for non-Anthropic models (1 ms)
+    getModel
+      ✓ should return model info (1 ms)
+
+PASS Roo Code Tests src/core/mentions/__tests__/index.test.ts
+  mentions
+    parseMentions
+      ✓ should parse git commit mentions (1 ms)
+      ✓ should handle errors fetching git info
+    openMention
+      ✓ should handle file paths and problems
+      ✓ should handle URLs (1 ms)
+
+PASS Roo Code Tests src/core/webview/__tests__/ClineProvider.test.ts
+  ClineProvider
+    ✓ constructor initializes correctly (3 ms)
+    ✓ resolveWebviewView sets up webview correctly (2 ms)
+    ✓ resolveWebviewView sets up webview correctly in development mode even if local server is not running (1 ms)
+    ✓ postMessageToWebview sends message to webview (6 ms)
+    ✓ handles webviewDidLaunch message (36 ms)
+    ✓ clearTask aborts current task
+    ✓ getState returns correct initial state (1 ms)
+    ✓ preferredLanguage defaults to VSCode language when not set
+    ✓ preferredLanguage defaults to English for unsupported VSCode language
+    ✓ diffEnabled defaults to true when not set
+    ✓ writeDelayMs defaults to 1000ms
+    ✓ handles writeDelayMs message (1 ms)
+    ✓ updates sound utility when sound setting changes
+    ✓ requestDelaySeconds defaults to 5 seconds (1 ms)
+    ✓ alwaysApproveResubmit defaults to false
+    ✓ loads saved API config when switching modes (2 ms)
+    ✓ saves current config when switching to mode without config
+    ✓ saves config as default for current mode when loading config (1 ms)
+    ✓ handles request delay settings messages (3 ms)
+    ✓ handles updatePrompt message correctly (4 ms)
+    ✓ customModePrompts defaults to empty object
+    ✓ uses mode-specific custom instructions in Cline initialization (1 ms)
+    ✓ handles mode-specific custom instructions updates
+    ✓ saves mode config when updating API configuration (1 ms)
+    ✓ file content includes line numbers
+    deleteMessage
+      ✓ handles "Just this message" deletion correctly
+      ✓ handles "This and all subsequent messages" deletion correctly
+      ✓ handles Cancel correctly
+    getSystemPrompt
+      ✓ handles mcpEnabled setting correctly
+      ✓ handles errors gracefully (1 ms)
+      ✓ uses code mode custom instructions
+      ✓ passes diffStrategy and diffEnabled to SYSTEM_PROMPT when previewing (2 ms)
+      ✓ passes diffEnabled: false to SYSTEM_PROMPT when diff is disabled (1 ms)
+      ✓ uses correct mode-specific instructions when mode is specified
+    handleModeSwitch
+      ✓ loads saved API config when switching modes (1 ms)
+      ✓ saves current config when switching to mode without config
+    updateCustomMode
+      ✓ updates both file and state when updating custom mode (1 ms)
+    upsertApiConfiguration
+      ✓ handles error in upsertApiConfiguration gracefully (1 ms)
+      ✓ handles successful upsertApiConfiguration
+      ✓ handles buildApiHandler error in updateApiConfiguration (1 ms)
+
+  console.log
+    OpenRouter generation details: {
+      data: {
+        native_tokens_prompt: 10,
+        native_tokens_completion: 20,
+        total_cost: 0.001
+      }
+    }
+
+      at OpenRouterHandler.createMessage (src/api/providers/openrouter.ts:201:13)
+
+  console.error
+    [CustomModesManager] Failed to load modes from /mock/workspace/.roomodes: Unexpected token 'i', "invalid json" is not valid JSON
+
+      77 | 		} catch (error) {
+      78 | 			const errorMsg = `Failed to load modes from ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+    > 79 | 			console.error(`[CustomModesManager] ${errorMsg}`)
+         | 			        ^
+      80 | 			return []
+      81 | 		}
+      82 | 	}
+
+      at CustomModesManager.loadModesFromFile (src/core/config/CustomModesManager.ts:79:12)
+      at CustomModesManager.getCustomModes (src/core/config/CustomModesManager.ts:188:40)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:121:18)
+
+  console.error
+    [CustomModesManager] Failed to load modes from /mock/workspace/.roomodes: File not found
+
+      77 | 		} catch (error) {
+      78 | 			const errorMsg = `Failed to load modes from ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+    > 79 | 			console.error(`[CustomModesManager] ${errorMsg}`)
+         | 			        ^
+      80 | 			return []
+      81 | 		}
+      82 | 	}
+
+      at CustomModesManager.loadModesFromFile (src/core/config/CustomModesManager.ts:79:12)
+      at CustomModesManager.refreshMergedState (src/core/config/CustomModesManager.ts:273:40)
+      at src/core/config/CustomModesManager.ts:240:5
+      at CustomModesManager.processWriteQueue (src/core/config/CustomModesManager.ts:40:6)
+      at CustomModesManager.queueWrite (src/core/config/CustomModesManager.ts:26:4)
+      at CustomModesManager.updateCustomMode (src/core/config/CustomModesManager.ts:227:4)
+          at async Promise.all (index 0)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:243:4)
+
+  console.error
+    [CustomModesManager] Failed to load modes from /mock/workspace/.roomodes: File not found
+
+      77 | 		} catch (error) {
+      78 | 			const errorMsg = `Failed to load modes from ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+    > 79 | 			console.error(`[CustomModesManager] ${errorMsg}`)
+         | 			        ^
+      80 | 			return []
+      81 | 		}
+      82 | 	}
+
+      at CustomModesManager.loadModesFromFile (src/core/config/CustomModesManager.ts:79:12)
+      at CustomModesManager.refreshMergedState (src/core/config/CustomModesManager.ts:273:40)
+      at src/core/config/CustomModesManager.ts:240:5
+      at CustomModesManager.processWriteQueue (src/core/config/CustomModesManager.ts:40:6)
+      at CustomModesManager.queueWrite (src/core/config/CustomModesManager.ts:26:4)
+      at CustomModesManager.updateCustomMode (src/core/config/CustomModesManager.ts:227:4)
+          at async Promise.all (index 0)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:243:4)
+
+  console.error
+    [CustomModesManager] Failed to load modes from /mock/workspace/.roomodes: File not found
+
+      77 | 		} catch (error) {
+      78 | 			const errorMsg = `Failed to load modes from ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+    > 79 | 			console.error(`[CustomModesManager] ${errorMsg}`)
+         | 			        ^
+      80 | 			return []
+      81 | 		}
+      82 | 	}
+
+      at CustomModesManager.loadModesFromFile (src/core/config/CustomModesManager.ts:79:12)
+      at CustomModesManager.deleteCustomMode (src/core/config/CustomModesManager.ts:286:41)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:357:4)
+
+  console.error
+    [CustomModesManager] Failed to load modes from /mock/workspace/.roomodes: File not found
+
+      77 | 		} catch (error) {
+      78 | 			const errorMsg = `Failed to load modes from ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+    > 79 | 			console.error(`[CustomModesManager] ${errorMsg}`)
+         | 			        ^
+      80 | 			return []
+      81 | 		}
+      82 | 	}
+
+      at CustomModesManager.loadModesFromFile (src/core/config/CustomModesManager.ts:79:12)
+      at CustomModesManager.refreshMergedState (src/core/config/CustomModesManager.ts:273:40)
+      at src/core/config/CustomModesManager.ts:307:5
+      at CustomModesManager.processWriteQueue (src/core/config/CustomModesManager.ts:40:6)
+      at CustomModesManager.queueWrite (src/core/config/CustomModesManager.ts:26:4)
+      at CustomModesManager.deleteCustomMode (src/core/config/CustomModesManager.ts:296:4)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:357:4)
+
+  console.error
+    OpenRouter API Error: 500 - API Error
+
+      155 | 			if ("error" in chunk) {
+      156 | 				const error = chunk.error as { message?: string; code?: number }
+    > 157 | 				console.error(`OpenRouter API Error: ${error?.code} - ${error?.message}`)
+          | 				        ^
+      158 | 				throw new Error(`OpenRouter API Error ${error?.code}: ${error?.message}`)
+      159 | 			}
+      160 |
+
+      at OpenRouterHandler.createMessage (src/api/providers/openrouter.ts:157:13)
+      at Object.<anonymous> (src/api/providers/__tests__/openrouter.test.ts:238:3)
+
+  console.error
+    [CustomModesManager] Failed to load modes from /mock/workspace/.roomodes: File not found
+
+      77 | 		} catch (error) {
+      78 | 			const errorMsg = `Failed to load modes from ${filePath}: ${error instanceof Error ? error.message : String(error)}`
+    > 79 | 			console.error(`[CustomModesManager] ${errorMsg}`)
+         | 			        ^
+      80 | 			return []
+      81 | 		}
+      82 | 	}
+
+      at CustomModesManager.loadModesFromFile (src/core/config/CustomModesManager.ts:79:12)
+      at CustomModesManager.deleteCustomMode (src/core/config/CustomModesManager.ts:286:41)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:374:4)
+
+PASS Roo Code Tests src/api/providers/__tests__/openrouter.test.ts
+  OpenRouterHandler
+    ✓ constructor initializes with correct options (1 ms)
+    ✓ getModel returns correct model info when options are provided
+    ✓ getModel returns default model info when options are not provided (1 ms)
+    ✓ createMessage generates correct stream chunks (26 ms)
+    ✓ createMessage with middle-out transform enabled
+    ✓ createMessage with Claude model adds cache control (1 ms)
+    ✓ createMessage handles API errors (23 ms)
+    ✓ completePrompt returns correct response (1 ms)
+    ✓ completePrompt handles API errors
+    ✓ completePrompt handles unexpected errors (1 ms)
+
+  console.error
+    [CustomModesManager] Failed to parse JSON from /mock/settings/settings/cline_custom_modes.json: SyntaxError: Expected property name or '}' in JSON at position 2 (line 1 column 3)
+        at JSON.parse (<anonymous>)
+        at CustomModesManager.updateModesInFile (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/CustomModesManager.ts:259:20)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/CustomModesManager.ts:234:5
+        at CustomModesManager.processWriteQueue (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/CustomModesManager.ts:40:6)
+        at CustomModesManager.queueWrite (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/CustomModesManager.ts:26:4)
+        at CustomModesManager.updateCustomMode (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/CustomModesManager.ts:227:4)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/__tests__/CustomModesManager.test.ts:393:4)
+
+      259 | 			settings = JSON.parse(content)
+      260 | 		} catch (error) {
+    > 261 | 			console.error(`[CustomModesManager] Failed to parse JSON from ${filePath}:`, error)
+          | 			        ^
+      262 | 			settings = { customModes: [] }
+      263 | 		}
+      264 | 		settings.customModes = operation(settings.customModes || [])
+
+      at CustomModesManager.updateModesInFile (src/core/config/CustomModesManager.ts:261:12)
+      at src/core/config/CustomModesManager.ts:234:5
+      at CustomModesManager.processWriteQueue (src/core/config/CustomModesManager.ts:40:6)
+      at CustomModesManager.queueWrite (src/core/config/CustomModesManager.ts:26:4)
+      at CustomModesManager.updateCustomMode (src/core/config/CustomModesManager.ts:227:4)
+      at Object.<anonymous> (src/core/config/__tests__/CustomModesManager.test.ts:393:4)
+
+PASS Roo Code Tests src/core/config/__tests__/CustomModesManager.test.ts
+  CustomModesManager
+    getCustomModes
+      ✓ should merge modes with .roomodes taking precedence (2 ms)
+      ✓ should handle missing .roomodes file
+      ✓ should handle invalid JSON in .roomodes (34 ms)
+    updateCustomMode
+      ✓ should update mode in settings file while preserving .roomodes precedence (3 ms)
+      ✓ queues write operations (14 ms)
+    File Operations
+      ✓ creates settings directory if it doesn't exist
+      ✓ creates default config if file doesn't exist (1 ms)
+      ✓ watches file for changes
+    deleteCustomMode
+      ✓ deletes mode from settings file (2 ms)
+      ✓ handles errors gracefully (3 ms)
+    updateModesInFile
+      ✓ handles corrupted JSON content gracefully (3 ms)
+
+  console.error
+    Bedrock Runtime API Error: Error: AWS Bedrock error
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/bedrock.test.ts:170:51)
+        at Promise.then.completed (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:316:40)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at _runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at run (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:444:34)
+        at Object.worker (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/testWorker.js:106:12)
+
+      176 | 			}
+      177 | 		} catch (error: unknown) {
+    > 178 | 			console.error("Bedrock Runtime API Error:", error)
+          | 			        ^
+      179 | 			// Only access stack if error is an Error object
+      180 | 			if (error instanceof Error) {
+      181 | 				console.error("Error stack:", error.stack)
+
+      at AwsBedrockHandler.createMessage (src/api/providers/bedrock.ts:178:12)
+      at src/api/providers/__tests__/bedrock.test.ts:179:22
+      at Object.<anonymous> (src/api/providers/__tests__/bedrock.test.ts:178:4)
+
+  console.error
+    Error stack: Error: AWS Bedrock error
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/bedrock.test.ts:170:51)
+        at Promise.then.completed (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:316:40)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at _runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at run (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:444:34)
+        at Object.worker (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/testWorker.js:106:12)
+
+      179 | 			// Only access stack if error is an Error object
+      180 | 			if (error instanceof Error) {
+    > 181 | 				console.error("Error stack:", error.stack)
+          | 				        ^
+      182 | 				yield {
+      183 | 					type: "text",
+      184 | 					text: `Error: ${error.message}`,
+
+      at AwsBedrockHandler.createMessage (src/api/providers/bedrock.ts:181:13)
+      at src/api/providers/__tests__/bedrock.test.ts:179:22
+      at Object.<anonymous> (src/api/providers/__tests__/bedrock.test.ts:178:4)
+
+  console.error
+    Failed to parse Bedrock response: SyntaxError: Unexpected token 'i', "invalid json" is not valid JSON
+        at JSON.parse (<anonymous>)
+        at AwsBedrockHandler.completePrompt (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/bedrock.ts:278:26)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/bedrock.test.ts:245:19)
+
+      281 | 					}
+      282 | 				} catch (parseError) {
+    > 283 | 					console.error("Failed to parse Bedrock response:", parseError)
+          | 					        ^
+      284 | 				}
+      285 | 			}
+      286 | 			return ""
+
+      at AwsBedrockHandler.completePrompt (src/api/providers/bedrock.ts:283:14)
+      at Object.<anonymous> (src/api/providers/__tests__/bedrock.test.ts:245:19)
+
+PASS Roo Code Tests src/api/providers/__tests__/bedrock.test.ts
+  AwsBedrockHandler
+    constructor
+      ✓ should initialize with provided config (5 ms)
+      ✓ should initialize with missing AWS credentials (2 ms)
+      ✓ should initialize with AWS profile credentials
+      ✓ should initialize with AWS profile enabled but no profile set (1 ms)
+    AWS SDK client configuration
+      ✓ should configure client with profile credentials when profile mode is enabled (1 ms)
+    createMessage
+      ✓ should handle text messages correctly
+      ✓ should handle API errors (23 ms)
+    completePrompt
+      ✓ should complete prompt successfully (1 ms)
+      ✓ should handle API errors (3 ms)
+      ✓ should handle invalid response format (4 ms)
+      ✓ should handle empty response
+      ✓ should handle cross-region inference
+    getModel
+      ✓ should return correct model info in test environment
+      ✓ should return test model info for invalid model in test environment (1 ms)
+
+PASS Roo Code Tests src/integrations/misc/__tests__/extract-text.test.ts
+  addLineNumbers
+    ✓ should add line numbers starting from 1 by default
+    ✓ should add line numbers starting from specified line number
+    ✓ should handle empty content
+    ✓ should handle single line content (1 ms)
+    ✓ should pad line numbers based on the highest line number
+  everyLineHasLineNumbers
+    ✓ should return true for content with line numbers
+    ✓ should return true for content with padded line numbers
+    ✓ should return false for content without line numbers
+    ✓ should return false for mixed content
+    ✓ should handle empty content
+    ✓ should return false for content with pipe but no line numbers
+  stripLineNumbers
+    ✓ should strip line numbers from content
+    ✓ should strip padded line numbers
+    ✓ should handle content without line numbers
+    ✓ should handle empty content
+    ✓ should preserve content with pipe but no line numbers
+    ✓ should handle windows-style line endings
+    ✓ should handle content with varying line number widths (1 ms)
+  truncateOutput
+    ✓ returns original content when no line limit provided
+    ✓ returns original content when lines are under limit
+    ✓ truncates content with 20/80 split when over limit
+    ✓ handles empty content
+    ✓ handles single line content
+    ✓ handles windows-style line endings
+
+  console.log
+    Strategy 1 - Original commit: 9011993e6b7cdb65baf85e8ebc12431d8a9a877f
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:179:12)
+
+PASS Roo Code Tests src/core/config/__tests__/CustomModesSchema.test.ts
+  CustomModeSchema
+    validateCustomMode
+      ✓ accepts valid mode configuration (1 ms)
+      ✓ accepts mode with multiple groups
+      ✓ accepts mode with optional customInstructions
+      ✓ rejects missing required fields (3 ms)
+      ✓ rejects invalid slug format (1 ms)
+      ✓ rejects empty strings in required fields
+      ✓ rejects invalid group configurations
+      ✓ handles null and undefined gracefully
+      ✓ rejects non-object inputs (6 ms)
+    fileRegex
+      ✓ validates a mode with file restrictions and descriptions (1 ms)
+      ✓ validates file regex patterns (1 ms)
+      ✓ prevents duplicate groups
+
+PASS Roo Code Tests src/api/providers/__tests__/openai-native.test.ts
+  OpenAiNativeHandler
+    constructor
+      ✓ should initialize with provided options
+      ✓ should initialize with empty API key (1 ms)
+    createMessage
+      ✓ should handle streaming responses (1 ms)
+      ✓ should handle API errors
+      ✓ should handle missing content in response for o1 model (1 ms)
+      ✓ should handle o3-mini model family correctly
+    streaming models
+      ✓ should handle streaming response (1 ms)
+      ✓ should handle empty delta content
+    completePrompt
+      ✓ should complete prompt successfully with gpt-4o model
+      ✓ should complete prompt successfully with o1 model
+      ✓ should complete prompt successfully with o1-preview model
+      ✓ should complete prompt successfully with o1-mini model
+      ✓ should complete prompt successfully with o3-mini model
+      ✓ should handle API errors (2 ms)
+      ✓ should handle empty response
+    getModel
+      ✓ should return model info (5 ms)
+      ✓ should handle undefined model ID (1 ms)
+
+  console.debug
+    [Roo Code] MistralHandler using baseUrl: https://codestral.mistral.ai
+
+      at new MistralHandler (src/api/providers/mistral.ts:30:11)
+
+  console.debug
+    [Roo Code] MistralHandler using baseUrl: https://codestral.mistral.ai
+
+      at new MistralHandler (src/api/providers/mistral.ts:30:11)
+
+  console.debug
+    [Roo Code] MistralHandler using baseUrl: https://codestral.mistral.ai
+
+      at new MistralHandler (src/api/providers/mistral.ts:30:11)
+
+  console.debug
+    [Roo Code] MistralHandler using baseUrl: https://codestral.mistral.ai
+
+      at new MistralHandler (src/api/providers/mistral.ts:30:11)
+
+  console.debug
+    [Roo Code] MistralHandler using baseUrl: https://codestral.mistral.ai
+
+      at new MistralHandler (src/api/providers/mistral.ts:30:11)
+
+PASS Roo Code Tests src/api/providers/__tests__/mistral.test.ts
+  MistralHandler
+    constructor
+      ✓ should initialize with provided options (4 ms)
+      ✓ should throw error if API key is missing (4 ms)
+    getModel
+      ✓ should return correct model info (1 ms)
+      ✓ should use default model if none specified (1 ms)
+
+PASS Roo Code Tests src/integrations/workspace/__tests__/WorkspaceTracker.test.ts
+  WorkspaceTracker
+    ✓ should initialize with workspace files (7 ms)
+    ✓ should handle file creation events
+    ✓ should handle file deletion events
+    ✓ should handle directory paths correctly (2 ms)
+    ✓ should respect file limits (605 ms)
+    ✓ should clean up watchers and timers on dispose (1 ms)
+
+  console.debug
+    Roo Code <Language Model API>: Getting client with options: {
+      vsCodeLmModelSelector: { vendor: 'test-vendor', family: 'test-family' },
+      hasOptions: true,
+      selectorKeys: [ 'vendor', 'family' ]
+    }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:235:12)
+          at createMessage.next (<anonymous>)
+
+  console.debug
+    Roo Code <Language Model API>: Creating client with selector: { vendor: 'test-vendor', family: 'test-family' }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:244:13)
+          at createMessage.next (<anonymous>)
+
+  console.warn
+    Roo Code <Language Model API>: Token counting failed: Right-hand side of 'instanceof' is not callable
+
+      201 |
+      202 | 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    > 203 | 			console.warn("Roo Code <Language Model API>: Token counting failed:", errorMessage)
+          | 			        ^
+      204 |
+      205 | 			// Log additional error details if available
+      206 | 			if (error instanceof Error && error.stack) {
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:203:12)
+      at src/api/providers/vscode-lm.ts:220:88
+          at Array.map (<anonymous>)
+      at VsCodeLmHandler.calculateTotalInputTokens (src/api/providers/vscode-lm.ts:220:70)
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:343:36)
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:162:21)
+
+PASS Roo Code Tests src/api/providers/__tests__/requesty.test.ts
+  RequestyHandler
+    constructor
+      ✓ should initialize with correct options (1 ms)
+    createMessage
+      with streaming enabled
+        ✓ should handle streaming response correctly (2 ms)
+        ✓ should not include max_tokens when includeMaxTokens is false (1 ms)
+        ✓ should handle deepseek-reasoner model format (1 ms)
+      with streaming disabled
+        ✓ should handle non-streaming response correctly
+    getModel
+      ✓ should return correct model information (1 ms)
+      ✓ should use sane defaults when no model info provided (1 ms)
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle errors correctly (5 ms)
+
+(node:92297) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  console.debug
+    Token counting error stack: TypeError: Right-hand side of 'instanceof' is not callable
+        at VsCodeLmHandler.countTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:171:19)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:88
+        at Array.map (<anonymous>)
+        at VsCodeLmHandler.calculateTotalInputTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:70)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at VsCodeLmHandler.createMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:343:36)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:162:21)
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:207:13)
+          at Array.map (<anonymous>)
+
+  console.log
+    Strategy 1 - Search commit:
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:184:12)
+
+  console.warn
+    Roo Code <Language Model API>: Token counting failed: Right-hand side of 'instanceof' is not callable
+
+      201 |
+      202 | 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    > 203 | 			console.warn("Roo Code <Language Model API>: Token counting failed:", errorMessage)
+          | 			        ^
+      204 |
+      205 | 			// Log additional error details if available
+      206 | 			if (error instanceof Error && error.stack) {
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:203:12)
+      at src/api/providers/vscode-lm.ts:220:88
+          at Array.map (<anonymous>)
+      at VsCodeLmHandler.calculateTotalInputTokens (src/api/providers/vscode-lm.ts:220:70)
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:343:36)
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:162:21)
+
+  console.debug
+    Token counting error stack: TypeError: Right-hand side of 'instanceof' is not callable
+        at VsCodeLmHandler.countTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:171:19)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:88
+        at Array.map (<anonymous>)
+        at VsCodeLmHandler.calculateTotalInputTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:70)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at VsCodeLmHandler.createMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:343:36)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:162:21)
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:207:13)
+          at Array.map (<anonymous>)
+
+  console.debug
+    Roo Code <Language Model API>: Getting client with options: {
+      vsCodeLmModelSelector: { vendor: 'test-vendor', family: 'test-family' },
+      hasOptions: true,
+      selectorKeys: [ 'vendor', 'family' ]
+    }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:235:12)
+          at createMessage.next (<anonymous>)
+
+  console.debug
+    Roo Code <Language Model API>: Creating client with selector: { vendor: 'test-vendor', family: 'test-family' }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:244:13)
+          at createMessage.next (<anonymous>)
+
+  console.warn
+    Roo Code <Language Model API>: Token counting failed: Right-hand side of 'instanceof' is not callable
+
+      201 |
+      202 | 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    > 203 | 			console.warn("Roo Code <Language Model API>: Token counting failed:", errorMessage)
+          | 			        ^
+      204 |
+      205 | 			// Log additional error details if available
+      206 | 			if (error instanceof Error && error.stack) {
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:203:12)
+      at src/api/providers/vscode-lm.ts:220:88
+          at Array.map (<anonymous>)
+      at VsCodeLmHandler.calculateTotalInputTokens (src/api/providers/vscode-lm.ts:220:70)
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:343:36)
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:210:21)
+
+  console.debug
+    Token counting error stack: TypeError: Right-hand side of 'instanceof' is not callable
+        at VsCodeLmHandler.countTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:171:19)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:88
+        at Array.map (<anonymous>)
+        at VsCodeLmHandler.calculateTotalInputTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:70)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at VsCodeLmHandler.createMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:343:36)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:210:21)
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:207:13)
+          at Array.map (<anonymous>)
+
+  console.warn
+    Roo Code <Language Model API>: Token counting failed: Right-hand side of 'instanceof' is not callable
+
+      201 |
+      202 | 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    > 203 | 			console.warn("Roo Code <Language Model API>: Token counting failed:", errorMessage)
+          | 			        ^
+      204 |
+      205 | 			// Log additional error details if available
+      206 | 			if (error instanceof Error && error.stack) {
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:203:12)
+      at src/api/providers/vscode-lm.ts:220:88
+          at Array.map (<anonymous>)
+      at VsCodeLmHandler.calculateTotalInputTokens (src/api/providers/vscode-lm.ts:220:70)
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:343:36)
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:210:21)
+
+  console.debug
+    Token counting error stack: TypeError: Right-hand side of 'instanceof' is not callable
+        at VsCodeLmHandler.countTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:171:19)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:88
+        at Array.map (<anonymous>)
+        at VsCodeLmHandler.calculateTotalInputTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:70)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at VsCodeLmHandler.createMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:343:36)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:210:21)
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:207:13)
+          at Array.map (<anonymous>)
+
+  console.debug
+    Roo Code <Language Model API>: Processing tool call: { name: 'calculator', callId: 'call-1', inputSize: 35 }
+
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:408:15)
+
+(node:92299) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS Roo Code Tests src/api/providers/__tests__/vertex.test.ts
+  VertexHandler
+    createMessage
+      ✓ should add cache control to context block (1 ms)
+      ✓ should handle cache hits (1 ms)
+      ✓ should handle errors gracefully (2 ms)
+      ✓ should refresh cache before expiration (2 ms)
+      ✓ should stop refreshing on dispose (1 ms)
+    dispose
+      ✓ should clean up resources
+
+PASS Roo Code Tests src/integrations/editor/__tests__/DiffViewProvider.test.ts
+  DiffViewProvider
+    update method
+      ✓ should preserve empty last line when original content has one (1 ms)
+      ✓ should not add extra newline when accumulated content already ends with one (1 ms)
+      ✓ should not add newline when original content does not end with one
+
+  console.debug
+    Roo Code <Language Model API>: Getting client with options: {
+      vsCodeLmModelSelector: { vendor: 'test-vendor', family: 'test-family' },
+      hasOptions: true,
+      selectorKeys: [ 'vendor', 'family' ]
+    }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:235:12)
+          at createMessage.next (<anonymous>)
+
+  console.debug
+    Roo Code <Language Model API>: Creating client with selector: { vendor: 'test-vendor', family: 'test-family' }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:244:13)
+          at createMessage.next (<anonymous>)
+
+  console.warn
+    Roo Code <Language Model API>: Token counting failed: Right-hand side of 'instanceof' is not callable
+
+      201 |
+      202 | 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    > 203 | 			console.warn("Roo Code <Language Model API>: Token counting failed:", errorMessage)
+          | 			        ^
+      204 |
+      205 | 			// Log additional error details if available
+      206 | 			if (error instanceof Error && error.stack) {
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:203:12)
+      at src/api/providers/vscode-lm.ts:220:88
+          at Array.map (<anonymous>)
+      at VsCodeLmHandler.calculateTotalInputTokens (src/api/providers/vscode-lm.ts:220:70)
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:343:36)
+      at src/api/providers/__tests__/vscode-lm.test.ts:234:22
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:232:4)
+
+  console.debug
+    Token counting error stack: TypeError: Right-hand side of 'instanceof' is not callable
+        at VsCodeLmHandler.countTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:171:19)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:88
+        at Array.map (<anonymous>)
+        at VsCodeLmHandler.calculateTotalInputTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:70)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at VsCodeLmHandler.createMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:343:36)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:234:22
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:232:4)
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:207:13)
+          at Array.map (<anonymous>)
+
+  console.warn
+    Roo Code <Language Model API>: Token counting failed: Right-hand side of 'instanceof' is not callable
+
+      201 |
+      202 | 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    > 203 | 			console.warn("Roo Code <Language Model API>: Token counting failed:", errorMessage)
+          | 			        ^
+      204 |
+      205 | 			// Log additional error details if available
+      206 | 			if (error instanceof Error && error.stack) {
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:203:12)
+      at src/api/providers/vscode-lm.ts:220:88
+          at Array.map (<anonymous>)
+      at VsCodeLmHandler.calculateTotalInputTokens (src/api/providers/vscode-lm.ts:220:70)
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:343:36)
+      at src/api/providers/__tests__/vscode-lm.test.ts:234:22
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:232:4)
+
+  console.debug
+    Token counting error stack: TypeError: Right-hand side of 'instanceof' is not callable
+        at VsCodeLmHandler.countTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:171:19)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:88
+        at Array.map (<anonymous>)
+        at VsCodeLmHandler.calculateTotalInputTokens (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:220:70)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at VsCodeLmHandler.createMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/vscode-lm.ts:343:36)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:234:22
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:232:4)
+
+      at VsCodeLmHandler.countTokens (src/api/providers/vscode-lm.ts:207:13)
+          at Array.map (<anonymous>)
+
+  console.error
+    Roo Code <Language Model API>: Stream error details: {
+      message: 'API Error',
+      stack: 'Error: API Error\n' +
+        '    at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/providers/__tests__/vscode-lm.test.ts:230:60)\n' +
+        '    at Promise.then.completed (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:298:28)\n' +
+        '    at new Promise (<anonymous>)\n' +
+        '    at callAsyncCircusFn (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:231:10)\n' +
+        '    at _callCircusTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:316:40)\n' +
+        '    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n' +
+        '    at _runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:252:3)\n' +
+        '    at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:126:9)\n' +
+        '    at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)\n' +
+        '    at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)\n' +
+        '    at run (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:71:3)\n' +
+        '    at runAndTransformResultsToJestFormat (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n' +
+        '    at jestAdapter (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n' +
+        '    at runTestInternal (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:367:16)\n' +
+        '    at runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:444:34)\n' +
+        '    at Object.worker (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/testWorker.js:106:12)',
+      name: 'Error'
+    }
+
+      444 |
+      445 | 			if (error instanceof Error) {
+    > 446 | 				console.error("Roo Code <Language Model API>: Stream error details:", {
+          | 				        ^
+      447 | 					message: error.message,
+      448 | 					stack: error.stack,
+      449 | 					name: error.name,
+
+      at VsCodeLmHandler.createMessage (src/api/providers/vscode-lm.ts:446:13)
+      at src/api/providers/__tests__/vscode-lm.test.ts:234:22
+      at Object.<anonymous> (src/api/providers/__tests__/vscode-lm.test.ts:232:4)
+
+  console.debug
+    Roo Code <Language Model API>: Getting client with options: {
+      vsCodeLmModelSelector: { vendor: 'test-vendor', family: 'test-family' },
+      hasOptions: true,
+      selectorKeys: [ 'vendor', 'family' ]
+    }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:235:12)
+
+  console.debug
+    Roo Code <Language Model API>: Creating client with selector: { vendor: 'test-vendor', family: 'test-family' }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:244:13)
+
+  console.debug
+    Roo Code <Language Model API>: No client available, using fallback model info
+
+      at VsCodeLmHandler.getModel (src/api/providers/vscode-lm.ts:514:11)
+
+  console.debug
+    Roo Code <Language Model API>: Getting client with options: {
+      vsCodeLmModelSelector: { vendor: 'test-vendor', family: 'test-family' },
+      hasOptions: true,
+      selectorKeys: [ 'vendor', 'family' ]
+    }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:235:12)
+
+  console.debug
+    Roo Code <Language Model API>: Creating client with selector: { vendor: 'test-vendor', family: 'test-family' }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:244:13)
+
+  console.debug
+    Roo Code <Language Model API>: Getting client with options: {
+      vsCodeLmModelSelector: { vendor: 'test-vendor', family: 'test-family' },
+      hasOptions: true,
+      selectorKeys: [ 'vendor', 'family' ]
+    }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:235:12)
+
+  console.debug
+    Roo Code <Language Model API>: Creating client with selector: { vendor: 'test-vendor', family: 'test-family' }
+
+      at VsCodeLmHandler.getClient (src/api/providers/vscode-lm.ts:244:13)
+
+PASS Roo Code Tests src/api/providers/__tests__/vscode-lm.test.ts
+  VsCodeLmHandler
+    constructor
+      ✓ should initialize with provided options (1 ms)
+      ✓ should handle configuration changes
+    createClient
+      ✓ should create client with selector (1 ms)
+      ✓ should return default client when no models available
+    createMessage
+      ✓ should stream text responses (24 ms)
+      ✓ should handle tool calls (6 ms)
+      ✓ should handle errors (27 ms)
+    getModel
+      ✓ should return model info when client exists (1 ms)
+      ✓ should return fallback model info when no client exists
+    completePrompt
+      ✓ should complete single prompt (1 ms)
+      ✓ should handle errors during completion (1 ms)
+
+  console.error
+    Git is not installed
+
+      36 | 		const isInstalled = await checkGitInstalled()
+      37 | 		if (!isInstalled) {
+    > 38 | 			console.error("Git is not installed")
+         | 			        ^
+      39 | 			return []
+      40 | 		}
+      41 |
+
+      at searchCommits (src/utils/git.ts:38:12)
+      at Object.<anonymous> (src/utils/__tests__/git.test.ts:121:19)
+
+  console.error
+    Not a git repository
+
+      42 | 		const isRepo = await checkGitRepo(cwd)
+      43 | 		if (!isRepo) {
+    > 44 | 			console.error("Not a git repository")
+         | 			        ^
+      45 | 			return []
+      46 | 		}
+      47 |
+
+      at searchCommits (src/utils/git.ts:44:12)
+      at Object.<anonymous> (src/utils/__tests__/git.test.ts:143:19)
+
+PASS Roo Code Tests src/api/transform/__tests__/bedrock-converse-format.test.ts
+  bedrock-converse-format
+    convertToBedrockConverseMessages
+      ✓ converts simple text messages correctly
+      ✓ converts messages with images correctly
+      ✓ converts tool use messages correctly
+      ✓ converts tool result messages correctly
+      ✓ handles text content correctly
+    convertToAnthropicMessage
+      ✓ converts metadata events correctly
+      ✓ converts content block start events correctly
+      ✓ converts content block delta events correctly (1 ms)
+      ✓ converts message stop events correctly
+
+PASS Roo Code Tests src/shared/__tests__/modes.test.ts
+  isToolAllowedForMode
+    ✓ allows always available tools
+    ✓ allows unrestricted tools
+    ✓ handles non-existent modes
+    ✓ respects tool requirements
+    file restrictions
+      ✓ allows editing matching files
+      ✓ rejects editing non-matching files (10 ms)
+      ✓ handles partial streaming cases (path only, no content/diff)
+      ✓ applies restrictions to both write_to_file and apply_diff (3 ms)
+      ✓ uses description in file restriction error for custom modes (5 ms)
+      ✓ allows architect mode to edit markdown files only (1 ms)
+    experimental tools
+      ✓ disables tools when experiment is disabled
+      ✓ allows tools when experiment is enabled
+      ✓ allows non-experimental tools when experiments are disabled
+  FileRestrictionError
+    ✓ formats error message with pattern when no description provided
+    ✓ formats error message with description when provided
+
+PASS Roo Code Tests src/core/diff/strategies/__tests__/unified.test.ts
+  UnifiedDiffStrategy
+    getToolDescription
+      ✓ should return tool description with correct cwd
+    applyDiff
+      ✓ should successfully apply a function modification diff (1 ms)
+      ✓ should successfully apply a diff adding a new method
+      ✓ should successfully apply a diff modifying imports (1 ms)
+      ✓ should successfully apply a diff with multiple hunks
+      ✓ should handle empty original content
+
+PASS Roo Code Tests src/utils/__tests__/git.test.ts
+  git utils
+    searchCommits
+      ✓ should return commits when git is installed and repo exists (1 ms)
+      ✓ should return empty array when git is not installed (23 ms)
+      ✓ should return empty array when not in a git repository (26 ms)
+      ✓ should handle hash search when grep search returns no results
+    getCommitInfo
+      ✓ should return formatted commit info
+      ✓ should return error message when git is not installed (1 ms)
+      ✓ should return error message when not in a git repository (3 ms)
+    getWorkingState
+      ✓ should return working directory changes
+      ✓ should return message when working directory is clean
+      ✓ should return error message when git is not installed
+      ✓ should return error message when not in a git repository (1 ms)
+
+PASS Roo Code Tests src/utils/__tests__/path.test.ts
+  Path Utilities
+    String.prototype.toPosix
+      ✓ should convert backslashes to forward slashes
+      ✓ should not modify paths with forward slashes
+      ✓ should preserve extended-length Windows paths
+    arePathsEqual
+      on Windows
+        ✓ should compare paths case-insensitively
+        ✓ should handle different path separators (1 ms)
+        ✓ should normalize paths with ../
+      on POSIX
+        ✓ should compare paths case-sensitively
+        ✓ should normalize paths
+        ✓ should handle trailing slashes
+      edge cases
+        ✓ should handle undefined paths
+        ✓ should handle root paths with trailing slashes
+    getReadablePath
+      ✓ should return basename when path equals cwd
+      ✓ should return relative path when inside cwd
+      ✓ should return absolute path when outside cwd
+      ✓ should handle Desktop as cwd
+      ✓ should handle undefined relative path (1 ms)
+      ✓ should handle parent directory traversal
+      ✓ should normalize paths with redundant segments
+
+PASS Roo Code Tests src/core/config/__tests__/CustomModesSettings.test.ts
+  CustomModesSettings
+    schema validation
+      ✓ accepts valid settings (1 ms)
+      ✓ accepts empty custom modes array (1 ms)
+      ✓ accepts multiple custom modes
+      ✓ rejects missing customModes field (3 ms)
+      ✓ rejects invalid mode in array (1 ms)
+      ✓ rejects non-array customModes (1 ms)
+      ✓ rejects null or undefined
+      ✓ rejects duplicate mode slugs (1 ms)
+      ✓ rejects invalid group configurations in modes (2 ms)
+      ✓ handles multiple groups
+    type inference
+      ✓ inferred type includes all required fields
+      ✓ inferred type allows optional fields
+
+PASS Roo Code Tests src/core/prompts/__tests__/system.test.ts
+  SYSTEM_PROMPT
+    ✓ should maintain consistent system prompt (2 ms)
+    ✓ should include browser actions when supportsComputerUse is true
+    ✓ should include MCP server info when mcpHub is provided
+    ✓ should explicitly handle undefined mcpHub
+    ✓ should handle different browser viewport sizes
+    ✓ should include diff strategy tool description when diffEnabled is true
+    ✓ should exclude diff strategy tool description when diffEnabled is false (1 ms)
+    ✓ should exclude diff strategy tool description when diffEnabled is undefined
+    ✓ should include preferred language in custom instructions (1 ms)
+    ✓ should include custom mode role definition at top and instructions at bottom
+    ✓ should use promptComponent roleDefinition when available (8 ms)
+    ✓ should fallback to modeConfig roleDefinition when promptComponent has no roleDefinition
+    experimental tools
+      ✓ should disable experimental tools by default
+      ✓ should enable experimental tools when explicitly enabled
+      ✓ should selectively enable experimental tools
+      ✓ should list all available editing tools in base instruction
+      ✓ should provide detailed instructions for each enabled tool (1 ms)
+  addCustomInstructions
+    ✓ should generate correct prompt for architect mode
+    ✓ should generate correct prompt for ask mode
+    ✓ should include MCP server creation info when enabled (1 ms)
+    ✓ should exclude MCP server creation info when disabled
+    ✓ should prioritize mode-specific rules for code mode
+    ✓ should prioritize mode-specific rules for ask mode
+    ✓ should prioritize mode-specific rules for architect mode
+    ✓ should prioritize mode-specific rules for test engineer mode
+    ✓ should prioritize mode-specific rules for code reviewer mode (1 ms)
+    ✓ should fall back to generic rules when mode-specific rules not found
+    ✓ should include preferred language when provided
+    ✓ should include custom instructions when provided
+    ✓ should combine all custom instructions
+    ✓ should handle undefined mode-specific instructions
+    ✓ should trim mode-specific instructions
+    ✓ should handle empty mode-specific instructions
+    ✓ should combine global and mode-specific instructions
+    ✓ should prioritize mode-specific instructions after global ones
+
+PASS Roo Code Tests src/api/transform/__tests__/simple-format.test.ts
+  simple-format
+    convertToSimpleContent
+      ✓ returns string content as-is
+      ✓ extracts text from text blocks
+      ✓ converts image blocks to descriptive text
+      ✓ converts tool use blocks to descriptive text
+      ✓ handles string tool result content
+      ✓ handles array tool result content with text and images
+      ✓ filters out empty strings
+    convertToSimpleMessages
+      ✓ converts messages with string content
+      ✓ converts messages with complex content (6 ms)
+
+  console.log
+    Strategy 1 - Replace commit: 112235dd2f238411213a6941fa113366a5477e84
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:189:12)
+
+  console.log
+    Strategy 1 - Attempting checkout of: 9011993e6b7cdb65baf85e8ebc12431d8a9a877f
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:191:12)
+
+  console.log
+    Error parsing file: Error: Parsing error
+
+      at parseFile (src/services/tree-sitter/index.ts:153:11)
+
+PASS Roo Code Tests src/test/suite/services/tree-sitter/index.test.ts
+  Tree-sitter Service
+    parseSourceCodeForDefinitionsTopLevel
+      ✓ should handle non-existent directory
+      ✓ should handle empty directory
+      ✓ should parse TypeScript files correctly (1 ms)
+      ✓ should handle multiple definition types
+      ✓ should handle parsing errors gracefully (2 ms)
+      ✓ should respect file limit
+      ✓ should handle various supported file extensions (1 ms)
+      ✓ should normalize paths in output
+
+PASS Roo Code Tests src/api/providers/__tests__/unbound.test.ts
+  UnboundHandler
+    constructor
+      ✓ should initialize with provided options
+    createMessage
+      ✓ should handle streaming responses with text and usage data (1 ms)
+      ✓ should handle API errors
+    completePrompt
+      ✓ should complete prompt successfully (1 ms)
+      ✓ should handle API errors (3 ms)
+      ✓ should handle empty response (1 ms)
+      ✓ should not set max_tokens for non-Anthropic models (1 ms)
+    getModel
+      ✓ should return model info (1 ms)
+      ✓ should return default model when invalid model provided
+
+PASS Roo Code Tests src/core/__tests__/CodeActionProvider.test.ts
+  CodeActionProvider
+    provideCodeActions
+      ✓ should provide explain, improve, fix logic, and add to context actions by default (1 ms)
+      ✓ should provide fix action instead of fix logic when diagnostics exist (1 ms)
+      ✓ should return empty array when no effective range
+      ✓ should handle errors gracefully
+
+  console.log
+    Strategy 1 - Attempting cherry-pick of: 112235dd2f238411213a6941fa113366a5477e84
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:194:13)
+
+PASS Roo Code Tests src/utils/logging/__tests__/CompactTransport.test.ts
+  CompactTransport
+    File Handling
+      ✓ creates new log file on initialization (6 ms)
+      ✓ appends entries after initialization (2 ms)
+      ✓ writes session end marker on close (1 ms)
+    File System Edge Cases
+      ✓ handles file path with deep directories (3 ms)
+      ✓ handles concurrent writes (17 ms)
+    Delta Timestamp Conversion
+      ✓ converts absolute timestamps to deltas (1 ms)
+
+PASS Roo Code Tests src/test/suite/services/vertex/cache-tracker.test.ts
+  VertexCacheTracker
+    trackUsage
+      ✓ should track initial cache write (1 ms)
+      ✓ should track cache hits
+      ✓ should handle missing cache prices
+      ✓ should handle zero token usage (1 ms)
+      ✓ should track concurrent requests independently
+      ✓ should calculate savings with different price models
+      ✓ should handle very large token counts without overflow (1 ms)
+      ✓ should handle malformed usage data
+      ✓ should handle race conditions in concurrent operations (42 ms)
+    cleanup
+      ✓ should remove old metrics
+      ✓ should handle cleanup with no metrics
+      ✓ should handle cleanup during concurrent operations
+
+PASS Roo Code Tests src/api/providers/__tests__/gemini.test.ts
+  GeminiHandler
+    constructor
+      ✓ should initialize with provided config (1 ms)
+      ○ should throw if API key is missing
+    createMessage
+      ✓ should handle text messages correctly (3 ms)
+      ✓ should handle API errors (1 ms)
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle API errors (2 ms)
+      ✓ should handle empty response
+    getModel
+      ✓ should return correct model info
+      ✓ should return default model if invalid model specified
+
+  console.error
+    Failed to parse tool arguments: SyntaxError: Unexpected token 'i', "invalid json" is not valid JSON
+        at JSON.parse (<anonymous>)
+        at /Volumes/stuff/Projects/Roo-Code-mlx/src/api/transform/openai-format.ts:189:25
+        at Array.map (<anonymous>)
+        at convertToAnthropicMessage (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/transform/openai-format.ts:186:32)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/api/transform/__tests__/openai-format.test.ts:263:54)
+        at Promise.then.completed (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:316:40)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at _runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at run (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:444:34)
+        at Object.worker (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/testWorker.js:106:12)
+
+      189 | 					parsedInput = JSON.parse(toolCall.function.arguments || "{}")
+      190 | 				} catch (error) {
+    > 191 | 					console.error("Failed to parse tool arguments:", error)
+          | 					        ^
+      192 | 				}
+      193 | 				return {
+      194 | 					type: "tool_use",
+
+      at src/api/transform/openai-format.ts:191:14
+          at Array.map (<anonymous>)
+      at convertToAnthropicMessage (src/api/transform/openai-format.ts:186:32)
+      at Object.<anonymous> (src/api/transform/__tests__/openai-format.test.ts:263:54)
+
+PASS Roo Code Tests src/core/__tests__/mode-validator.test.ts
+  mode-validator
+    isToolAllowedForMode
+      code mode
+        ✓ allows all code mode tools (1 ms)
+        ✓ disallows unknown tools (1 ms)
+      architect mode
+        ✓ allows configured tools
+      ask mode
+        ✓ allows configured tools
+      custom modes
+        ✓ allows tools from custom mode configuration (1 ms)
+        ✓ allows custom mode to override built-in mode
+        ✓ respects tool requirements in custom modes
+      tool requirements
+        ✓ respects tool requirements when provided
+        ✓ allows tools when their requirements are not specified
+        ✓ handles undefined and empty requirements (1 ms)
+        ✓ prioritizes requirements over mode configuration
+    validateToolUse
+      ✓ throws error for disallowed tools in architect mode (1 ms)
+      ✓ does not throw for allowed tools in architect mode (1 ms)
+      ✓ throws error when tool requirement is not met
+      ✓ does not throw when tool requirement is met
+      ✓ handles undefined requirements gracefully (1 ms)
+
+PASS Roo Code Tests src/api/transform/__tests__/openai-format.test.ts
+  OpenAI Format Transformations
+    convertToOpenAiMessages
+      ✓ should convert simple text messages
+      ✓ should handle messages with image content (1 ms)
+      ✓ should handle assistant messages with tool use
+      ✓ should handle user messages with tool results
+    convertToAnthropicMessage
+      ✓ should convert simple completion (1 ms)
+      ✓ should handle tool calls in completion
+      ✓ should handle invalid tool call arguments (4 ms)
+
+PASS Roo Code Tests src/utils/logging/__tests__/CompactLogger.test.ts
+  CompactLogger
+    Log Levels
+      ✓ debug level logs correctly
+      ✓ info level logs correctly
+      ✓ warn level logs correctly
+      ✓ error level logs correctly
+      ✓ fatal level logs correctly
+    Metadata Handling
+      ✓ logs with simple metadata
+      ✓ handles undefined metadata
+      ✓ strips empty metadata
+    Error Handling
+      ✓ handles Error objects in error level
+      ✓ handles Error objects in fatal level
+      ✓ handles Error objects with custom metadata
+    Child Loggers
+      ✓ creates child logger with inherited metadata
+      ✓ child logger respects parent context when not overridden
+    Lifecycle
+      ✓ closes transport on logger close
+    Timestamp Handling
+      ✓ generates increasing timestamps (4 ms)
+    Message Handling
+      ✓ handles empty string messages (1 ms)
+    Metadata Edge Cases
+      ✓ handles metadata with undefined values
+      ✓ handles metadata with null values
+      ✓ maintains metadata value types
+    Child Logger Edge Cases
+      ✓ deeply nested child loggers maintain correct metadata inheritance (1 ms)
+      ✓ child logger with empty metadata inherits parent metadata unchanged
+    Error Handling Edge Cases
+      ✓ handles custom error types
+      ✓ handles errors without stack traces
+    Timestamp Generation
+      ✓ uses current timestamp for entries (1 ms)
+      ✓ timestamps reflect time progression (1 ms)
+
+  console.error
+    Error: Failed to initialize config: Error: Failed to read config from secrets: Error: Storage failed
+        at ConfigManager.initConfig (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/ConfigManager.ts:60:10)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+  console.error
+    Error: Failed to initialize config: Error: Failed to read config from secrets: Error: Read failed
+        at ConfigManager.initConfig (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/config/ConfigManager.ts:60:10)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+PASS Roo Code Tests src/api/transform/__tests__/vscode-lm-format.test.ts
+  vscode-lm-format
+    convertToVsCodeLmMessages
+      ✓ should convert simple string messages
+      ✓ should handle complex user messages with tool results (1 ms)
+      ✓ should handle complex assistant messages with tool calls
+      ✓ should handle image blocks with appropriate placeholders
+    convertToAnthropicRole
+      ✓ should convert assistant role correctly
+      ✓ should convert user role correctly (1 ms)
+      ✓ should return null for unknown roles
+    convertToAnthropicMessage
+      ✓ should convert assistant message with text content
+      ✓ should convert assistant message with tool calls
+      ✓ should throw error for non-assistant messages (3 ms)
+
+PASS Roo Code Tests src/test/suite/services/tree-sitter/languageParser.test.ts
+  Language Parser
+    loadRequiredLanguageParsers
+      ✓ should initialize parser only once (1 ms)
+      ✓ should load JavaScript parser for .js and .jsx files (1 ms)
+      ✓ should load TypeScript parser for .ts and .tsx files (1 ms)
+      ✓ should load Python parser for .py files
+      ✓ should load multiple language parsers as needed
+      ✓ should handle C/C++ files correctly (1 ms)
+      ✓ should throw error for unsupported file extensions (1 ms)
+      ✓ should load each language only once for multiple files
+      ✓ should set language for each parser instance
+
+PASS Roo Code Tests src/core/config/__tests__/ConfigManager.test.ts
+  ConfigManager
+    initConfig
+      ✓ should not write to storage when secrets.get returns null (1 ms)
+      ✓ should not initialize config if it exists
+      ✓ should generate IDs for configs that lack them (1 ms)
+      ✓ should throw error if secrets storage fails (5 ms)
+    ListConfig
+      ✓ should list all available configs
+      ✓ should handle empty config file (1 ms)
+      ✓ should throw error if reading from secrets fails
+    SaveConfig
+      ✓ should save new config
+      ✓ should update existing config
+      ✓ should throw error if secrets storage fails
+    DeleteConfig
+      ✓ should delete existing config
+      ✓ should throw error when trying to delete non-existent config
+      ✓ should throw error when trying to delete last remaining config
+    LoadConfig
+      ✓ should load config and update current config name (1 ms)
+      ✓ should throw error when config does not exist
+      ✓ should throw error if secrets storage fails
+    SetCurrentConfig
+      ✓ should set current config
+      ✓ should throw error when config does not exist (1 ms)
+      ✓ should throw error if secrets storage fails (1 ms)
+    ResetAllConfigs
+      ✓ should delete all stored configs
+    HasConfig
+      ✓ should return true for existing config
+      ✓ should return false for non-existent config
+      ✓ should throw error if secrets storage fails
+
+PASS Roo Code Tests src/integrations/terminal/__tests__/TerminalProcess.test.ts
+  TerminalProcess
+    run
+      ✓ handles shell integration commands correctly (1 ms)
+      ✓ handles terminals without shell integration
+      ✓ sets hot state for compiling commands (36 ms)
+    buffer processing
+      ✓ correctly processes and emits lines
+      ✓ handles Windows-style line endings
+    removeLastLineArtifacts
+      ✓ removes terminal artifacts from output (1 ms)
+    continue
+      ✓ stops listening and emits continue event
+    getUnretrievedOutput
+      ✓ returns and clears unretrieved output
+    mergePromise
+      ✓ merges promise methods with terminal process (3 ms)
+
+PASS Roo Code Tests src/core/diff/strategies/new-unified/__tests__/search-strategies.test.ts
+  findExactMatch
+    ✓ should return no match if the search string is not found (1 ms)
+    ✓ should return a match if the search string is found (1 ms)
+    ✓ should return a match with correct index when startIndex is provided
+    ✓ should return a match even if there are more lines in content
+    ✓ should return a match even if the search string is at the beginning of the content (1 ms)
+    ✓ should return a match even if the search string is at the end of the content
+    ✓ should return a match for a multi-line search string
+    ✓ should return no match if a multi-line search string is not found
+    ✓ should return a match with indentation (1 ms)
+    ✓ should return a match with more complex indentation
+    ✓ should return a match with mixed indentation
+    ✓ should return a match with mixed indentation and multi-line
+    ✓ should return no match if mixed indentation and multi-line is not found
+    ✓ should return a match with leading and trailing spaces
+    ✓ should return a match with leading and trailing tabs
+    ✓ should return a match with mixed leading and trailing spaces and tabs
+    ✓ should return a match with mixed leading and trailing spaces and tabs and multi-line
+    ✓ should return no match if mixed leading and trailing spaces and tabs and multi-line is not found
+  findAnchorMatch
+    ✓ should return no match if no anchors are found
+    ✓ should return no match if anchor positions cannot be validated
+    ✓ should return a match if anchor positions can be validated
+    ✓ should return a match with correct index when startIndex is provided
+    ✓ should return a match even if there are more lines in content
+    ✓ should return a match even if the anchor is at the beginning of the content (1 ms)
+    ✓ should return a match even if the anchor is at the end of the content
+    ✓ should return no match if no valid anchor is found
+  findSimilarityMatch
+    ✓ should return no match if the search string is not found (1 ms)
+    ✓ should return a match if the search string is found
+    ✓ should return a match with correct index when startIndex is provided
+    ✓ should return a match even if there are more lines in content
+    ✓ should return a match even if the search string is at the beginning of the content
+    ✓ should return a match even if the search string is at the end of the content (1 ms)
+    ✓ should return a match for a multi-line search string
+    ✓ should return no match if a multi-line search string is not found
+    ✓ should return a match with indentation
+    ✓ should return a match with more complex indentation
+    ✓ should return a match with mixed indentation
+    ✓ should return a match with mixed indentation and multi-line
+    ✓ should return no match if mixed indentation and multi-line is not found
+    ✓ should return a match with leading and trailing spaces
+    ✓ should return a match with leading and trailing tabs
+    ✓ should return a match with mixed leading and trailing spaces and tabs
+    ✓ should return a match with mixed leading and trailing spaces and tabs and multi-line
+    ✓ should return no match if mixed leading and trailing spaces and tabs and multi-line is not found
+  findLevenshteinMatch
+    ✓ should return no match if the search string is not found (1 ms)
+    ✓ should return a match if the search string is found
+    ✓ should return a match with correct index when startIndex is provided
+    ✓ should return a match even if there are more lines in content
+    ✓ should return a match even if the search string is at the beginning of the content
+    ✓ should return a match even if the search string is at the end of the content (1 ms)
+    ✓ should return a match for a multi-line search string
+    ✓ should return a match with indentation
+    ✓ should return a match with more complex indentation
+    ✓ should return a match with mixed indentation
+    ✓ should return a match with mixed indentation and multi-line
+    ✓ should return a match with leading and trailing spaces (4 ms)
+    ✓ should return a match with leading and trailing tabs (1 ms)
+    ✓ should return a match with mixed leading and trailing spaces and tabs
+    ✓ should return a match with mixed leading and trailing spaces and tabs and multi-line
+
+PASS Roo Code Tests src/api/providers/__tests__/lmstudio.test.ts
+  LmStudioHandler
+    constructor
+      ✓ should initialize with provided options (1 ms)
+      ✓ should use default base URL if not provided
+    createMessage
+      ✓ should handle streaming responses (3 ms)
+      ✓ should handle API errors (2 ms)
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle API errors
+      ✓ should handle empty response
+    getModel
+      ✓ should return model info
+
+PASS Roo Code Tests src/utils/__tests__/enhance-prompt.test.ts
+  enhancePrompt
+    ✓ enhances prompt using default enhancement prompt when no custom prompt provided (1 ms)
+    ✓ enhances prompt using custom enhancement prompt when provided (1 ms)
+    ✓ throws error for empty prompt input (1 ms)
+    ✓ throws error for missing API configuration
+    ✓ throws error for API provider that does not support prompt enhancement (1 ms)
+    ✓ uses appropriate model based on provider
+    ✓ propagates API errors
+
+PASS Roo Code Tests src/api/providers/__tests__/openai.test.ts
+  OpenAiHandler
+    constructor
+      ✓ should initialize with provided options
+      ✓ should use custom base URL if provided
+    createMessage
+      ✓ should handle non-streaming mode (1 ms)
+      ✓ should handle streaming responses
+    error handling
+      ✓ should handle API errors (1 ms)
+      ✓ should handle rate limiting
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle API errors (2 ms)
+      ✓ should handle empty response
+    getModel
+      ✓ should return model info with sane defaults
+      ✓ should handle undefined model ID
+
+PASS Roo Code Tests src/test/suite/services/vertex/cache-refresh.test.ts
+  VertexCacheRefresh
+    scheduleRefresh
+      ✓ should schedule periodic refresh (3 ms)
+      ✓ should handle refresh errors (1 ms)
+      ✓ should maintain multiple refreshes
+      ✓ should maintain accurate refresh timing
+      ✓ should handle concurrent refreshes with different contexts independently (1 ms)
+      ✓ should handle system prompt changes
+    stopRefresh
+      ✓ should stop specific refresh
+      ✓ should handle stopping non-existent refresh (1 ms)
+    dispose
+      ✓ should stop all refreshes
+      ✓ should handle multiple dispose calls
+
+PASS Roo Code Tests src/integrations/editor/__tests__/detect-omission.test.ts
+  detectCodeOmission
+    ✓ should skip comment checks for files under 100 lines (1 ms)
+    ✓ should not detect regular comments without omission keywords (1 ms)
+    ✓ should not detect when comment is part of original content
+    ✓ should not detect code that happens to contain omission keywords
+    ✓ should detect suspicious single-line comment when content is more than 20% shorter
+    ✓ should not flag suspicious single-line comment when content is less than 20% shorter
+    ✓ should detect suspicious Python-style comment when content is more than 20% shorter
+    ✓ should not flag suspicious Python-style comment when content is less than 20% shorter (1 ms)
+    ✓ should detect suspicious multi-line comment when content is more than 20% shorter
+    ✓ should not flag suspicious multi-line comment when content is less than 20% shorter (1 ms)
+    ✓ should detect suspicious JSX comment when content is more than 20% shorter
+    ✓ should not flag suspicious JSX comment when content is less than 20% shorter
+    ✓ should detect suspicious HTML comment when content is more than 20% shorter
+    ✓ should not flag suspicious HTML comment when content is less than 20% shorter (1 ms)
+    ✓ should detect suspicious square bracket notation when content is more than 20% shorter
+    ✓ should not flag suspicious square bracket notation when content is less than 20% shorter
+    ✓ should not flag content very close to predicted length
+    ✓ should not flag when content is longer than predicted
+
+PASS Roo Code Tests src/api/providers/__tests__/anthropic.test.ts
+  AnthropicHandler
+    constructor
+      ✓ should initialize with provided options (1 ms)
+      ✓ should initialize with undefined API key
+      ✓ should use custom base URL if provided
+    createMessage
+      ✓ should handle prompt caching for supported models (1 ms)
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle API errors (3 ms)
+      ✓ should handle non-text content (1 ms)
+      ✓ should handle empty response
+    getModel
+      ✓ should return default model if no model ID is provided
+      ✓ should return specified model if valid model ID is provided (1 ms)
+
+PASS Roo Code Tests src/shared/__tests__/support-prompts.test.ts
+  Code Action Prompts
+    EXPLAIN action
+      ✓ should format explain prompt correctly
+    FIX action
+      ✓ should format fix prompt without diagnostics
+      ✓ should format fix prompt with diagnostics
+    IMPROVE action
+      ✓ should format improve prompt correctly (1 ms)
+    ENHANCE action
+      ✓ should format enhance prompt correctly
+    get template
+      ✓ should return default template when no custom prompts provided
+      ✓ should return custom template when provided
+      ✓ should return default template when custom prompts does not include type (1 ms)
+    create with custom prompts
+      ✓ should use custom template when provided
+      ✓ should use default template when custom prompts does not include type
+
+PASS Roo Code Tests src/api/providers/__tests__/ollama.test.ts
+  OllamaHandler
+    constructor
+      ✓ should initialize with provided options
+      ✓ should use default base URL if not provided
+    createMessage
+      ✓ should handle streaming responses
+      ✓ should handle API errors (1 ms)
+    completePrompt
+      ✓ should complete prompt successfully
+      ✓ should handle API errors (2 ms)
+      ✓ should handle empty response
+    getModel
+      ✓ should return model info
+
+PASS Roo Code Tests webview-ui/src/utils/__tests__/command-validation.test.ts
+  Command Validation
+    parseCommand
+      ✓ splits commands by chain operators (1 ms)
+      ✓ preserves quoted content
+      ✓ handles subshell patterns
+      ✓ handles empty and whitespace input
+      ✓ handles PowerShell specific patterns (1 ms)
+    isAllowedSingleCommand
+      ✓ matches commands case-insensitively
+      ✓ matches command prefixes (1 ms)
+      ✓ rejects non-matching commands
+      ✓ handles undefined/empty allowed commands
+    validateCommand
+      ✓ validates simple commands
+      ✓ validates chained commands
+      ✓ handles quoted content correctly
+      ✓ handles subshell execution attempts
+      ✓ handles PowerShell patterns
+      ✓ handles empty input
+
+PASS Roo Code Tests src/api/providers/__tests__/deepseek.test.ts
+  DeepSeekHandler
+    constructor
+      ✓ should initialize with provided options
+      ○ should throw error if API key is missing
+      ✓ should use default model ID if not provided (1 ms)
+      ✓ should use default base URL if not provided
+      ✓ should use custom base URL if provided
+      ✓ should set includeMaxTokens to true
+    getModel
+      ✓ should return model info for valid model ID
+      ✓ should return provided model ID with default model info if model does not exist
+      ✓ should return default model if no model ID is provided
+    createMessage
+      ✓ should handle streaming responses
+      ✓ should include usage information
+
+PASS Roo Code Tests src/core/config/__tests__/GroupConfigSchema.test.ts
+  GroupConfigSchema
+    group format validation
+      ✓ accepts single group (1 ms)
+      ✓ accepts multiple groups (1 ms)
+      ✓ accepts all available groups (1 ms)
+      ✓ rejects non-array group format (1 ms)
+      ✓ rejects invalid group names
+      ✓ rejects duplicate groups
+      ✓ rejects null or undefined groups
+
+PASS Roo Code Tests src/core/prompts/__tests__/sections.test.ts
+  addCustomInstructions
+    ✓ adds preferred language to custom instructions (2 ms)
+    ✓ works without preferred language (1 ms)
+  getCapabilitiesSection
+    ✓ includes apply_diff in capabilities when diffStrategy is provided
+    ✓ excludes apply_diff from capabilities when diffStrategy is undefined
+
+PASS Roo Code Tests src/shared/__tests__/checkExistApiConfig.test.ts
+  checkExistKey
+    ✓ should return false for undefined config (1 ms)
+    ✓ should return false for empty config
+    ✓ should return true when one key is defined
+    ✓ should return true when multiple keys are defined
+    ✓ should return true when only non-key fields are undefined
+    ✓ should return false when all key fields are undefined
+
+PASS Roo Code Tests src/api/transform/__tests__/stream.test.ts
+  API Stream Types
+    ApiStreamChunk
+      ✓ should correctly handle text chunks
+      ✓ should correctly handle usage chunks with cache information (1 ms)
+      ✓ should handle usage chunks without cache tokens (1 ms)
+      ✓ should handle text chunks with empty strings
+      ✓ should handle usage chunks with zero tokens (1 ms)
+      ✓ should handle usage chunks with large token counts
+      ✓ should handle text chunks with special characters
+      ✓ should handle text chunks with unicode characters
+      ✓ should handle text chunks with multiline content
+
+PASS Roo Code Tests src/utils/__tests__/shell.test.ts
+  Shell Detection Tests
+    Windows Shell Detection
+      ✓ uses explicit PowerShell 7 path from VS Code config (profile path)
+      ✓ uses PowerShell 7 path if source is 'PowerShell' but no explicit path
+      ✓ falls back to legacy PowerShell if profile includes 'powershell' but no path/source
+      ✓ uses WSL bash when profile indicates WSL source
+      ✓ uses WSL bash when profile name includes 'wsl' (1 ms)
+      ✓ defaults to cmd.exe if no special profile is matched
+      ✓ handles undefined profile gracefully
+      ✓ respects userInfo() if no VS Code config is available
+      ✓ respects an odd COMSPEC if no userInfo shell is available
+    macOS Shell Detection
+      ✓ uses VS Code profile path if available (1 ms)
+      ✓ falls back to userInfo().shell if no VS Code config is available
+      ✓ falls back to SHELL env var if no userInfo shell is found
+      ✓ falls back to /bin/zsh if no config, userInfo, or env variable is set
+    Linux Shell Detection
+      ✓ uses VS Code profile path if available
+      ✓ falls back to userInfo().shell if no VS Code config is available
+      ✓ falls back to SHELL env var if no userInfo shell is found (1 ms)
+      ✓ falls back to /bin/bash if nothing is set
+    Unknown Platform / Error Handling
+      ✓ falls back to /bin/sh for unknown platforms
+      ✓ handles VS Code config errors gracefully, falling back to userInfo shell if present
+      ✓ handles userInfo errors gracefully, falling back to environment variable if present
+      ✓ falls back fully to default shell paths if everything fails
+
+PASS Roo Code Tests webview-ui/src/utils/__tests__/context-mentions.test.ts
+  insertMention
+    ✓ should insert mention at cursor position when no @ symbol exists
+    ✓ should replace text after last @ symbol
+    ✓ should handle empty text
+  removeMention
+    ✓ should remove mention when cursor is at end of mention
+    ✓ should not remove text when not at end of mention
+    ✓ should handle text without mentions (1 ms)
+  getContextMenuOptions
+    ✓ should return all option types for empty query
+    ✓ should filter by selected type when query is empty
+    ✓ should match git commands (1 ms)
+    ✓ should match git commit hashes
+    ✓ should return NoResults when no matches found (1 ms)
+  shouldShowContextMenu
+    ✓ should return true for @ symbol
+    ✓ should return true for @ followed by text
+    ✓ should return false when no @ symbol exists
+    ✓ should return false for @ followed by whitespace
+    ✓ should return false for @ in URL
+    ✓ should return false for @problems
+
+PASS Roo Code Tests src/api/transform/__tests__/r1-format.test.ts
+  convertToR1Format
+    ✓ should convert basic text messages
+    ✓ should merge consecutive messages with same role
+    ✓ should handle image content (1 ms)
+    ✓ should handle mixed text and image content
+    ✓ should merge mixed content messages with same role
+    ✓ should handle empty messages array
+    ✓ should handle messages with empty content
+
+PASS Roo Code Tests src/utils/__tests__/cost.test.ts
+  Cost Utility
+    calculateApiCost
+      ✓ should calculate basic input/output costs correctly (1 ms)
+      ✓ should handle cache writes cost
+      ✓ should handle cache reads cost (2 ms)
+      ✓ should handle all cost components together
+      ✓ should handle missing prices gracefully
+      ✓ should handle zero tokens
+      ✓ should handle undefined cache values (1 ms)
+      ✓ should handle missing cache prices
+
+PASS Roo Code Tests src/core/__tests__/EditorUtils.test.ts
+  EditorUtils
+    getEffectiveRange
+      ✓ should return selected text when available (1 ms)
+      ✓ should return null for empty line
+      ✓ should expand empty selection to full lines
+    hasIntersectingRange
+      ✓ should return false for ranges that only touch boundaries
+      ✓ should return true for overlapping ranges
+      ✓ should return false for non-overlapping ranges
+    getFilePath
+      ✓ should return relative path when in workspace
+      ✓ should return absolute path when not in workspace
+
+PASS Roo Code Tests src/integrations/terminal/__tests__/TerminalRegistry.test.ts
+  TerminalRegistry
+    createTerminal
+      ✓ creates terminal with PAGER set to cat (1 ms)
+
+PASS Roo Code Tests src/shared/__tests__/vsCodeSelectorUtils.test.ts
+  vsCodeSelectorUtils
+    stringifyVsCodeLmModelSelector
+      ✓ should join all defined selector properties with separator (1 ms)
+      ✓ should skip undefined properties
+      ✓ should handle empty selector
+      ✓ should handle selector with only one property
+
+  console.log
+    Strategy 1 - Original commit: d54c19288264da2f2be5cba5a5ed131107a03c76
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:179:12)
+
+  console.log
+    Strategy 1 - Search commit: c4bb7cc13d048693ccf3d7c86b1f3a002cd3d960
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:184:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.error
+    Failed to parse server config for timeout: ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "command"
+        ],
+        "message": "Required"
+      }
+    ]
+        at Object.get error [as error] (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:55:31)
+        at ZodObject.parse (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:160:22)
+        at McpHub.callTool (/Volumes/stuff/Projects/Roo-Code-mlx/src/services/mcp/McpHub.ts:615:43)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/test/suite/services/mcp/McpHub.test.ts:271:26)
+        at Promise.then.completed (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:316:40)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at _runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at run (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:444:34)
+        at Object.worker (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/testWorker.js:106:12) {
+      issues: [
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'undefined',
+          path: [Array],
+          message: 'Required'
+        }
+      ],
+      addIssue: [Function (anonymous)],
+      addIssues: [Function (anonymous)],
+      errors: [
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'undefined',
+          path: [Array],
+          message: 'Required'
+        }
+      ]
+    }
+
+      616 | 			timeout = (parsedConfig.timeout ?? 60) * 1000
+      617 | 		} catch (error) {
+    > 618 | 			console.error("Failed to parse server config for timeout:", error)
+          | 			        ^
+      619 | 			// Default to 60 seconds if parsing fails
+      620 | 			timeout = 60 * 1000
+      621 | 		}
+
+      at McpHub.callTool (src/services/mcp/McpHub.ts:618:12)
+      at Object.<anonymous> (src/test/suite/services/mcp/McpHub.test.ts:271:26)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.error
+    Failed to parse server config for timeout: ZodError: [
+      {
+        "code": "too_big",
+        "maximum": 3600,
+        "type": "number",
+        "inclusive": true,
+        "exact": false,
+        "message": "Number must be less than or equal to 3600",
+        "path": [
+          "timeout"
+        ]
+      }
+    ]
+        at Object.get error [as error] (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:55:31)
+        at ZodObject.parse (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:160:22)
+        at McpHub.callTool (/Volumes/stuff/Projects/Roo-Code-mlx/src/services/mcp/McpHub.ts:615:43)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/test/suite/services/mcp/McpHub.test.ts:424:30)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+      issues: [
+        {
+          code: 'too_big',
+          maximum: 3600,
+          type: 'number',
+          inclusive: true,
+          exact: false,
+          message: 'Number must be less than or equal to 3600',
+          path: [Array]
+        }
+      ],
+      addIssue: [Function (anonymous)],
+      addIssues: [Function (anonymous)],
+      errors: [
+        {
+          code: 'too_big',
+          maximum: 3600,
+          type: 'number',
+          inclusive: true,
+          exact: false,
+          message: 'Number must be less than or equal to 3600',
+          path: [Array]
+        }
+      ]
+    }
+
+      616 | 			timeout = (parsedConfig.timeout ?? 60) * 1000
+      617 | 		} catch (error) {
+    > 618 | 			console.error("Failed to parse server config for timeout:", error)
+          | 			        ^
+      619 | 			// Default to 60 seconds if parsing fails
+      620 | 			timeout = 60 * 1000
+      621 | 		}
+
+      at McpHub.callTool (src/services/mcp/McpHub.ts:618:12)
+      at Object.<anonymous> (src/test/suite/services/mcp/McpHub.test.ts:424:30)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.error
+    Failed to parse server config for timeout: ZodError: [
+      {
+        "code": "invalid_type",
+        "expected": "string",
+        "received": "undefined",
+        "path": [
+          "command"
+        ],
+        "message": "Required"
+      }
+    ]
+        at Object.get error [as error] (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:55:31)
+        at ZodObject.parse (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:160:22)
+        at McpHub.callTool (/Volumes/stuff/Projects/Roo-Code-mlx/src/services/mcp/McpHub.ts:615:43)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/services/mcp/__tests__/McpHub.test.ts:271:17)
+        at Promise.then.completed (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:316:40)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5)
+        at _runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:121:9)
+        at run (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/runTest.js:444:34)
+        at Object.worker (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/jest-runner/build/testWorker.js:106:12) {
+      issues: [
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'undefined',
+          path: [Array],
+          message: 'Required'
+        }
+      ],
+      addIssue: [Function (anonymous)],
+      addIssues: [Function (anonymous)],
+      errors: [
+        {
+          code: 'invalid_type',
+          expected: 'string',
+          received: 'undefined',
+          path: [Array],
+          message: 'Required'
+        }
+      ]
+    }
+
+      616 | 			timeout = (parsedConfig.timeout ?? 60) * 1000
+      617 | 		} catch (error) {
+    > 618 | 			console.error("Failed to parse server config for timeout:", error)
+          | 			        ^
+      619 | 			// Default to 60 seconds if parsing fails
+      620 | 			timeout = 60 * 1000
+      621 | 		}
+
+      at McpHub.callTool (src/services/mcp/McpHub.ts:618:12)
+      at Object.<anonymous> (src/services/mcp/__tests__/McpHub.test.ts:271:17)
+
+(node:92294) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS Roo Code Tests src/test/suite/services/mcp/McpHub.test.ts
+  McpHub
+    toggleToolAlwaysAllow
+      ✓ should add tool to always allow list when enabling (18 ms)
+      ✓ should remove tool from always allow list when disabling (1 ms)
+      ✓ should initialize alwaysAllow if it does not exist (1 ms)
+    server disabled state
+      ✓ should toggle server disabled state (1 ms)
+      ✓ should filter out disabled servers from getServers (1 ms)
+      ✓ should prevent calling tools on disabled servers (2 ms)
+      ✓ should prevent reading resources from disabled servers
+    callTool
+      ✓ should execute tool successfully (3 ms)
+      ✓ should throw error if server not found (1 ms)
+      timeout configuration
+        ✓ should validate timeout values (2 ms)
+        ✓ should use default timeout of 60 seconds if not specified
+        ✓ should apply configured timeout to tool calls (1 ms)
+      updateServerTimeout
+        ✓ should update server timeout in settings file
+        ✓ should fallback to default timeout when config has invalid timeout (5 ms)
+        ✓ should accept valid timeout values
+        ✓ should notify webview after updating timeout
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.error
+    Failed to parse server config for timeout: ZodError: [
+      {
+        "code": "too_big",
+        "maximum": 3600,
+        "type": "number",
+        "inclusive": true,
+        "exact": false,
+        "message": "Number must be less than or equal to 3600",
+        "path": [
+          "timeout"
+        ]
+      }
+    ]
+        at Object.get error [as error] (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:55:31)
+        at ZodObject.parse (/Volumes/stuff/Projects/Roo-Code-mlx/node_modules/zod/lib/types.js:160:22)
+        at McpHub.callTool (/Volumes/stuff/Projects/Roo-Code-mlx/src/services/mcp/McpHub.ts:615:43)
+        at Object.<anonymous> (/Volumes/stuff/Projects/Roo-Code-mlx/src/services/mcp/__tests__/McpHub.test.ts:424:18)
+        at processTicksAndRejections (node:internal/process/task_queues:105:5) {
+      issues: [
+        {
+          code: 'too_big',
+          maximum: 3600,
+          type: 'number',
+          inclusive: true,
+          exact: false,
+          message: 'Number must be less than or equal to 3600',
+          path: [Array]
+        }
+      ],
+      addIssue: [Function (anonymous)],
+      addIssues: [Function (anonymous)],
+      errors: [
+        {
+          code: 'too_big',
+          maximum: 3600,
+          type: 'number',
+          inclusive: true,
+          exact: false,
+          message: 'Number must be less than or equal to 3600',
+          path: [Array]
+        }
+      ]
+    }
+
+      616 | 			timeout = (parsedConfig.timeout ?? 60) * 1000
+      617 | 		} catch (error) {
+    > 618 | 			console.error("Failed to parse server config for timeout:", error)
+          | 			        ^
+      619 | 			// Default to 60 seconds if parsing fails
+      620 | 			timeout = 60 * 1000
+      621 | 		}
+
+      at McpHub.callTool (src/services/mcp/McpHub.ts:618:12)
+      at Object.<anonymous> (src/services/mcp/__tests__/McpHub.test.ts:424:18)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+  console.log
+    [MCP] Fetched tools for test-server: []
+
+      at McpHub.fetchToolsList (src/services/mcp/McpHub.ts:290:12)
+
+(node:92295) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS Roo Code Tests src/services/mcp/__tests__/McpHub.test.ts
+  McpHub
+    toggleToolAlwaysAllow
+      ✓ should add tool to always allow list when enabling (15 ms)
+      ✓ should remove tool from always allow list when disabling (1 ms)
+      ✓ should initialize alwaysAllow if it does not exist (2 ms)
+    server disabled state
+      ✓ should toggle server disabled state (1 ms)
+      ✓ should filter out disabled servers from getServers (1 ms)
+      ✓ should prevent calling tools on disabled servers (1 ms)
+      ✓ should prevent reading resources from disabled servers (1 ms)
+    callTool
+      ✓ should execute tool successfully (4 ms)
+      ✓ should throw error if server not found (1 ms)
+      timeout configuration
+        ✓ should validate timeout values (2 ms)
+        ✓ should use default timeout of 60 seconds if not specified (1 ms)
+        ✓ should apply configured timeout to tool calls
+      updateServerTimeout
+        ✓ should update server timeout in settings file (1 ms)
+        ✓ should fallback to default timeout when config has invalid timeout (1 ms)
+        ✓ should accept valid timeout values (1 ms)
+        ✓ should notify webview after updating timeout
+
+  console.log
+    Strategy 1 - Replace commit: c1bd7f8e065c350b04c42d52cab5ffe73cd2ac58
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:189:12)
+
+  console.log
+    Strategy 1 - Attempting checkout of: d54c19288264da2f2be5cba5a5ed131107a03c76
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:191:12)
+
+  console.log
+    Strategy 1 - Attempting cherry-pick of: c1bd7f8e065c350b04c42d52cab5ffe73cd2ac58
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:194:13)
+
+(node:92293) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  console.error
+    Strategy 1 failed with merge conflict
+
+      203 | 				}
+      204 | 			} catch (cherryPickError) {
+    > 205 | 				console.error("Strategy 1 failed with merge conflict")
+          | 				        ^
+      206 | 			}
+      207 | 		} catch (error) {
+      208 | 			console.error("Strategy 1 failed:", error)
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:205:13)
+      at Object.<anonymous> (src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts:289:18)
+
+PASS Roo Code Tests src/core/__tests__/Cline.test.ts
+  Cline
+    constructor
+      ✓ should respect provided settings (3 ms)
+      ✓ should use default fuzzy match threshold when not provided (46 ms)
+      ✓ should use provided fuzzy match threshold (4 ms)
+      ✓ should pass default threshold to diff strategy when not provided (3 ms)
+      ✓ should require either task or historyItem (1 ms)
+    getEnvironmentDetails
+      ✓ should include timezone information in environment details (4 ms)
+      API conversation handling
+        ✓ should clean conversation history before sending to API (45 ms)
+        ✓ should handle image blocks based on model capabilities (9 ms)
+        ✓ should handle API retry with countdown (9 ms)
+        ✓ should not apply retry delay twice (4 ms)
+        loadContext
+          ✓ should process mentions in task and feedback tags (1 ms)
+
+
+  ●  Cannot log after tests are done. Did you forget to wait for something async in your test?
+    Attempted to log "[Cline#abortStream] cancelReason = streaming_failed".
+
+      2837 |
+      2838 | 			const abortStream = async (cancelReason: ClineApiReqCancelReason, streamingFailedMessage?: string) => {
+    > 2839 | 				console.log(`[Cline#abortStream] cancelReason = ${cancelReason}`)
+           | 				        ^
+      2840 |
+      2841 | 				if (this.diffViewProvider.isEditing) {
+      2842 | 					await this.diffViewProvider.revertChanges() // closes diff view
+
+      at console.log (node_modules/@jest/console/build/CustomConsole.js:141:10)
+      at abortStream (src/core/Cline.ts:2839:13)
+      at Cline.recursivelyMakeClineRequests (src/core/Cline.ts:2957:12)
+      at Cline.initiateTaskLoop (src/core/Cline.ts:721:23)
+      at Cline.startTask (src/core/Cline.ts:474:3)
+
+/Volumes/stuff/Projects/Roo-Code-mlx/src/core/Cline.ts:587
+            throw new Error("Unexpected: No existing API conversation history");
+                  ^
+
+Error: Unexpected: No existing API conversation history
+    at Cline.resumeTaskFromHistory (/Volumes/stuff/Projects/Roo-Code-mlx/src/core/Cline.ts:669:10)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+Node.js v22.11.0
+  console.log
+    Strategy 2 - Search commit: c4bb7cc13d048693ccf3d7c86b1f3a002cd3d960
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:220:12)
+
+  console.log
+    Strategy 2 - Replace commit: d61811b2dbaa2a1d4ad4908377fd7d8f83f36dca
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:226:12)
+
+  console.log
+    Strategy 2 - Attempting checkout of: c4bb7cc13d048693ccf3d7c86b1f3a002cd3d960
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:228:12)
+
+  console.log
+    Strategy 2 - Original commit: HEAD 1f561343b31061ce1093ba3788992629f918cdf9
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:233:12)
+
+  console.log
+    Strategy 2 - Attempting cherry-pick of: d61811b2dbaa2a1d4ad4908377fd7d8f83f36dca
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:236:13)
+
+  console.error
+    Strategy 2 failed with merge conflict
+
+      245 | 				}
+      246 | 			} catch (cherryPickError) {
+    > 247 | 				console.error("Strategy 2 failed with merge conflict")
+          | 				        ^
+      248 | 			}
+      249 | 		} catch (error) {
+      250 | 			console.error("Strategy 2 failed:", error)
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:247:13)
+      at Object.<anonymous> (src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts:289:18)
+
+  console.error
+    Git fallback failed
+
+      251 | 		}
+      252 |
+    > 253 | 		console.error("Git fallback failed")
+          | 		        ^
+      254 | 		return { confidence: 0, result: content, strategy: "git-fallback" }
+      255 | 	} catch (error) {
+      256 | 		console.error("Git fallback strategy failed:", error)
+
+      at applyGitFallback (src/core/diff/strategies/new-unified/edit-strategies.ts:253:11)
+      at Object.<anonymous> (src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts:289:18)
+
+PASS Roo Code Tests src/core/diff/strategies/new-unified/__tests__/edit-strategies.test.ts
+  applyContextMatching
+    ✓ should return original content if no match is found (3 ms)
+    ✓ should apply a simple add change (1 ms)
+    ✓ should apply a simple remove change (1 ms)
+    ✓ should apply a simple context change
+    ✓ should apply a multi-line add change
+    ✓ should apply a multi-line remove change
+    ✓ should apply a multi-line context change
+    ✓ should apply a change with indentation (1 ms)
+    ✓ should apply a change with mixed indentation (1 ms)
+    ✓ should apply a change with mixed indentation and multi-line (1 ms)
+    ✓ should apply a complex change with mixed indentation and multi-line
+    ✓ should apply a complex change with mixed indentation and multi-line and context
+    ✓ should apply a complex change with mixed indentation and multi-line and context and a different match position
+  applyDMP
+    ✓ should return original content if no match is found (1 ms)
+    ✓ should apply a simple add change (1 ms)
+    ✓ should apply a simple remove change (1 ms)
+    ✓ should apply a simple context change (1 ms)
+    ✓ should apply a multi-line add change
+    ✓ should apply a multi-line remove change
+    ✓ should apply a multi-line context change
+    ✓ should apply a change with indentation (1 ms)
+    ✓ should apply a change with mixed indentation
+    ✓ should apply a change with mixed indentation and multi-line (5 ms)
+    ✓ should apply a complex change with mixed indentation and multi-line
+    ✓ should apply a complex change with mixed indentation and multi-line and context
+    ✓ should apply a complex change with mixed indentation and multi-line and context and a different match position
+  applyGitFallback
+    ✓ should successfully apply changes using git operations (715 ms)
+    ✓ should return original content with 0 confidence when changes cannot be applied (1139 ms)
+
