@@ -40,19 +40,39 @@ export async function activateCodeActionProviderTests(context: vscode.ExtensionC
 
         const run = testController.createTestRun(request)
 
-        // Mock setup
+        // Create a complete mock TextDocument
         const mockDocument = {
-            getText: () => "test code",
-            lineAt: () => ({ text: "test code" }),
+            getText: (_range?: vscode.Range): string => "test code",
+            lineAt: (_line: number) => ({ text: "test code" }),
             lineCount: 10,
-            uri: { fsPath: "/test/file.ts" }
-        }
+            uri: { fsPath: "/test/file.ts" },
+            fileName: "/test/file.ts",
+            isUntitled: false,
+            languageId: "typescript",
+            version: 1,
+            isDirty: false,
+            isClosed: false,
+            save: () => Promise.resolve(true),
+            eol: vscode.EndOfLine.LF,
+            offsetAt: (_position: vscode.Position): number => 0,
+            positionAt: (_offset: number): vscode.Position => new vscode.Position(0, 0),
+            getWordRangeAtPosition: (_position: vscode.Position, _regex?: RegExp): vscode.Range | undefined => 
+                new vscode.Range(0, 0, 0, 0),
+            validateRange: (range: vscode.Range): vscode.Range => range,
+            validatePosition: (position: vscode.Position): vscode.Position => position
+        } as unknown as vscode.TextDocument
 
         const mockRange = new vscode.Range(0, 0, 0, 10)
 
-        const mockContext = {
-            diagnostics: []
-        }
+        // Create a mutable diagnostics array for testing
+        const mockDiagnostics: vscode.Diagnostic[] = [];
+        
+        // Create a complete mock CodeActionContext
+        const mockContext: vscode.CodeActionContext = {
+            diagnostics: mockDiagnostics,
+            triggerKind: vscode.CodeActionTriggerKind.Automatic,
+            only: undefined
+        };
 
         // Mock EditorUtils methods
         EditorUtils.getEffectiveRange = () => ({
@@ -70,7 +90,9 @@ export async function activateCodeActionProviderTests(context: vscode.ExtensionC
 
                 switch (test.id) {
                     case 'default-actions': {
-                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        // Ensure we're working with a non-Promise result
+                        const actionsResult = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actions = Array.isArray(actionsResult) ? actionsResult : [];
                         
                         assert.strictEqual(actions.length, 7, "Expected 7 actions")
                         assert.strictEqual(actions[0].title, `${ACTION_NAMES.EXPLAIN} in New Task`)
@@ -83,24 +105,37 @@ export async function activateCodeActionProviderTests(context: vscode.ExtensionC
                         break
                     }
                     case 'diagnostic-actions': {
-                        mockContext.diagnostics = [{
+                        // Add a diagnostic to the array
+                        mockDiagnostics.push({
                             message: "test error",
                             severity: vscode.DiagnosticSeverity.Error,
                             range: mockRange
-                        }]
+                        } as vscode.Diagnostic);
 
-                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        // Ensure we're working with a non-Promise result
+                        const actionsResult = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actions = Array.isArray(actionsResult) ? actionsResult : [];
                         
                         assert.strictEqual(actions.length, 7, "Expected 7 actions")
-                        assert.ok(actions.some(a => a.title === `${ACTION_NAMES.FIX} in New Task`))
-                        assert.ok(actions.some(a => a.title === `${ACTION_NAMES.FIX} in Current Task`))
-                        assert.ok(!actions.some(a => a.title === `${ACTION_NAMES.FIX_LOGIC} in New Task`))
-                        assert.ok(!actions.some(a => a.title === `${ACTION_NAMES.FIX_LOGIC} in Current Task`))
+                        
+                        const hasFix = actions.some(a => a.title === `${ACTION_NAMES.FIX} in New Task`);
+                        const hasFixCurrent = actions.some(a => a.title === `${ACTION_NAMES.FIX} in Current Task`);
+                        const hasFixLogic = actions.some(a => a.title === `${ACTION_NAMES.FIX_LOGIC} in New Task`);
+                        const hasFixLogicCurrent = actions.some(a => a.title === `${ACTION_NAMES.FIX_LOGIC} in Current Task`);
+                        
+                        assert.ok(hasFix, "Should have 'Fix' action")
+                        assert.ok(hasFixCurrent, "Should have 'Fix in Current Task' action")
+                        assert.ok(!hasFixLogic, "Should not have 'Fix Logic' action")
+                        assert.ok(!hasFixLogicCurrent, "Should not have 'Fix Logic in Current Task' action")
+                        
+                        // Clear diagnostics for other tests
+                        mockDiagnostics.length = 0;
                         break
                     }
                     case 'no-range': {
                         EditorUtils.getEffectiveRange = () => null
-                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actionsResult = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actions = Array.isArray(actionsResult) ? actionsResult : [];
                         assert.deepStrictEqual(actions, [])
                         break
                     }
@@ -113,7 +148,8 @@ export async function activateCodeActionProviderTests(context: vscode.ExtensionC
                             throw new Error("Test error")
                         }
 
-                        const actions = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actionsResult = provider.provideCodeActions(mockDocument, mockRange, mockContext)
+                        const actions = Array.isArray(actionsResult) ? actionsResult : [];
                         
                         assert.deepStrictEqual(actions, [])
                         assert.ok(errors.some(args => 
