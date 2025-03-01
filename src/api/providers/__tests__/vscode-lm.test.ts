@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as assert from 'assert';
 import { VsCodeLmHandler } from '../vscode-lm';
+import { TestUtils } from '../../../test/testUtils';
 
 // Mock vscode namespace
 const mockLanguageModelChat = {
@@ -13,17 +14,19 @@ const mockLanguageModelChat = {
     sendRequest: async () => ({
         response: { content: "Test response" },
         stream: (async function* () {
-            yield new vscode.LanguageModelTextPart("Test response");
+            yield { type: "text", value: "Test response" };
             return;
         })()
     }),
     countTokens: async () => ({ input: 10, output: 5 })
 };
 
-export async function activateVsCodeLmTests(context: vscode.ExtensionContext) {
-    const testController = vscode.tests.createTestController('vsCodeLmTests', 'VSCode LM Tests');
+export async function activateVsCodeLmTests(context: vscode.ExtensionContext): Promise<void> {
+    // Create test controller
+    const testController = TestUtils.createTestController('vsCodeLmTests', 'VSCode LM Tests');
     context.subscriptions.push(testController);
 
+    // Root test suite
     const rootSuite = testController.createTestItem('vscode-lm', 'VSCode LM');
     testController.items.add(rootSuite);
 
@@ -32,86 +35,77 @@ export async function activateVsCodeLmTests(context: vscode.ExtensionContext) {
     rootSuite.children.add(handlerSuite);
 
     // Test cases
-    handlerSuite.children.add(testController.createTestItem('should-initialize-handler', 'should initialize handler'));
-    handlerSuite.children.add(testController.createTestItem('should-stream-response', 'should stream response'));
-    handlerSuite.children.add(testController.createTestItem('should-get-model-info', 'should get model info'));
-
-    testController.createRunProfile('Run Tests', vscode.TestRunProfileKind.Run, async (request) => {
-        const queue: vscode.TestItem[] = [];
-        const run = testController.createTestRun(request);
-
-        // Add requested tests
-        if (request.include) {
-            request.include.forEach(test => queue.push(test));
-        } else {
-            rootSuite.children.forEach(test => queue.push(test));
-        }
-
-        // Run tests
-        for (const test of queue) {
-            run.started(test);
-
-            try {
-                switch (test.id) {
-                    case 'should-initialize-handler': {
-                        const handler = new VsCodeLmHandler({
-                            vsCodeLmModelSelector: {
-                                vendor: "test-vendor",
-                                family: "test-family"
-                            }
-                        });
-                        assert.ok(handler, "Handler should be defined");
-                        break;
+    handlerSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'should-initialize-handler',
+            'should initialize handler',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const handler = new VsCodeLmHandler({
+                    vsCodeLmModelSelector: {
+                        vendor: "test-vendor",
+                        family: "test-family"
                     }
-
-                    case 'should-stream-response': {
-                        const handler = new VsCodeLmHandler({
-                            vsCodeLmModelSelector: {
-                                vendor: "test-vendor",
-                                family: "test-family"
-                            }
-                        });
-                        // Mock client property
-                        handler["client"] = mockLanguageModelChat;
-                        
-                        const chunks = [];
-                        for await (const chunk of handler["createMessage"]("Test system prompt", [
-                            { role: "user", content: "Test prompt" }
-                        ])) {
-                            chunks.push(chunk);
-                        }
-
-                        assert.strictEqual(chunks.length, 2, "Should have text and usage chunks");
-                        assert.deepStrictEqual(chunks[0], {
-                            type: "text",
-                            text: "Test response"
-                        });
-                        break;
-                    }
-
-                    case 'should-get-model-info': {
-                        const handler = new VsCodeLmHandler({
-                            vsCodeLmModelSelector: {
-                                vendor: "test-vendor",
-                                family: "test-family"
-                            }
-                        });
-                        // Mock client property
-                        handler["client"] = mockLanguageModelChat;
-                        
-                        const model = handler.getModel();
-                        assert.strictEqual(model.id, "test-model");
-                        assert.ok(model.info, "Model info should be defined");
-                        assert.strictEqual(model.info.contextWindow, 4096);
-                        break;
-                    }
-                }
-                run.passed(test);
-            } catch (err) {
-                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)));
+                });
+                assert.ok(handler, "Handler should be defined");
             }
-        }
+        )
+    );
 
-        run.end();
-    });
+    handlerSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'should-stream-response',
+            'should stream response',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const handler = new VsCodeLmHandler({
+                    vsCodeLmModelSelector: {
+                        vendor: "test-vendor",
+                        family: "test-family"
+                    }
+                });
+                // Mock client property
+                (handler as any)["client"] = mockLanguageModelChat;
+                
+                const chunks = [];
+                for await (const chunk of (handler as any)["createMessage"]("Test system prompt", [
+                    { role: "user", content: "Test prompt" }
+                ])) {
+                    chunks.push(chunk);
+                }
+
+                assert.strictEqual(chunks.length, 2, "Should have text and usage chunks");
+                assert.deepStrictEqual(chunks[0], {
+                    type: "text",
+                    text: "Test response"
+                });
+            }
+        )
+    );
+
+    handlerSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'should-get-model-info',
+            'should get model info',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const handler = new VsCodeLmHandler({
+                    vsCodeLmModelSelector: {
+                        vendor: "test-vendor",
+                        family: "test-family"
+                    }
+                });
+                // Mock client property
+                (handler as any)["client"] = mockLanguageModelChat;
+                
+                const model = handler.getModel();
+                assert.strictEqual(model.id, "test-model");
+                assert.ok(model.info, "Model info should be defined");
+                assert.strictEqual(model.info.contextWindow, 4096);
+            }
+        )
+    );
 }

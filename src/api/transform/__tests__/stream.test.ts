@@ -1,114 +1,200 @@
-import { ApiStreamChunk } from "../stream"
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { ApiStreamChunk } from "../stream";
+import { TestUtils } from '../../../test/testUtils';
 
-describe("API Stream Types", () => {
-	describe("ApiStreamChunk", () => {
-		it("should correctly handle text chunks", () => {
-			const textChunk: ApiStreamChunk = {
-				type: "text",
-				text: "Hello world",
-			}
+export async function activateStreamTests(context: vscode.ExtensionContext): Promise<void> {
+    // Create test controller
+    const testController = TestUtils.createTestController('streamTests', 'API Stream Tests');
+    context.subscriptions.push(testController);
 
-			expect(textChunk.type).toBe("text")
-			expect(textChunk.text).toBe("Hello world")
-		})
+    // Root test suite
+    const rootSuite = testController.createTestItem('api-stream', 'API Stream Types');
+    testController.items.add(rootSuite);
 
-		it("should correctly handle usage chunks with cache information", () => {
-			const usageChunk: ApiStreamChunk = {
-				type: "usage",
-				inputTokens: 100,
-				outputTokens: 50,
-				cacheWriteTokens: 20,
-				cacheReadTokens: 10,
-			}
+    // ApiStreamChunk test suite
+    const chunkSuite = testController.createTestItem('api-stream-chunk', 'ApiStreamChunk');
+    rootSuite.children.add(chunkSuite);
 
-			expect(usageChunk.type).toBe("usage")
-			expect(usageChunk.inputTokens).toBe(100)
-			expect(usageChunk.outputTokens).toBe(50)
-			expect(usageChunk.cacheWriteTokens).toBe(20)
-			expect(usageChunk.cacheReadTokens).toBe(10)
-		})
+    // Test cases
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'text-chunks',
+            'should correctly handle text chunks',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const textChunk: ApiStreamChunk = {
+                    type: "text",
+                    text: "Hello world",
+                };
 
-		it("should handle usage chunks without cache tokens", () => {
-			const usageChunk: ApiStreamChunk = {
-				type: "usage",
-				inputTokens: 100,
-				outputTokens: 50,
-			}
+                assert.strictEqual(textChunk.type, "text");
+                assert.strictEqual(textChunk.text, "Hello world");
+            }
+        )
+    );
 
-			expect(usageChunk.type).toBe("usage")
-			expect(usageChunk.inputTokens).toBe(100)
-			expect(usageChunk.outputTokens).toBe(50)
-			expect(usageChunk.cacheWriteTokens).toBeUndefined()
-			expect(usageChunk.cacheReadTokens).toBeUndefined()
-		})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'usage-with-cache',
+            'should correctly handle usage chunks with cache information',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const usageChunk: ApiStreamChunk = {
+                    type: "usage",
+                    inputTokens: 100,
+                    outputTokens: 50,
+                    cacheWriteTokens: 20,
+                    cacheReadTokens: 10,
+                };
 
-		it("should handle text chunks with empty strings", () => {
-			const emptyTextChunk: ApiStreamChunk = {
-				type: "text",
-				text: "",
-			}
+                assert.strictEqual(usageChunk.type, "usage");
+                assert.strictEqual(usageChunk.inputTokens, 100);
+                assert.strictEqual(usageChunk.outputTokens, 50);
+                assert.strictEqual(usageChunk.cacheWriteTokens, 20);
+                assert.strictEqual(usageChunk.cacheReadTokens, 10);
+            }
+        )
+    );
 
-			expect(emptyTextChunk.type).toBe("text")
-			expect(emptyTextChunk.text).toBe("")
-		})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'usage-without-cache',
+            'should handle usage chunks without cache tokens',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const usageChunk: ApiStreamChunk = {
+                    type: "usage",
+                    inputTokens: 100,
+                    outputTokens: 50,
+                };
 
-		it("should handle usage chunks with zero tokens", () => {
-			const zeroUsageChunk: ApiStreamChunk = {
-				type: "usage",
-				inputTokens: 0,
-				outputTokens: 0,
-			}
+                assert.strictEqual(usageChunk.type, "usage");
+                assert.strictEqual(usageChunk.inputTokens, 100);
+                assert.strictEqual(usageChunk.outputTokens, 50);
+                assert.strictEqual(usageChunk.cacheWriteTokens, undefined);
+                assert.strictEqual(usageChunk.cacheReadTokens, undefined);
+            }
+        )
+    );
 
-			expect(zeroUsageChunk.type).toBe("usage")
-			expect(zeroUsageChunk.inputTokens).toBe(0)
-			expect(zeroUsageChunk.outputTokens).toBe(0)
-		})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'empty-text',
+            'should handle text chunks with empty strings',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const emptyTextChunk: ApiStreamChunk = {
+                    type: "text",
+                    text: "",
+                };
 
-		it("should handle usage chunks with large token counts", () => {
-			const largeUsageChunk: ApiStreamChunk = {
-				type: "usage",
-				inputTokens: 1000000,
-				outputTokens: 500000,
-				cacheWriteTokens: 200000,
-				cacheReadTokens: 100000,
-			}
+                assert.strictEqual(emptyTextChunk.type, "text");
+                assert.strictEqual(emptyTextChunk.text, "");
+            }
+        )
+    );
 
-			expect(largeUsageChunk.type).toBe("usage")
-			expect(largeUsageChunk.inputTokens).toBe(1000000)
-			expect(largeUsageChunk.outputTokens).toBe(500000)
-			expect(largeUsageChunk.cacheWriteTokens).toBe(200000)
-			expect(largeUsageChunk.cacheReadTokens).toBe(100000)
-		})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'zero-tokens',
+            'should handle usage chunks with zero tokens',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const zeroUsageChunk: ApiStreamChunk = {
+                    type: "usage",
+                    inputTokens: 0,
+                    outputTokens: 0,
+                };
 
-		it("should handle text chunks with special characters", () => {
-			const specialCharsChunk: ApiStreamChunk = {
-				type: "text",
-				text: "!@#$%^&*()_+-=[]{}|;:,.<>?`~",
-			}
+                assert.strictEqual(zeroUsageChunk.type, "usage");
+                assert.strictEqual(zeroUsageChunk.inputTokens, 0);
+                assert.strictEqual(zeroUsageChunk.outputTokens, 0);
+            }
+        )
+    );
 
-			expect(specialCharsChunk.type).toBe("text")
-			expect(specialCharsChunk.text).toBe("!@#$%^&*()_+-=[]{}|;:,.<>?`~")
-		})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'large-tokens',
+            'should handle usage chunks with large token counts',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const largeUsageChunk: ApiStreamChunk = {
+                    type: "usage",
+                    inputTokens: 1000000,
+                    outputTokens: 500000,
+                    cacheWriteTokens: 200000,
+                    cacheReadTokens: 100000,
+                };
 
-		it("should handle text chunks with unicode characters", () => {
-			const unicodeChunk: ApiStreamChunk = {
-				type: "text",
-				text: "你好世界👋🌍",
-			}
+                assert.strictEqual(largeUsageChunk.type, "usage");
+                assert.strictEqual(largeUsageChunk.inputTokens, 1000000);
+                assert.strictEqual(largeUsageChunk.outputTokens, 500000);
+                assert.strictEqual(largeUsageChunk.cacheWriteTokens, 200000);
+                assert.strictEqual(largeUsageChunk.cacheReadTokens, 100000);
+            }
+        )
+    );
 
-			expect(unicodeChunk.type).toBe("text")
-			expect(unicodeChunk.text).toBe("你好世界👋🌍")
-		})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'special-chars',
+            'should handle text chunks with special characters',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const specialCharsChunk: ApiStreamChunk = {
+                    type: "text",
+                    text: "!@#$%^&*()_+-=[]{}|;:,.<>?`~",
+                };
 
-		it("should handle text chunks with multiline content", () => {
-			const multilineChunk: ApiStreamChunk = {
-				type: "text",
-				text: "Line 1\nLine 2\nLine 3",
-			}
+                assert.strictEqual(specialCharsChunk.type, "text");
+                assert.strictEqual(specialCharsChunk.text, "!@#$%^&*()_+-=[]{}|;:,.<>?`~");
+            }
+        )
+    );
 
-			expect(multilineChunk.type).toBe("text")
-			expect(multilineChunk.text).toBe("Line 1\nLine 2\nLine 3")
-			expect(multilineChunk.text.split("\n")).toHaveLength(3)
-		})
-	})
-})
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'unicode-chars',
+            'should handle text chunks with unicode characters',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const unicodeChunk: ApiStreamChunk = {
+                    type: "text",
+                    text: "你好世界👋🌍",
+                };
+
+                assert.strictEqual(unicodeChunk.type, "text");
+                assert.strictEqual(unicodeChunk.text, "你好世界👋🌍");
+            }
+        )
+    );
+
+    chunkSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'multiline-content',
+            'should handle text chunks with multiline content',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const multilineChunk: ApiStreamChunk = {
+                    type: "text",
+                    text: "Line 1\nLine 2\nLine 3",
+                };
+
+                assert.strictEqual(multilineChunk.type, "text");
+                assert.strictEqual(multilineChunk.text, "Line 1\nLine 2\nLine 3");
+                assert.strictEqual(multilineChunk.text.split("\n").length, 3);
+            }
+        )
+    );
+}

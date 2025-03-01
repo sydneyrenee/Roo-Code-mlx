@@ -64,8 +64,30 @@ const ensureDirectoryExists = (path: string) => {
 	}
 }
 
+// Create a mock function
+function createMockFunction<T extends (...args: any[]) => any>(implementation: T): T & { mock: any } {
+    const mockFn = function(...args: any[]) {
+        mockFn.mock.calls.push(args);
+        return implementation(...args);
+    } as any;
+    
+    mockFn.mock = {
+        calls: [] as any[][],
+        mockImplementation: (newImpl: T) => {
+            implementation = newImpl;
+            return mockFn;
+        },
+        mockClear: () => {
+            mockFn.mock.calls = [];
+            return mockFn;
+        }
+    };
+    
+    return mockFn;
+}
+
 const mockFs = {
-	readFile: jest.fn().mockImplementation(async (filePath: string, encoding?: string) => {
+	readFile: createMockFunction(async (filePath: string, encoding?: string) => {
 		// Return stored content if it exists
 		if (mockFiles.has(filePath)) {
 			return mockFiles.get(filePath)
@@ -102,7 +124,7 @@ const mockFs = {
 		throw error
 	}),
 
-	writeFile: jest.fn().mockImplementation(async (path: string, content: string) => {
+	writeFile: createMockFunction(async (path: string, content: string) => {
 		// Ensure parent directory exists
 		const parentDir = path.split("/").slice(0, -1).join("/")
 		ensureDirectoryExists(parentDir)
@@ -110,7 +132,7 @@ const mockFs = {
 		return Promise.resolve()
 	}),
 
-	mkdir: jest.fn().mockImplementation(async (path: string, options?: { recursive?: boolean }) => {
+	mkdir: createMockFunction(async (path: string, options?: { recursive?: boolean }) => {
 		// Always handle recursive creation
 		const parts = path.split("/")
 		let currentPath = ""
@@ -140,10 +162,9 @@ const mockFs = {
 		currentPath += "/" + parts[parts.length - 1]
 		mockDirectories.add(currentPath)
 		return Promise.resolve()
-		return Promise.resolve()
 	}),
 
-	access: jest.fn().mockImplementation(async (path: string) => {
+	access: createMockFunction(async (path: string) => {
 		// Check if the path exists in either files or directories
 		if (mockFiles.has(path) || mockDirectories.has(path) || path.startsWith("/test")) {
 			return Promise.resolve()
@@ -153,7 +174,7 @@ const mockFs = {
 		throw error
 	}),
 
-	constants: jest.requireActual("fs").constants,
+	constants: require("fs").constants,
 
 	// Expose mock data for test assertions
 	_mockFiles: mockFiles,

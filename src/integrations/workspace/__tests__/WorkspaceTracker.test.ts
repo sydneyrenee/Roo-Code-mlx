@@ -1,166 +1,241 @@
-import * as vscode from "vscode"
-import WorkspaceTracker from "../WorkspaceTracker"
-import { ClineProvider } from "../../../core/webview/ClineProvider"
-import { listFiles } from "../../../services/glob/list-files"
+import * as vscode from 'vscode'
+import * as assert from 'assert'
+import WorkspaceTracker from '../WorkspaceTracker'
+import { ClineProvider } from '../../../core/webview/ClineProvider'
+import { listFiles } from '../../../services/glob/list-files'
+import { TestUtils } from '../../../test/testUtils'
 
-// Mock modules
-const mockOnDidCreate = jest.fn()
-const mockOnDidDelete = jest.fn()
-const mockOnDidChange = jest.fn()
-const mockDispose = jest.fn()
-
-const mockWatcher = {
-	onDidCreate: mockOnDidCreate.mockReturnValue({ dispose: mockDispose }),
-	onDidDelete: mockOnDidDelete.mockReturnValue({ dispose: mockDispose }),
-	dispose: mockDispose,
+interface FileEvent {
+    fsPath: string;
 }
 
-jest.mock("vscode", () => ({
-	window: {
-		tabGroups: {
-			onDidChangeTabs: jest.fn(() => ({ dispose: jest.fn() })),
-			all: [],
-		},
-	},
-	workspace: {
-		workspaceFolders: [
-			{
-				uri: { fsPath: "/test/workspace" },
-				name: "test",
-				index: 0,
-			},
-		],
-		createFileSystemWatcher: jest.fn(() => mockWatcher),
-		fs: {
-			stat: jest.fn().mockResolvedValue({ type: 1 }), // FileType.File = 1
-		},
-	},
-	FileType: { File: 1, Directory: 2 },
-}))
+type FileEventHandler = (e: FileEvent) => Promise<void> | void;
 
-jest.mock("../../../services/glob/list-files")
+export async function activateWorkspaceTrackerTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = TestUtils.createTestController('workspaceTrackerTests', 'Workspace Tracker Tests')
+    context.subscriptions.push(testController)
 
-describe("WorkspaceTracker", () => {
-	let workspaceTracker: WorkspaceTracker
-	let mockProvider: ClineProvider
+    const rootSuite = testController.createTestItem('workspace-tracker', 'Workspace Tracker')
+    testController.items.add(rootSuite)
 
-	beforeEach(() => {
-		jest.clearAllMocks()
-		jest.useFakeTimers()
+    // Mock vscode APIs and dependencies
+    const mockDispose = () => {}
+    const mockOnDidCreate = (handler: FileEventHandler) => ({ dispose: mockDispose, handler })
+    const mockOnDidDelete = (handler: FileEventHandler) => ({ dispose: mockDispose, handler })
 
-		// Create provider mock
-		mockProvider = {
-			postMessageToWebview: jest.fn().mockResolvedValue(undefined),
-		} as unknown as ClineProvider & { postMessageToWebview: jest.Mock }
+    // Add initialization test
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'initialization',
+            'should initialize with workspace files',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const messages: any[] = []
+                const mockProvider = {
+                    postMessageToWebview: async (msg: any) => { messages.push(msg) }
+                } as unknown as ClineProvider
+                
+                // Mock listFiles to return test files
+                const mockFiles = [['/test/workspace/file1.ts', '/test/workspace/file2.ts'], false]
+                const origListFiles = (listFiles as any).listFiles
+                try {
+                    (listFiles as any).listFiles = async () => mockFiles
+                    
+                    // Create and initialize tracker
+                    const workspaceTracker = new WorkspaceTracker(mockProvider)
+                    await workspaceTracker.initializeFilePaths()
 
-		// Create tracker instance
-		workspaceTracker = new WorkspaceTracker(mockProvider)
-	})
+                    // Verify message was posted with correct files
+                    const message = messages[0]
+                    assert.strictEqual(message.type, 'workspaceUpdated')
+                    assert.ok(message.filePaths.includes('file1.ts'))
+                    assert.ok(message.filePaths.includes('file2.ts'))
+                    assert.strictEqual(message.filePaths.length, 2)
+                } finally {
+                    // Restore original function
+                    (listFiles as any).listFiles = origListFiles
+                }
+            }
+        )
+    )
 
-	it("should initialize with workspace files", async () => {
-		const mockFiles = [["/test/workspace/file1.ts", "/test/workspace/file2.ts"], false]
-		;(listFiles as jest.Mock).mockResolvedValue(mockFiles)
+    // Add file creation test
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'file-creation',
+            'should handle file creation events',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const messages: any[] = []
+                const mockProvider = {
+                    postMessageToWebview: async (msg: any) => { messages.push(msg) }
+                } as unknown as ClineProvider
 
-		await workspaceTracker.initializeFilePaths()
-		jest.runAllTimers()
+                // Create tracker and simulate file creation
+                const workspaceTracker = new WorkspaceTracker(mockProvider)
+                const { handler: createHandler } = mockOnDidCreate((e: FileEvent) => {})
+                await createHandler({ fsPath: '/test/workspace/newfile.ts' })
 
-		expect(mockProvider.postMessageToWebview).toHaveBeenCalledWith({
-			type: "workspaceUpdated",
-			filePaths: expect.arrayContaining(["file1.ts", "file2.ts"]),
-			openedTabs: [],
-		})
-		expect((mockProvider.postMessageToWebview as jest.Mock).mock.calls[0][0].filePaths).toHaveLength(2)
-	})
+                // Verify message
+                const message = messages[messages.length - 1]
+                assert.ok(message)
+                assert.strictEqual(message.type, 'workspaceUpdated')
+                assert.deepStrictEqual(message.filePaths, ['newfile.ts'])
+                assert.deepStrictEqual(message.openedTabs, [])
+            }
+        )
+    )
 
-	it("should handle file creation events", async () => {
-		// Get the creation callback and call it
-		const [[callback]] = mockOnDidCreate.mock.calls
-		await callback({ fsPath: "/test/workspace/newfile.ts" })
-		jest.runAllTimers()
+    // Add file deletion test
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'file-deletion',
+            'should handle file deletion events',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const messages: any[] = []
+                const mockProvider = {
+                    postMessageToWebview: async (msg: any) => { messages.push(msg) }
+                } as unknown as ClineProvider
 
-		expect(mockProvider.postMessageToWebview).toHaveBeenCalledWith({
-			type: "workspaceUpdated",
-			filePaths: ["newfile.ts"],
-			openedTabs: [],
-		})
-	})
+                const workspaceTracker = new WorkspaceTracker(mockProvider)
 
-	it("should handle file deletion events", async () => {
-		// First add a file
-		const [[createCallback]] = mockOnDidCreate.mock.calls
-		await createCallback({ fsPath: "/test/workspace/file.ts" })
-		jest.runAllTimers()
+                // First create a file
+                const { handler: createHandler } = mockOnDidCreate((e: FileEvent) => {})
+                await createHandler({ fsPath: '/test/workspace/file.ts' })
 
-		// Then delete it
-		const [[deleteCallback]] = mockOnDidDelete.mock.calls
-		await deleteCallback({ fsPath: "/test/workspace/file.ts" })
-		jest.runAllTimers()
+                // Then delete it
+                const { handler: deleteHandler } = mockOnDidDelete((e: FileEvent) => {})
+                await deleteHandler({ fsPath: '/test/workspace/file.ts' })
 
-		// The last call should have empty filePaths
-		expect(mockProvider.postMessageToWebview).toHaveBeenLastCalledWith({
-			type: "workspaceUpdated",
-			filePaths: [],
-			openedTabs: [],
-		})
-	})
+                // Verify last message shows empty file list
+                const lastMessage = messages[messages.length - 1]
+                assert.strictEqual(lastMessage.type, 'workspaceUpdated')
+                assert.deepStrictEqual(lastMessage.filePaths, [])
+                assert.deepStrictEqual(lastMessage.openedTabs, [])
+            }
+        )
+    )
 
-	it("should handle directory paths correctly", async () => {
-		// Mock stat to return directory type
-		;(vscode.workspace.fs.stat as jest.Mock).mockResolvedValueOnce({ type: 2 }) // FileType.Directory = 2
+    // Add directory handling test
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'directory-handling',
+            'should handle directory paths correctly',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const messages: any[] = []
+                const mockProvider = {
+                    postMessageToWebview: async (msg: any) => { messages.push(msg) }
+                } as unknown as ClineProvider
 
-		const [[callback]] = mockOnDidCreate.mock.calls
-		await callback({ fsPath: "/test/workspace/newdir" })
-		jest.runAllTimers()
+                const workspaceTracker = new WorkspaceTracker(mockProvider)
 
-		expect(mockProvider.postMessageToWebview).toHaveBeenCalledWith({
-			type: "workspaceUpdated",
-			filePaths: expect.arrayContaining(["newdir"]),
-			openedTabs: [],
-		})
-		const lastCall = (mockProvider.postMessageToWebview as jest.Mock).mock.calls.slice(-1)[0]
-		expect(lastCall[0].filePaths).toHaveLength(1)
-	})
+                // Simulate directory creation
+                const { handler: createHandler } = mockOnDidCreate((e: FileEvent) => {})
+                await createHandler({ fsPath: '/test/workspace/newdir' })
 
-	it("should respect file limits", async () => {
-		// Create array of unique file paths for initial load
-		const files = Array.from({ length: 1001 }, (_, i) => `/test/workspace/file${i}.ts`)
-		;(listFiles as jest.Mock).mockResolvedValue([files, false])
+                const lastMessage = messages[messages.length - 1]
+                assert.strictEqual(lastMessage.type, 'workspaceUpdated')
+                assert.deepStrictEqual(lastMessage.filePaths, ['newdir'])
+                assert.strictEqual(lastMessage.filePaths.length, 1)
+            }
+        )
+    )
 
-		await workspaceTracker.initializeFilePaths()
-		jest.runAllTimers()
+    // Add file limits test
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'file-limits',
+            'should respect file limits',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const messages: any[] = []
+                const mockProvider = {
+                    postMessageToWebview: async (msg: any) => { messages.push(msg) }
+                } as unknown as ClineProvider
 
-		// Should only have 1000 files initially
-		const expectedFiles = Array.from({ length: 1000 }, (_, i) => `file${i}.ts`).sort()
-		const calls = (mockProvider.postMessageToWebview as jest.Mock).mock.calls
+                const workspaceTracker = new WorkspaceTracker(mockProvider)
 
-		expect(mockProvider.postMessageToWebview).toHaveBeenCalledWith({
-			type: "workspaceUpdated",
-			filePaths: expect.arrayContaining(expectedFiles),
-			openedTabs: [],
-		})
-		expect(calls[0][0].filePaths).toHaveLength(1000)
+                // Create 1001 initial files
+                const files = Array.from({ length: 1001 }, (_, i) => `/test/workspace/file${i}.ts`)
+                const origListFiles = (listFiles as any).listFiles
+                try {
+                    (listFiles as any).listFiles = async () => [files, false]
+                    await workspaceTracker.initializeFilePaths()
 
-		// Should allow adding up to 2000 total files
-		const [[callback]] = mockOnDidCreate.mock.calls
-		for (let i = 0; i < 1000; i++) {
-			await callback({ fsPath: `/test/workspace/extra${i}.ts` })
-		}
-		jest.runAllTimers()
+                    // Verify initial file limit of 1000
+                    const initialMessage = messages[0]
+                    assert.strictEqual(initialMessage.filePaths.length, 1000)
 
-		const lastCall = (mockProvider.postMessageToWebview as jest.Mock).mock.calls.slice(-1)[0]
-		expect(lastCall[0].filePaths).toHaveLength(2000)
+                    // Add 1000 more files
+                    const { handler: createHandler } = mockOnDidCreate((e: FileEvent) => {})
+                    for (let i = 0; i < 1000; i++) {
+                        await createHandler({ fsPath: `/test/workspace/extra${i}.ts` })
+                    }
 
-		// Adding one more file beyond 2000 should not increase the count
-		await callback({ fsPath: "/test/workspace/toomany.ts" })
-		jest.runAllTimers()
+                    // Verify limit of 2000 total files
+                    const lastMessage = messages[messages.length - 1]
+                    assert.strictEqual(lastMessage.filePaths.length, 2000)
 
-		const finalCall = (mockProvider.postMessageToWebview as jest.Mock).mock.calls.slice(-1)[0]
-		expect(finalCall[0].filePaths).toHaveLength(2000)
-	})
+                    // Try adding one more file
+                    await createHandler({ fsPath: '/test/workspace/toomany.ts' })
+                    const finalMessage = messages[messages.length - 1]
+                    assert.strictEqual(finalMessage.filePaths.length, 2000)
+                } finally {
+                    // Restore original function
+                    (listFiles as any).listFiles = origListFiles
+                }
+            }
+        )
+    )
 
-	it("should clean up watchers and timers on dispose", () => {
-		workspaceTracker.dispose()
-		expect(mockDispose).toHaveBeenCalled()
-		jest.runAllTimers() // Ensure any pending timers are cleared
-	})
-})
+    // Add cleanup test
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'cleanup',
+            'should clean up watchers on dispose',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                let disposeCalled = false
+                const mockDispose = () => { disposeCalled = true }
+                const mockProvider = {
+                    postMessageToWebview: async () => {}
+                } as unknown as ClineProvider
+
+                const workspaceTracker = new WorkspaceTracker(mockProvider)
+                workspaceTracker.dispose()
+
+                assert.ok(disposeCalled)
+            }
+        )
+    )
+
+    // Create run profile
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
+
+        const run = testController.createTestRun(request)
+
+        for (const test of queue) {
+            run.started(test)
+            try {
+                await (test as any).run?.(run)
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)))
+            }
+        }
+
+        run.end()
+    })
+}

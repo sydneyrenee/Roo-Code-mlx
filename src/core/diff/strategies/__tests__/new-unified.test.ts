@@ -1,75 +1,142 @@
-import { NewUnifiedDiffStrategy } from "../new-unified"
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { NewUnifiedDiffStrategy } from "../new-unified";
+import { TestUtils } from '../../../../test/testUtils';
 
-describe("main", () => {
-	let strategy: NewUnifiedDiffStrategy
+export async function activateNewUnifiedDiffTests(context: vscode.ExtensionContext): Promise<void> {
+    // Create test controller
+    const testController = TestUtils.createTestController('newUnifiedDiffTests', 'New Unified Diff Tests');
+    context.subscriptions.push(testController);
 
-	beforeEach(() => {
-		strategy = new NewUnifiedDiffStrategy(0.97)
-	})
+    // Root test suite
+    const rootSuite = testController.createTestItem('new-unified-diff', 'main');
+    testController.items.add(rootSuite);
 
-	describe("constructor", () => {
-		it("should use default confidence threshold when not provided", () => {
-			const defaultStrategy = new NewUnifiedDiffStrategy()
-			expect(defaultStrategy["confidenceThreshold"]).toBe(1)
-		})
+    // Test suites
+    const constructorSuite = testController.createTestItem('constructor-tests', 'constructor');
+    const toolDescriptionSuite = testController.createTestItem('tool-description-tests', 'getToolDescription');
+    const errorHandlingSuite = testController.createTestItem('error-handling-tests', 'error handling and edge cases');
+    const similarCodeSuite = testController.createTestItem('similar-code-tests', 'similar code sections');
+    const hunkSplittingSuite = testController.createTestItem('hunk-splitting-tests', 'hunk splitting');
+    
+    rootSuite.children.add(constructorSuite);
+    rootSuite.children.add(toolDescriptionSuite);
+    rootSuite.children.add(errorHandlingSuite);
+    rootSuite.children.add(similarCodeSuite);
+    rootSuite.children.add(hunkSplittingSuite);
 
-		it("should use provided confidence threshold", () => {
-			const customStrategy = new NewUnifiedDiffStrategy(0.85)
-			expect(customStrategy["confidenceThreshold"]).toBe(0.85)
-		})
+    // Constructor tests
+    constructorSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'default-threshold',
+            'should use default confidence threshold when not provided',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const defaultStrategy = new NewUnifiedDiffStrategy();
+                // Access private property using indexer syntax
+                assert.strictEqual(defaultStrategy['confidenceThreshold'], 1);
+            }
+        )
+    );
 
-		it("should enforce minimum confidence threshold", () => {
-			const lowStrategy = new NewUnifiedDiffStrategy(0.7) // Below minimum of 0.8
-			expect(lowStrategy["confidenceThreshold"]).toBe(0.8)
-		})
-	})
+    constructorSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'custom-threshold',
+            'should use provided confidence threshold',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const customStrategy = new NewUnifiedDiffStrategy(0.85);
+                assert.strictEqual(customStrategy['confidenceThreshold'], 0.85);
+            }
+        )
+    );
 
-	describe("getToolDescription", () => {
-		it("should return tool description with correct cwd", () => {
-			const cwd = "/test/path"
-			const description = strategy.getToolDescription({ cwd })
+    constructorSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'minimum-threshold',
+            'should enforce minimum confidence threshold',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const lowStrategy = new NewUnifiedDiffStrategy(0.7); // Below minimum of 0.8
+                assert.strictEqual(lowStrategy['confidenceThreshold'], 0.8);
+            }
+        )
+    );
 
-			expect(description).toContain("apply_diff Tool - Generate Precise Code Changes")
-			expect(description).toContain(cwd)
-			expect(description).toContain("Step-by-Step Instructions")
-			expect(description).toContain("Requirements")
-			expect(description).toContain("Examples")
-			expect(description).toContain("Parameters:")
-		})
-	})
+    // Tool description tests
+    toolDescriptionSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'correct-description',
+            'should return tool description with correct cwd',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const cwd = "/test/path";
+                const description = strategy.getToolDescription({ cwd });
 
-	it("should apply simple diff correctly", async () => {
-		const original = `line1
+                assert.ok(description.includes("apply_diff Tool - Generate Precise Code Changes"));
+                assert.ok(description.includes(cwd));
+                assert.ok(description.includes("Step-by-Step Instructions"));
+                assert.ok(description.includes("Requirements"));
+                assert.ok(description.includes("Examples"));
+                assert.ok(description.includes("Parameters:"));
+            }
+        )
+    );
+
+    // Basic diff tests
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'simple-diff',
+            'should apply simple diff correctly',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `line1
 line2
-line3`
+line3`;
 
-		const diff = `--- a/file.txt
+                const diff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1
 +new line
  line2
 -line3
-+modified line3`
++modified line3`;
 
-		const result = await strategy.applyDiff(original, diff)
-		expect(result.success).toBe(true)
-		if (result.success) {
-			expect(result.content).toBe(`line1
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, `line1
 new line
 line2
-modified line3`)
-		}
-	})
+modified line3`);
+                }
+            }
+        )
+    );
 
-	it("should handle multiple hunks", async () => {
-		const original = `line1
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'multiple-hunks',
+            'should handle multiple hunks',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `line1
 line2
 line3
 line4
-line5`
+line5`;
 
-		const diff = `--- a/file.txt
+                const diff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1
@@ -81,23 +148,32 @@ line5`
  line4
 -line5
 +modified line5
-+new line at end`
++new line at end`;
 
-		const result = await strategy.applyDiff(original, diff)
-		expect(result.success).toBe(true)
-		if (result.success) {
-			expect(result.content).toBe(`line1
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, `line1
 new line
 line2
 modified line3
 line4
 modified line5
-new line at end`)
-		}
-	})
+new line at end`);
+                }
+            }
+        )
+    );
 
-	it("should handle complex large", async () => {
-		const original = `line1
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'complex-large',
+            'should handle complex large',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `line1
 line2
 line3
 line4
@@ -106,9 +182,9 @@ line6
 line7
 line8
 line9
-line10`
+line10`;
 
-		const diff = `--- a/file.txt
+                const diff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1
@@ -131,12 +207,12 @@ line10`
  line9
 -line10
 +final line
-+very last line`
++very last line`;
 
-		const result = await strategy.applyDiff(original, diff)
-		expect(result.success).toBe(true)
-		if (result.success) {
-			expect(result.content).toBe(`line1
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, `line1
 header line
 another header
 line2
@@ -151,12 +227,21 @@ changed line8
 bonus line
 line9
 final line
-very last line`)
-		}
-	})
+very last line`);
+                }
+            }
+        )
+    );
 
-	it("should handle indentation changes", async () => {
-		const original = `first line
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'indentation-changes',
+            'should handle indentation changes',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `first line
   indented line
     double indented line
   back to single indent
@@ -165,16 +250,16 @@ no indent
     double indent again
       triple indent
   back to single
-last line`
+last line`;
 
-		const diff = `--- original
+                const diff = `--- original
 +++ modified
 @@ ... @@
  first line
    indented line
 +	tab indented line
 +  new indented line
-     double indented line
+    double indented line
    back to single indent
  no indent
    indented again
@@ -182,9 +267,9 @@ last line`
 -      triple indent
 +      hi there mate
    back to single
- last line`
+ last line`;
 
-		const expected = `first line
+                const expected = `first line
   indented line
 	tab indented line
   new indented line
@@ -195,22 +280,32 @@ no indent
     double indent again
       hi there mate
   back to single
-last line`
+last line`;
 
-		const result = await strategy.applyDiff(original, diff)
-		expect(result.success).toBe(true)
-		if (result.success) {
-			expect(result.content).toBe(expected)
-		}
-	})
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-	it("should handle high level edits", async () => {
-		const original = `def factorial(n):
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'high-level-edits',
+            'should handle high level edits',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `def factorial(n):
     if n == 0:
         return 1
     else:
-        return n * factorial(n-1)`
-		const diff = `@@ ... @@
+        return n * factorial(n-1)`;
+                
+                const diff = `@@ ... @@
 -def factorial(n):
 -    if n == 0:
 -        return 1
@@ -220,23 +315,32 @@ last line`
 +    if number == 0:
 +        return 1
 +    else:
-+        return number * factorial(number-1)`
++        return number * factorial(number-1)`;
 
-		const expected = `def factorial(number):
+                const expected = `def factorial(number):
     if number == 0:
         return 1
     else:
-        return number * factorial(number-1)`
+        return number * factorial(number-1)`;
 
-		const result = await strategy.applyDiff(original, diff)
-		expect(result.success).toBe(true)
-		if (result.success) {
-			expect(result.content).toBe(expected)
-		}
-	})
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-	it("it should handle very complex edits", async () => {
-		const original = `//Initialize the array that will hold the primes
+    rootSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'complex-edits',
+            'it should handle very complex edits',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `//Initialize the array that will hold the primes
 var primeArray = [];
 /*Write a function that checks for primeness and
  pushes those values to t*he array*/
@@ -255,8 +359,8 @@ function PrimeCheck(candidate){
   return primeArray;
 }
 /*Write the code that runs the above until the
- l ength of the array equa*ls the number of primes
- desired*/
+  l ength of the array equa*ls the number of primes
+  desired*/
 
 var numPrimes = prompt("How many primes?");
 
@@ -267,9 +371,9 @@ for (var i = 2; primeArray.length < numPrimes; i++) {
   PrimeCheck(i); //
 }
 console.log(primeArray);
-`
+`;
 
-		const diff = `--- test_diff.js
+                const diff = `--- test_diff.js
 +++ test_diff.js
 @@ ... @@
 -//Initialize the array that will hold the primes
@@ -295,9 +399,9 @@ console.log(primeArray);
 -  PrimeCheck(i); //
 +  PrimeCheck(i);
  }
- console.log(primeArray);`
+ console.log(primeArray);`;
 
-		const expected = `var primeArray = [];
+                const expected = `var primeArray = [];
 function PrimeCheck(candidate){
   isPrime = true;
   for(var i = 2; i < candidate && isPrime; i++){
@@ -319,58 +423,94 @@ for (var i = 2; primeArray.length < numPrimes; i++) {
   PrimeCheck(i);
 }
 console.log(primeArray);
-`
+`;
 
-		const result = await strategy.applyDiff(original, diff)
-		expect(result.success).toBe(true)
-		if (result.success) {
-			expect(result.content).toBe(expected)
-		}
-	})
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-	describe("error handling and edge cases", () => {
-		it("should reject completely invalid diff format", async () => {
-			const original = "line1\nline2\nline3"
-			const invalidDiff = "this is not a diff at all"
+    // Error handling and edge cases
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'invalid-diff-format',
+            'should reject completely invalid diff format',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = "line1\nline2\nline3";
+                const invalidDiff = "this is not a diff at all";
 
-			const result = await strategy.applyDiff(original, invalidDiff)
-			expect(result.success).toBe(false)
-		})
+                const result = await strategy.applyDiff(original, invalidDiff);
+                assert.strictEqual(result.success, false);
+            }
+        )
+    );
 
-		it("should reject diff with invalid hunk format", async () => {
-			const original = "line1\nline2\nline3"
-			const invalidHunkDiff = `--- a/file.txt
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'invalid-hunk-format',
+            'should reject diff with invalid hunk format',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = "line1\nline2\nline3";
+                const invalidHunkDiff = `--- a/file.txt
 +++ b/file.txt
 invalid hunk header
  line1
 -line2
-+new line`
++new line`;
 
-			const result = await strategy.applyDiff(original, invalidHunkDiff)
-			expect(result.success).toBe(false)
-		})
+                const result = await strategy.applyDiff(original, invalidHunkDiff);
+                assert.strictEqual(result.success, false);
+            }
+        )
+    );
 
-		it("should fail when diff tries to modify non-existent content", async () => {
-			const original = "line1\nline2\nline3"
-			const nonMatchingDiff = `--- a/file.txt
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'non-existent-content',
+            'should fail when diff tries to modify non-existent content',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = "line1\nline2\nline3";
+                const nonMatchingDiff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1
 -nonexistent line
 +new line
- line3`
+ line3`;
 
-			const result = await strategy.applyDiff(original, nonMatchingDiff)
-			expect(result.success).toBe(false)
-		})
+                const result = await strategy.applyDiff(original, nonMatchingDiff);
+                assert.strictEqual(result.success, false);
+            }
+        )
+    );
 
-		it("should handle overlapping hunks", async () => {
-			const original = `line1
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'overlapping-hunks',
+            'should handle overlapping hunks',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `line1
 line2
 line3
 line4
-line5`
-			const overlappingDiff = `--- a/file.txt
+line5`;
+                const overlappingDiff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1
@@ -383,19 +523,28 @@ line5`
 -line3
 -line4
 +modified3and4
- line5`
+ line5`;
 
-			const result = await strategy.applyDiff(original, overlappingDiff)
-			expect(result.success).toBe(false)
-		})
+                const result = await strategy.applyDiff(original, overlappingDiff);
+                assert.strictEqual(result.success, false);
+            }
+        )
+    );
 
-		it("should handle empty lines modifications", async () => {
-			const original = `line1
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'empty-lines-modifications',
+            'should handle empty lines modifications',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `line1
 
 line3
 
-line5`
-			const emptyLinesDiff = `--- a/file.txt
+line5`;
+                const emptyLinesDiff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1
@@ -403,73 +552,108 @@ line5`
 -line3
 +line3modified
 
- line5`
+ line5`;
 
-			const result = await strategy.applyDiff(original, emptyLinesDiff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(`line1
+                const result = await strategy.applyDiff(original, emptyLinesDiff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, `line1
 
 line3modified
 
-line5`)
-			}
-		})
+line5`);
+                }
+            }
+        )
+    );
 
-		it("should handle mixed line endings in diff", async () => {
-			const original = "line1\r\nline2\nline3\r\n"
-			const mixedEndingsDiff = `--- a/file.txt
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'mixed-line-endings',
+            'should handle mixed line endings in diff',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = "line1\r\nline2\nline3\r\n";
+                const mixedEndingsDiff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
  line1\r
 -line2
 +modified2\r
- line3`
+ line3`;
 
-			const result = await strategy.applyDiff(original, mixedEndingsDiff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe("line1\r\nmodified2\r\nline3\r\n")
-			}
-		})
+                const result = await strategy.applyDiff(original, mixedEndingsDiff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, "line1\r\nmodified2\r\nline3\r\n");
+                }
+            }
+        )
+    );
 
-		it("should handle partial line modifications", async () => {
-			const original = "const value = oldValue + 123;"
-			const partialDiff = `--- a/file.txt
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'partial-line-modifications',
+            'should handle partial line modifications',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = "const value = oldValue + 123;";
+                const partialDiff = `--- a/file.txt
 +++ b/file.txt
 @@ ... @@
 -const value = oldValue + 123;
-+const value = newValue + 123;`
++const value = newValue + 123;`;
 
-			const result = await strategy.applyDiff(original, partialDiff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe("const value = newValue + 123;")
-			}
-		})
+                const result = await strategy.applyDiff(original, partialDiff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, "const value = newValue + 123;");
+                }
+            }
+        )
+    );
 
-		it("should handle slightly malformed but recoverable diff", async () => {
-			const original = "line1\nline2\nline3"
-			// Missing space after --- and +++
-			const slightlyBadDiff = `---a/file.txt
+    errorHandlingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'malformed-but-recoverable',
+            'should handle slightly malformed but recoverable diff',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = "line1\nline2\nline3";
+                // Missing space after --- and +++
+                const slightlyBadDiff = `---a/file.txt
 +++b/file.txt
 @@ ... @@
  line1
 -line2
 +new line
- line3`
+ line3`;
 
-			const result = await strategy.applyDiff(original, slightlyBadDiff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe("line1\nnew line\nline3")
-			}
-		})
-	})
+                const result = await strategy.applyDiff(original, slightlyBadDiff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, "line1\nnew line\nline3");
+                }
+            }
+        )
+    );
 
-	describe("similar code sections", () => {
-		it("should correctly modify the right section when similar code exists", async () => {
-			const original = `function add(a, b) {
+    // Similar code sections
+    similarCodeSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'modify-right-section',
+            'should correctly modify the right section when similar code exists',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `function add(a, b) {
   return a + b;
 }
 
@@ -479,20 +663,20 @@ function subtract(a, b) {
 
 function multiply(a, b) {
   return a + b;  // Bug here
-}`
+}`;
 
-			const diff = `--- a/math.js
+                const diff = `--- a/math.js
 +++ b/math.js
 @@ ... @@
  function multiply(a, b) {
 -  return a + b;  // Bug here
 +  return a * b;
- }`
+ }`;
 
-			const result = await strategy.applyDiff(original, diff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(`function add(a, b) {
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, `function add(a, b) {
   return a + b;
 }
 
@@ -502,12 +686,21 @@ function subtract(a, b) {
 
 function multiply(a, b) {
   return a * b;
-}`)
-			}
-		})
+}`);
+                }
+            }
+        )
+    );
 
-		it("should handle multiple similar sections with correct context", async () => {
-			const original = `if (condition) {
+    similarCodeSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'multiple-similar-sections',
+            'should handle multiple similar sections with correct context',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `if (condition) {
   doSomething();
   doSomething();
   doSomething();
@@ -517,9 +710,9 @@ if (otherCondition) {
   doSomething();
   doSomething();
   doSomething();
-}`
+}`;
 
-			const diff = `--- a/file.js
+                const diff = `--- a/file.js
 +++ b/file.js
 @@ ... @@
  if (otherCondition) {
@@ -527,12 +720,12 @@ if (otherCondition) {
 -  doSomething();
 +  doSomethingElse();
    doSomething();
- }`
+ }`;
 
-			const result = await strategy.applyDiff(original, diff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(`if (condition) {
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, `if (condition) {
   doSomething();
   doSomething();
   doSomething();
@@ -542,14 +735,22 @@ if (otherCondition) {
   doSomething();
   doSomethingElse();
   doSomething();
-}`)
-			}
-		})
-	})
+}`);
+                }
+            }
+        )
+    );
 
-	describe("hunk splitting", () => {
-		it("should handle large diffs with multiple non-contiguous changes", async () => {
-			const original = `import { readFile } from 'fs';
+    // Hunk splitting
+    hunkSplittingSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'large-non-contiguous',
+            'should handle large diffs with multiple non-contiguous changes',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new NewUnifiedDiffStrategy(0.97);
+                const original = `import { readFile } from 'fs';
 import { join } from 'path';
 import { Logger } from './logger';
 
@@ -594,9 +795,9 @@ export {
   validateInput,
   writeOutput,
   parseConfig
-};`
+};`;
 
-			const diff = `--- a/file.ts
+                const diff = `--- a/file.ts
 +++ b/file.ts
 @@ ... @@
 -import { readFile } from 'fs';
@@ -671,9 +872,9 @@ export {
 -  parseConfig
 +  parseConfig,
 +  type Config
- };`
+ };`;
 
-			const expected = `import { readFile, writeFile } from 'fs';
+                const expected = `import { readFile, writeFile } from 'fs';
 import { join } from 'path';
 import { Logger } from './utils/logger';
 import { Config } from './types';
@@ -726,13 +927,14 @@ export {
   writeOutput,
   parseConfig,
   type Config
-};`
+};`;
 
-			const result = await strategy.applyDiff(original, diff)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(expected)
-			}
-		})
-	})
-})
+                const result = await strategy.applyDiff(original, diff);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
+}

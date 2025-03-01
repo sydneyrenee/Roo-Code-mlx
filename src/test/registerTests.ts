@@ -11,11 +11,36 @@ import { activateDeepSeekTests } from '../api/providers/__tests__/deepseek.test'
 import { activateGeminiTests } from '../api/providers/__tests__/gemini.test';
 import { activateGlamaTests } from '../api/providers/__tests__/glama.test';
 import { activateMistralTests } from '../api/providers/__tests__/mistral.test';
+import { activateLmStudioTests } from '../api/providers/__tests__/lmstudio.test';
+import { activateOllamaTests } from '../api/providers/__tests__/ollama.test';
+import { activateRequestyTests } from '../api/providers/__tests__/requesty.test';
+import { activateUnboundTests } from '../api/providers/__tests__/unbound.test';
+import { activateVertexTests } from '../api/providers/__tests__/vertex.test';
+import { activateOpenAiFormatTests } from '../api/transform/__tests__/openai-format.test';
+import { activateR1FormatTests } from '../api/transform/__tests__/r1-format.test';
+import { activateSimpleFormatTests } from '../api/transform/__tests__/simple-format.test';
+import { activateStreamTests } from '../api/transform/__tests__/stream.test';
+import { activateVsCodeLmFormatTests } from '../api/transform/__tests__/vscode-lm-format.test';
+import { activateEditorUtilsTests } from '../core/__tests__/EditorUtils.test';
+import { activateModeValidatorTests } from '../core/__tests__/mode-validator.test';
+import { activateConfigManagerTests } from '../core/config/__tests__/ConfigManager.test';
+import { activateCustomModesSchemaTests } from '../core/config/__tests__/CustomModesSchema.test';
+import { activateCustomModesSettingsTests } from '../core/config/__tests__/CustomModesSettings.test';
+import { activateGroupConfigSchemaTests } from '../core/config/__tests__/GroupConfigSchema.test';
+import { activateNewUnifiedDiffTests } from '../core/diff/strategies/__tests__/new-unified.test';
+import { activateUnifiedDiffTests } from '../core/diff/strategies/__tests__/unified.test';
+import { activateEditStrategiesTests } from '../core/diff/strategies/new-unified/__tests__/edit-strategies.test';
+import { activateSearchStrategiesTests } from '../core/diff/strategies/new-unified/__tests__/search-strategies.test';
+import { activateMentionsTests } from '../core/mentions/__tests__/index.test';
+import { activateDiffViewProviderTests } from '../integrations/editor/__tests__/DiffViewProvider.test';
+import { activateDetectOmissionTests } from '../integrations/editor/__tests__/detect-omission.test';
+import { activateExtractTextTests } from '../integrations/misc/__tests__/extract-text.test';
+import { activateShadowCheckpointServiceTests } from './suite/services/checkpoints/ShadowCheckpointService.test';
+import { activateEnhancePromptTests } from '../utils/__tests__/enhance-prompt.test';
 
 // Import unregistered tests
 import { activateShellTests } from '../utils/__tests__/shell.test';
 import { activateGitTests } from '../utils/__tests__/git.test';
-import { activateEnhancePromptTests } from '../utils/__tests__/enhance-prompt.test';
 import { activateCostTests } from '../utils/__tests__/cost.test';
 import { activateVsCodeSelectorUtilsTests } from '../shared/__tests__/vsCodeSelectorUtils.test';
 import { activateSupportPromptsTests } from '../shared/__tests__/support-prompts.test';
@@ -57,6 +82,7 @@ export async function registerTests(context: vscode.ExtensionContext): Promise<v
         
         // API Tests
         await safeActivate(activateVsCodeLmTests, 'VSCode LM', context);
+        await safeActivate(activateLmStudioTests, 'LmStudio', context);
         await safeActivate(activateBedrockConverseFormatTests, 'BedrockConverseFormat', context);
         await safeActivate(activateAnthropicTests, 'Anthropic', context);
         await safeActivate(activateOpenAiTests, 'OpenAI', context);
@@ -65,6 +91,30 @@ export async function registerTests(context: vscode.ExtensionContext): Promise<v
         await safeActivate(activateGeminiTests, 'Gemini', context);
         await safeActivate(activateGlamaTests, 'Glama', context);
         await safeActivate(activateMistralTests, 'Mistral', context);
+        await safeActivate(activateOllamaTests, 'Ollama', context);
+        await safeActivate(activateRequestyTests, 'Requesty', context);
+        await safeActivate(activateUnboundTests, 'Unbound', context);
+        await safeActivate(activateVertexTests, 'Vertex', context);
+        await safeActivate(activateOpenAiFormatTests, 'OpenAI Format', context);
+        await safeActivate(activateR1FormatTests, 'R1 Format', context);
+        await safeActivate(activateSimpleFormatTests, 'Simple Format', context);
+        await safeActivate(activateStreamTests, 'Stream', context);
+        await safeActivate(activateVsCodeLmFormatTests, 'VSCode LM Format', context);
+        await safeActivate(activateEditorUtilsTests, 'EditorUtils', context);
+        await safeActivate(activateModeValidatorTests, 'Mode Validator', context);
+        await safeActivate(activateConfigManagerTests, 'ConfigManager', context);
+        await safeActivate(activateCustomModesSchemaTests, 'CustomModesSchema', context);
+        await safeActivate(activateCustomModesSettingsTests, 'CustomModesSettings', context);
+        await safeActivate(activateGroupConfigSchemaTests, 'GroupConfigSchema', context);
+        await safeActivate(activateNewUnifiedDiffTests, 'NewUnifiedDiff', context);
+        await safeActivate(activateUnifiedDiffTests, 'UnifiedDiff', context);
+        await safeActivate(activateEditStrategiesTests, 'EditStrategies', context);
+        await safeActivate(activateSearchStrategiesTests, 'SearchStrategies', context);
+        await safeActivate(activateMentionsTests, 'Mentions', context);
+        await safeActivate(activateDiffViewProviderTests, 'DiffViewProvider', context);
+        await safeActivate(activateDetectOmissionTests, 'DetectOmission', context);
+        await safeActivate(activateExtractTextTests, 'ExtractText', context);
+        await safeActivate(activateShadowCheckpointServiceTests, 'ShadowCheckpointService', context);
         
         // Core Tests
         await safeActivate(activateCodeActionProviderTests, 'CodeActionProvider', context);

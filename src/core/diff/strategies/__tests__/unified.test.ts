@@ -1,27 +1,54 @@
-import { UnifiedDiffStrategy } from "../unified"
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { UnifiedDiffStrategy } from "../unified";
+import { TestUtils } from '../../../../test/testUtils';
 
-describe("UnifiedDiffStrategy", () => {
-	let strategy: UnifiedDiffStrategy
+export async function activateUnifiedDiffTests(context: vscode.ExtensionContext): Promise<void> {
+    // Create test controller
+    const testController = TestUtils.createTestController('unifiedDiffTests', 'Unified Diff Tests');
+    context.subscriptions.push(testController);
 
-	beforeEach(() => {
-		strategy = new UnifiedDiffStrategy()
-	})
+    // Root test suite
+    const rootSuite = testController.createTestItem('unified-diff', 'UnifiedDiffStrategy');
+    testController.items.add(rootSuite);
 
-	describe("getToolDescription", () => {
-		it("should return tool description with correct cwd", () => {
-			const cwd = "/test/path"
-			const description = strategy.getToolDescription({ cwd })
+    // Test suites
+    const toolDescriptionSuite = testController.createTestItem('tool-description-tests', 'getToolDescription');
+    const applyDiffSuite = testController.createTestItem('apply-diff-tests', 'applyDiff');
+    
+    rootSuite.children.add(toolDescriptionSuite);
+    rootSuite.children.add(applyDiffSuite);
 
-			expect(description).toContain("apply_diff")
-			expect(description).toContain(cwd)
-			expect(description).toContain("Parameters:")
-			expect(description).toContain("Format Requirements:")
-		})
-	})
+    // Tool description tests
+    toolDescriptionSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'correct-description',
+            'should return tool description with correct cwd',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new UnifiedDiffStrategy();
+                const cwd = "/test/path";
+                const description = strategy.getToolDescription({ cwd });
 
-	describe("applyDiff", () => {
-		it("should successfully apply a function modification diff", async () => {
-			const originalContent = `import { Logger } from '../logger';
+                assert.ok(description.includes("apply_diff"));
+                assert.ok(description.includes(cwd));
+                assert.ok(description.includes("Parameters:"));
+                assert.ok(description.includes("Format Requirements:"));
+            }
+        )
+    );
+
+    // Apply diff tests
+    applyDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'function-modification',
+            'should successfully apply a function modification diff',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new UnifiedDiffStrategy();
+                const originalContent = `import { Logger } from '../logger';
 
 function calculateTotal(items: number[]): number {
   return items.reduce((sum, item) => {
@@ -29,9 +56,9 @@ function calculateTotal(items: number[]): number {
   }, 0);
 }
 
-export { calculateTotal };`
+export { calculateTotal };`;
 
-			const diffContent = `--- src/utils/helper.ts
+                const diffContent = `--- src/utils/helper.ts
 +++ src/utils/helper.ts
 @@ -1,9 +1,10 @@
  import { Logger } from '../logger';
@@ -45,9 +72,9 @@ export { calculateTotal };`
 +  return Math.round(total * 100) / 100;  // Round to 2 decimal places
  }
  
- export { calculateTotal };`
+ export { calculateTotal };`;
 
-			const expected = `import { Logger } from '../logger';
+                const expected = `import { Logger } from '../logger';
 
 function calculateTotal(items: number[]): number {
   const total = items.reduce((sum, item) => {
@@ -56,23 +83,32 @@ function calculateTotal(items: number[]): number {
   return Math.round(total * 100) / 100;  // Round to 2 decimal places
 }
 
-export { calculateTotal };`
+export { calculateTotal };`;
 
-			const result = await strategy.applyDiff(originalContent, diffContent)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(expected)
-			}
-		})
+                const result = await strategy.applyDiff(originalContent, diffContent);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-		it("should successfully apply a diff adding a new method", async () => {
-			const originalContent = `class Calculator {
+    applyDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'add-new-method',
+            'should successfully apply a diff adding a new method',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new UnifiedDiffStrategy();
+                const originalContent = `class Calculator {
   add(a: number, b: number): number {
     return a + b;
   }
-}`
+}`;
 
-			const diffContent = `--- src/Calculator.ts
+                const diffContent = `--- src/Calculator.ts
 +++ src/Calculator.ts
 @@ -1,5 +1,9 @@
  class Calculator {
@@ -83,9 +119,9 @@ export { calculateTotal };`
 +  multiply(a: number, b: number): number {
 +    return a * b;
 +  }
- }`
+ }`;
 
-			const expected = `class Calculator {
+                const expected = `class Calculator {
   add(a: number, b: number): number {
     return a + b;
   }
@@ -93,25 +129,34 @@ export { calculateTotal };`
   multiply(a: number, b: number): number {
     return a * b;
   }
-}`
+}`;
 
-			const result = await strategy.applyDiff(originalContent, diffContent)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(expected)
-			}
-		})
+                const result = await strategy.applyDiff(originalContent, diffContent);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-		it("should successfully apply a diff modifying imports", async () => {
-			const originalContent = `import { useState } from 'react';
+    applyDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'modify-imports',
+            'should successfully apply a diff modifying imports',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new UnifiedDiffStrategy();
+                const originalContent = `import { useState } from 'react';
 import { Button } from './components';
 
 function App() {
   const [count, setCount] = useState(0);
   return <Button onClick={() => setCount(count + 1)}>{count}</Button>;
-}`
+}`;
 
-			const diffContent = `--- src/App.tsx
+                const diffContent = `--- src/App.tsx
 +++ src/App.tsx
 @@ -1,7 +1,8 @@
 -import { useState } from 'react';
@@ -122,26 +167,35 @@ function App() {
    const [count, setCount] = useState(0);
 +  useEffect(() => { document.title = \`Count: \${count}\` }, [count]);
    return <Button onClick={() => setCount(count + 1)}>{count}</Button>;
- }`
+ }`;
 
-			const expected = `import { useState, useEffect } from 'react';
+                const expected = `import { useState, useEffect } from 'react';
 import { Button } from './components';
 
 function App() {
   const [count, setCount] = useState(0);
   useEffect(() => { document.title = \`Count: \${count}\` }, [count]);
   return <Button onClick={() => setCount(count + 1)}>{count}</Button>;
-}`
+}`;
 
-			const result = await strategy.applyDiff(originalContent, diffContent)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(expected)
-			}
-		})
+                const result = await strategy.applyDiff(originalContent, diffContent);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-		it("should successfully apply a diff with multiple hunks", async () => {
-			const originalContent = `import { readFile, writeFile } from 'fs';
+    applyDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'multiple-hunks',
+            'should successfully apply a diff with multiple hunks',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new UnifiedDiffStrategy();
+                const originalContent = `import { readFile, writeFile } from 'fs';
 
 function processFile(path: string) {
   readFile(path, 'utf8', (err, data) => {
@@ -153,9 +207,9 @@ function processFile(path: string) {
   });
 }
 
-export { processFile };`
+export { processFile };`;
 
-			const diffContent = `--- src/file-processor.ts
+                const diffContent = `--- src/file-processor.ts
 +++ src/file-processor.ts
 @@ -1,12 +1,14 @@
 -import { readFile, writeFile } from 'fs';
@@ -180,9 +234,9 @@ export { processFile };`
 +  }
  }
  
- export { processFile };`
+ export { processFile };`;
 
-			const expected = `import { promises as fs } from 'fs';
+                const expected = `import { promises as fs } from 'fs';
 import { join } from 'path';
 
 async function processFile(path: string) {
@@ -196,33 +250,43 @@ async function processFile(path: string) {
   }
 }
 
-export { processFile };`
+export { processFile };`;
 
-			const result = await strategy.applyDiff(originalContent, diffContent)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(expected)
-			}
-		})
+                const result = await strategy.applyDiff(originalContent, diffContent);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
 
-		it("should handle empty original content", async () => {
-			const originalContent = ""
-			const diffContent = `--- empty.ts
+    applyDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'empty-original',
+            'should handle empty original content',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const strategy = new UnifiedDiffStrategy();
+                const originalContent = "";
+                const diffContent = `--- empty.ts
 +++ empty.ts
 @@ -0,0 +1,3 @@
 +export function greet(name: string): string {
 +  return \`Hello, \${name}!\`;
-+}`
++}`;
 
-			const expected = `export function greet(name: string): string {
+                const expected = `export function greet(name: string): string {
   return \`Hello, \${name}!\`;
-}\n`
+}\n`;
 
-			const result = await strategy.applyDiff(originalContent, diffContent)
-			expect(result.success).toBe(true)
-			if (result.success) {
-				expect(result.content).toBe(expected)
-			}
-		})
-	})
-})
+                const result = await strategy.applyDiff(originalContent, diffContent);
+                assert.strictEqual(result.success, true);
+                if (result.success) {
+                    assert.strictEqual(result.content, expected);
+                }
+            }
+        )
+    );
+}

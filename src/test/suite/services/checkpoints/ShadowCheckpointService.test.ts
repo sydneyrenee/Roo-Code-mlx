@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import * as assert from 'assert';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -6,22 +7,40 @@ import { simpleGit, SimpleGit } from 'simple-git';
 
 import { ShadowCheckpointService } from '../../../../services/checkpoints/ShadowCheckpointService';
 import { CheckpointServiceFactory } from '../../../../services/checkpoints/CheckpointServiceFactory';
-
+import { TestUtils } from '../../../testUtils';
 // Mock globby module
 const mockGlobby = {
     globby: async () => [] as string[]
 };
-require('globby');
-jest.mock('globby', () => mockGlobby);
+// In VS Code testing API, we'll use a different approach to mocking
+// We'll directly modify the module's exports when needed in each test
+// Import the globby module to be able to mock it
+import * as globbyModule from 'globby';
+// Override the globby module's exports with our mock
+(globbyModule as any).globby = mockGlobby.globby;
 
-suite('ShadowCheckpointService', () => {
-    const taskId = 'test-task';
+// In VS Code testing API, we'll use a different approach to mocking
+// We'll directly modify the module's exports when needed in each test
 
-    let workspaceGit: SimpleGit;
-    let shadowGit: SimpleGit;
-    let testFile: string;
-    let service: ShadowCheckpointService;
+export async function activateShadowCheckpointServiceTests(context: vscode.ExtensionContext): Promise<void> {
+    // Create test controller
+    const testController = TestUtils.createTestController('shadowCheckpointServiceTests', 'ShadowCheckpointService Tests');
+    context.subscriptions.push(testController);
 
+    // Root test suite
+    const rootSuite = testController.createTestItem('shadow-checkpoint-service', 'ShadowCheckpointService');
+    testController.items.add(rootSuite);
+
+    // Test suites
+    const getDiffSuite = testController.createTestItem('get-diff-tests', 'getDiff');
+    const saveCheckpointSuite = testController.createTestItem('save-checkpoint-tests', 'saveCheckpoint');
+    const createSuite = testController.createTestItem('create-tests', 'create');
+    
+    rootSuite.children.add(getDiffSuite);
+    rootSuite.children.add(saveCheckpointSuite);
+    rootSuite.children.add(createSuite);
+
+    // Helper function to initialize a git repository
     const initRepo = async ({
         workspaceDir,
         userName = 'Roo Code',
@@ -55,363 +74,625 @@ suite('ShadowCheckpointService', () => {
         return { git, testFile };
     };
 
-    setup(async () => {
-        // Reset globby mock
-        mockGlobby.globby = async () => [];
+    // getDiff tests
+    getDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'correct-diff-between-commits',
+            'returns the correct diff between commits',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
 
-        const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
-        const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
-        const repo = await initRepo({ workspaceDir });
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
+                const testFile = repo.testFile;
 
-        testFile = repo.testFile;
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
 
-        service = await CheckpointServiceFactory.create({
-            strategy: 'shadow',
-            options: { taskId, shadowDir, workspaceDir, log: () => {} }
-        });
+                    await fs.writeFile(testFile, 'Ahoy, world!');
+                    const commit1 = await service.saveCheckpoint('First checkpoint');
+                    assert.ok(commit1?.commit, 'First commit should be created');
 
-        workspaceGit = repo.git;
-        shadowGit = service.git;
-    });
+                    await fs.writeFile(testFile, 'Goodbye, world!');
+                    const commit2 = await service.saveCheckpoint('Second checkpoint');
+                    assert.ok(commit2?.commit, 'Second commit should be created');
 
-    teardown(async () => {
-        await fs.rm(service.shadowDir, { recursive: true, force: true });
-        await fs.rm(service.workspaceDir, { recursive: true, force: true });
-    });
+                    const diff1 = await service.getDiff({ to: commit1!.commit });
+                    assert.strictEqual(diff1.length, 1, 'Should have one diff');
+                    assert.strictEqual(diff1[0].paths.relative, 'test.txt');
+                    assert.strictEqual(diff1[0].paths.absolute, testFile);
+                    assert.strictEqual(diff1[0].content.before, 'Hello, world!');
+                    assert.strictEqual(diff1[0].content.after, 'Ahoy, world!');
 
-    suite('getDiff', () => {
-        test('returns the correct diff between commits', async () => {
-            await fs.writeFile(testFile, 'Ahoy, world!');
-            const commit1 = await service.saveCheckpoint('First checkpoint');
-            assert.ok(commit1?.commit, 'First commit should be created');
+                    const diff2 = await service.getDiff({ to: commit2!.commit });
+                    assert.strictEqual(diff2.length, 1, 'Should have one diff');
+                    assert.strictEqual(diff2[0].paths.relative, 'test.txt');
+                    assert.strictEqual(diff2[0].paths.absolute, testFile);
+                    assert.strictEqual(diff2[0].content.before, 'Hello, world!');
+                    assert.strictEqual(diff2[0].content.after, 'Goodbye, world!');
 
-            await fs.writeFile(testFile, 'Goodbye, world!');
-            const commit2 = await service.saveCheckpoint('Second checkpoint');
-            assert.ok(commit2?.commit, 'Second commit should be created');
+                    const diff12 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit });
+                    assert.strictEqual(diff12.length, 1, 'Should have one diff');
+                    assert.strictEqual(diff12[0].paths.relative, 'test.txt');
+                    assert.strictEqual(diff12[0].paths.absolute, testFile);
+                    assert.strictEqual(diff12[0].content.before, 'Ahoy, world!');
+                    assert.strictEqual(diff12[0].content.after, 'Goodbye, world!');
 
-            const diff1 = await service.getDiff({ to: commit1!.commit });
-            assert.strictEqual(diff1.length, 1, 'Should have one diff');
-            assert.strictEqual(diff1[0].paths.relative, 'test.txt');
-            assert.strictEqual(diff1[0].paths.absolute, testFile);
-            assert.strictEqual(diff1[0].content.before, 'Hello, world!');
-            assert.strictEqual(diff1[0].content.after, 'Ahoy, world!');
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
 
-            const diff2 = await service.getDiff({ to: commit2!.commit });
-            assert.strictEqual(diff2.length, 1, 'Should have one diff');
-            assert.strictEqual(diff2[0].paths.relative, 'test.txt');
-            assert.strictEqual(diff2[0].paths.absolute, testFile);
-            assert.strictEqual(diff2[0].content.before, 'Hello, world!');
-            assert.strictEqual(diff2[0].content.after, 'Goodbye, world!');
+    getDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'handles-new-files',
+            'handles new files in diff',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
 
-            const diff12 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit });
-            assert.strictEqual(diff12.length, 1, 'Should have one diff');
-            assert.strictEqual(diff12[0].paths.relative, 'test.txt');
-            assert.strictEqual(diff12[0].paths.absolute, testFile);
-            assert.strictEqual(diff12[0].content.before, 'Ahoy, world!');
-            assert.strictEqual(diff12[0].content.after, 'Goodbye, world!');
-        });
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
 
-        test('handles new files in diff', async () => {
-            const newFile = path.join(service.workspaceDir, 'new.txt');
-            await fs.writeFile(newFile, 'New file content');
-            const commit = await service.saveCheckpoint('Add new file');
-            assert.ok(commit?.commit, 'Commit should be created');
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
 
-            const changes = await service.getDiff({ to: commit!.commit });
-            const change = changes.find(c => c.paths.relative === 'new.txt');
-            assert.ok(change, 'New file change should exist');
-            assert.strictEqual(change?.content.before, '');
-            assert.strictEqual(change?.content.after, 'New file content');
-        });
+                    const newFile = path.join(service.workspaceDir, 'new.txt');
+                    await fs.writeFile(newFile, 'New file content');
+                    const commit = await service.saveCheckpoint('Add new file');
+                    assert.ok(commit?.commit, 'Commit should be created');
 
-        test('handles deleted files in diff', async () => {
-            const fileToDelete = path.join(service.workspaceDir, 'new.txt');
-            await fs.writeFile(fileToDelete, 'New file content');
-            const commit1 = await service.saveCheckpoint('Add file');
-            assert.ok(commit1?.commit, 'First commit should be created');
+                    const changes = await service.getDiff({ to: commit!.commit });
+                    const change = changes.find(c => c.paths.relative === 'new.txt');
+                    assert.ok(change, 'New file change should exist');
+                    assert.strictEqual(change?.content.before, '');
+                    assert.strictEqual(change?.content.after, 'New file content');
 
-            await fs.unlink(fileToDelete);
-            const commit2 = await service.saveCheckpoint('Delete file');
-            assert.ok(commit2?.commit, 'Second commit should be created');
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
 
-            const changes = await service.getDiff({ from: commit1!.commit, to: commit2!.commit });
-            const change = changes.find(c => c.paths.relative === 'new.txt');
-            assert.ok(change, 'Deleted file change should exist');
-            assert.strictEqual(change!.content.before, 'New file content');
-            assert.strictEqual(change!.content.after, '');
-        });
-    });
+    getDiffSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'handles-deleted-files',
+            'handles deleted files in diff',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
 
-    suite('saveCheckpoint', () => {
-        test('creates a checkpoint if there are pending changes', async () => {
-            await fs.writeFile(testFile, 'Ahoy, world!');
-            const commit1 = await service.saveCheckpoint('First checkpoint');
-            assert.ok(commit1?.commit, 'First commit should be created');
-            const details1 = await service.getDiff({ to: commit1!.commit });
-            assert.ok(details1[0].content.before.includes('Hello, world!'), 'Should contain old content');
-            assert.ok(details1[0].content.after.includes('Ahoy, world!'), 'Should contain new content');
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
 
-            await fs.writeFile(testFile, 'Hola, world!');
-            const commit2 = await service.saveCheckpoint('Second checkpoint');
-            assert.ok(commit2?.commit, 'Second commit should be created');
-            const details2 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit });
-            assert.ok(details2[0].content.before.includes('Ahoy, world!'), 'Should contain old content');
-            assert.ok(details2[0].content.after.includes('Hola, world!'), 'Should contain new content');
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
 
-            // Switch to checkpoint 1
-            await service.restoreCheckpoint(commit1!.commit);
-            assert.strictEqual(
-                await fs.readFile(testFile, 'utf-8'),
-                'Ahoy, world!',
-                'Should restore first checkpoint'
-            );
+                    const fileToDelete = path.join(service.workspaceDir, 'new.txt');
+                    await fs.writeFile(fileToDelete, 'New file content');
+                    const commit1 = await service.saveCheckpoint('Add file');
+                    assert.ok(commit1?.commit, 'First commit should be created');
 
-            // Switch to checkpoint 2
-            await service.restoreCheckpoint(commit2!.commit);
-            assert.strictEqual(
-                await fs.readFile(testFile, 'utf-8'),
-                'Hola, world!',
-                'Should restore second checkpoint'
-            );
+                    await fs.unlink(fileToDelete);
+                    const commit2 = await service.saveCheckpoint('Delete file');
+                    assert.ok(commit2?.commit, 'Second commit should be created');
 
-            // Switch back to initial commit
-            assert.ok(service.baseHash, 'Base hash should exist');
-            await service.restoreCheckpoint(service.baseHash!);
-            assert.strictEqual(
-                await fs.readFile(testFile, 'utf-8'),
-                'Hello, world!',
-                'Should restore initial commit'
-            );
-        });
+                    const changes = await service.getDiff({ from: commit1!.commit, to: commit2!.commit });
+                    const change = changes.find(c => c.paths.relative === 'new.txt');
+                    assert.ok(change, 'Deleted file change should exist');
+                    assert.strictEqual(change!.content.before, 'New file content');
+                    assert.strictEqual(change!.content.after, '');
 
-        test('preserves workspace and index state after saving checkpoint', async () => {
-            // Create three files with different states: staged, unstaged, and mixed
-            const unstagedFile = path.join(service.workspaceDir, 'unstaged.txt');
-            const stagedFile = path.join(service.workspaceDir, 'staged.txt');
-            const mixedFile = path.join(service.workspaceDir, 'mixed.txt');
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
 
-            await fs.writeFile(unstagedFile, 'Initial unstaged');
-            await fs.writeFile(stagedFile, 'Initial staged');
-            await fs.writeFile(mixedFile, 'Initial mixed');
-            await workspaceGit.add(['.']);
-            const result = await workspaceGit.commit('Add initial files');
-            assert.ok(result?.commit, 'Initial commit should be created');
+    // saveCheckpoint tests
+    saveCheckpointSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'creates-checkpoint-with-changes',
+            'creates a checkpoint if there are pending changes',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
 
-            await fs.writeFile(unstagedFile, 'Modified unstaged');
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
+                const testFile = repo.testFile;
 
-            await fs.writeFile(stagedFile, 'Modified staged');
-            await workspaceGit.add([stagedFile]);
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
 
-            await fs.writeFile(mixedFile, 'Modified mixed - staged');
-            await workspaceGit.add([mixedFile]);
-            await fs.writeFile(mixedFile, 'Modified mixed - unstaged');
+                    await fs.writeFile(testFile, 'Ahoy, world!');
+                    const commit1 = await service.saveCheckpoint('First checkpoint');
+                    assert.ok(commit1?.commit, 'First commit should be created');
+                    const details1 = await service.getDiff({ to: commit1!.commit });
+                    assert.ok(details1[0].content.before.includes('Hello, world!'), 'Should contain old content');
+                    assert.ok(details1[0].content.after.includes('Ahoy, world!'), 'Should contain new content');
 
-            // Save checkpoint
-            const commit = await service.saveCheckpoint('Test checkpoint');
-            assert.ok(commit?.commit, 'Commit should be created');
+                    await fs.writeFile(testFile, 'Hola, world!');
+                    const commit2 = await service.saveCheckpoint('Second checkpoint');
+                    assert.ok(commit2?.commit, 'Second commit should be created');
+                    const details2 = await service.getDiff({ from: commit1!.commit, to: commit2!.commit });
+                    assert.ok(details2[0].content.before.includes('Ahoy, world!'), 'Should contain old content');
+                    assert.ok(details2[0].content.after.includes('Hola, world!'), 'Should contain new content');
 
-            // Verify workspace state is preserved
-            const status = await workspaceGit.status();
+                    // Switch to checkpoint 1
+                    await service.restoreCheckpoint(commit1!.commit);
+                    assert.strictEqual(
+                        await fs.readFile(testFile, 'utf-8'),
+                        'Ahoy, world!',
+                        'Should restore first checkpoint'
+                    );
 
-            // All files should be modified
-            assert.ok(status.modified.includes('unstaged.txt'), 'Unstaged file should be modified');
-            assert.ok(status.modified.includes('staged.txt'), 'Staged file should be modified');
-            assert.ok(status.modified.includes('mixed.txt'), 'Mixed file should be modified');
+                    // Switch to checkpoint 2
+                    await service.restoreCheckpoint(commit2!.commit);
+                    assert.strictEqual(
+                        await fs.readFile(testFile, 'utf-8'),
+                        'Hola, world!',
+                        'Should restore second checkpoint'
+                    );
 
-            // Only staged and mixed files should be staged
-            assert.ok(!status.staged.includes('unstaged.txt'), 'Unstaged file should not be staged');
-            assert.ok(status.staged.includes('staged.txt'), 'Staged file should be staged');
-            assert.ok(status.staged.includes('mixed.txt'), 'Mixed file should be staged');
+                    // Switch back to initial commit
+                    assert.ok(service.baseHash, 'Base hash should exist');
+                    await service.restoreCheckpoint(service.baseHash!);
+                    assert.strictEqual(
+                        await fs.readFile(testFile, 'utf-8'),
+                        'Hello, world!',
+                        'Should restore initial commit'
+                    );
 
-            // Verify file contents
-            assert.strictEqual(
-                await fs.readFile(unstagedFile, 'utf-8'),
-                'Modified unstaged',
-                'Unstaged file content should match'
-            );
-            assert.strictEqual(
-                await fs.readFile(stagedFile, 'utf-8'),
-                'Modified staged',
-                'Staged file content should match'
-            );
-            assert.strictEqual(
-                await fs.readFile(mixedFile, 'utf-8'),
-                'Modified mixed - unstaged',
-                'Mixed file content should match'
-            );
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
 
-            // Verify staged changes (--cached shows only staged changes)
-            const stagedDiff = await workspaceGit.diff(['--cached', 'mixed.txt']);
-            assert.ok(stagedDiff.includes('-Initial mixed'), 'Should show old content');
-            assert.ok(stagedDiff.includes('+Modified mixed - staged'), 'Should show staged content');
+    saveCheckpointSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'preserves-workspace-state',
+            'preserves workspace and index state after saving checkpoint',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
 
-            // Verify unstaged changes (shows working directory changes)
-            const unstagedDiff = await workspaceGit.diff(['mixed.txt']);
-            assert.ok(unstagedDiff.includes('-Modified mixed - staged'), 'Should show staged content');
-            assert.ok(unstagedDiff.includes('+Modified mixed - unstaged'), 'Should show unstaged content');
-        });
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
+                const workspaceGit = repo.git;
 
-        test('does not create a checkpoint if there are no pending changes', async () => {
-            const commit0 = await service.saveCheckpoint('Zeroth checkpoint');
-            assert.ok(!commit0?.commit, 'Should not create commit without changes');
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
 
-            await fs.writeFile(testFile, 'Ahoy, world!');
-            const commit1 = await service.saveCheckpoint('First checkpoint');
-            assert.ok(commit1?.commit, 'Should create commit with changes');
+                    // Create three files with different states: staged, unstaged, and mixed
+                    const unstagedFile = path.join(service.workspaceDir, 'unstaged.txt');
+                    const stagedFile = path.join(service.workspaceDir, 'staged.txt');
+                    const mixedFile = path.join(service.workspaceDir, 'mixed.txt');
 
-            const commit2 = await service.saveCheckpoint('Second checkpoint');
-            assert.ok(!commit2?.commit, 'Should not create commit without changes');
-        });
+                    await fs.writeFile(unstagedFile, 'Initial unstaged');
+                    await fs.writeFile(stagedFile, 'Initial staged');
+                    await fs.writeFile(mixedFile, 'Initial mixed');
+                    await workspaceGit.add(['.']);
+                    const result = await workspaceGit.commit('Add initial files');
+                    assert.ok(result?.commit, 'Initial commit should be created');
 
-        test('includes untracked files in checkpoints', async () => {
-            // Create an untracked file
-            const untrackedFile = path.join(service.workspaceDir, 'untracked.txt');
-            await fs.writeFile(untrackedFile, 'I am untracked!');
+                    await fs.writeFile(unstagedFile, 'Modified unstaged');
 
-            // Save a checkpoint with the untracked file
-            const commit1 = await service.saveCheckpoint('Checkpoint with untracked file');
-            assert.ok(commit1?.commit, 'Should create commit');
+                    await fs.writeFile(stagedFile, 'Modified staged');
+                    await workspaceGit.add([stagedFile]);
 
-            // Verify the untracked file was included in the checkpoint
-            const details = await service.getDiff({ to: commit1!.commit });
-            assert.ok(details[0].content.before.includes(''), 'Should show empty before content');
-            assert.ok(details[0].content.after.includes('I am untracked!'), 'Should show new content');
+                    await fs.writeFile(mixedFile, 'Modified mixed - staged');
+                    await workspaceGit.add([mixedFile]);
+                    await fs.writeFile(mixedFile, 'Modified mixed - unstaged');
 
-            // Create another checkpoint with a different state
-            await fs.writeFile(testFile, 'Changed tracked file');
-            const commit2 = await service.saveCheckpoint('Second checkpoint');
-            assert.ok(commit2?.commit, 'Should create second commit');
+                    // Save checkpoint
+                    const commit = await service.saveCheckpoint('Test checkpoint');
+                    assert.ok(commit?.commit, 'Commit should be created');
 
-            // Restore first checkpoint and verify untracked file is preserved
-            await service.restoreCheckpoint(commit1!.commit);
-            assert.strictEqual(
-                await fs.readFile(untrackedFile, 'utf-8'),
-                'I am untracked!',
-                'Should preserve untracked file'
-            );
-            assert.strictEqual(
-                await fs.readFile(testFile, 'utf-8'),
-                'Hello, world!',
-                'Should restore tracked file'
-            );
+                    // Verify workspace state is preserved
+                    const status = await workspaceGit.status();
 
-            // Restore second checkpoint and verify untracked file remains
-            await service.restoreCheckpoint(commit2!.commit);
-            assert.strictEqual(
-                await fs.readFile(untrackedFile, 'utf-8'),
-                'I am untracked!',
-                'Should preserve untracked file'
-            );
-            assert.strictEqual(
-                await fs.readFile(testFile, 'utf-8'),
-                'Changed tracked file',
-                'Should restore tracked file'
-            );
-        });
+                    // All files should be modified
+                    assert.ok(status.modified.includes('unstaged.txt'), 'Unstaged file should be modified');
+                    assert.ok(status.modified.includes('staged.txt'), 'Staged file should be modified');
+                    assert.ok(status.modified.includes('mixed.txt'), 'Mixed file should be modified');
 
-        test('handles file deletions correctly', async () => {
-            await fs.writeFile(testFile, 'I am tracked!');
-            const untrackedFile = path.join(service.workspaceDir, 'new.txt');
-            await fs.writeFile(untrackedFile, 'I am untracked!');
-            const commit1 = await service.saveCheckpoint('First checkpoint');
-            assert.ok(commit1?.commit, 'Should create first commit');
+                    // Only staged and mixed files should be staged
+                    assert.ok(!status.staged.includes('unstaged.txt'), 'Unstaged file should not be staged');
+                    assert.ok(status.staged.includes('staged.txt'), 'Staged file should be staged');
+                    assert.ok(status.staged.includes('mixed.txt'), 'Mixed file should be staged');
 
-            await fs.unlink(testFile);
-            await fs.unlink(untrackedFile);
-            const commit2 = await service.saveCheckpoint('Second checkpoint');
-            assert.ok(commit2?.commit, 'Should create second commit');
+                    // Verify file contents
+                    assert.strictEqual(
+                        await fs.readFile(unstagedFile, 'utf-8'),
+                        'Modified unstaged',
+                        'Unstaged file content should match'
+                    );
+                    assert.strictEqual(
+                        await fs.readFile(stagedFile, 'utf-8'),
+                        'Modified staged',
+                        'Staged file content should match'
+                    );
+                    assert.strictEqual(
+                        await fs.readFile(mixedFile, 'utf-8'),
+                        'Modified mixed - unstaged',
+                        'Mixed file content should match'
+                    );
 
-            // Verify files are gone
-            await assert.rejects(
-                () => fs.readFile(testFile, 'utf-8'),
-                'Tracked file should be gone'
-            );
-            await assert.rejects(
-                () => fs.readFile(untrackedFile, 'utf-8'),
-                'Untracked file should be gone'
-            );
+                    // Verify staged changes (--cached shows only staged changes)
+                    const stagedDiff = await workspaceGit.diff(['--cached', 'mixed.txt']);
+                    assert.ok(stagedDiff.includes('-Initial mixed'), 'Should show old content');
+                    assert.ok(stagedDiff.includes('+Modified mixed - staged'), 'Should show staged content');
 
-            // Restore first checkpoint
-            await service.restoreCheckpoint(commit1!.commit);
-            assert.strictEqual(
-                await fs.readFile(testFile, 'utf-8'),
-                'I am tracked!',
-                'Should restore tracked file'
-            );
-            assert.strictEqual(
-                await fs.readFile(untrackedFile, 'utf-8'),
-                'I am untracked!',
-                'Should restore untracked file'
-            );
+                    // Verify unstaged changes (shows working directory changes)
+                    const unstagedDiff = await workspaceGit.diff(['mixed.txt']);
+                    assert.ok(unstagedDiff.includes('-Modified mixed - staged'), 'Should show staged content');
+                    assert.ok(unstagedDiff.includes('+Modified mixed - unstaged'), 'Should show unstaged content');
 
-            // Restore second checkpoint
-            await service.restoreCheckpoint(commit2!.commit);
-            await assert.rejects(
-                () => fs.readFile(testFile, 'utf-8'),
-                'Tracked file should be gone'
-            );
-            await assert.rejects(
-                () => fs.readFile(untrackedFile, 'utf-8'),
-                'Untracked file should be gone'
-            );
-        });
-    });
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
 
-    suite('create', () => {
-        test('initializes a git repository if one does not already exist', async () => {
-            const shadowDir = path.join(os.tmpdir(), `shadow2-${Date.now()}`);
-            const workspaceDir = path.join(os.tmpdir(), `workspace2-${Date.now()}`);
-            await fs.mkdir(workspaceDir);
+    saveCheckpointSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'no-checkpoint-without-changes',
+            'does not create a checkpoint if there are no pending changes',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
 
-            const newTestFile = path.join(workspaceDir, 'test.txt');
-            await fs.writeFile(newTestFile, 'Hello, world!');
-            assert.strictEqual(
-                await fs.readFile(newTestFile, 'utf-8'),
-                'Hello, world!',
-                'Initial file content should match'
-            );
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
+                const testFile = repo.testFile;
 
-            // Ensure the git repository was initialized
-            const gitDir = path.join(shadowDir, 'tasks', taskId, 'checkpoints', '.git');
-            await assert.rejects(
-                () => fs.stat(gitDir),
-                'Git directory should not exist yet'
-            );
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
 
-            const newService = await ShadowCheckpointService.create({ taskId, shadowDir, workspaceDir, log: () => {} });
-            assert.ok(
-                await fs.stat(gitDir),
-                'Git directory should exist'
-            );
+                    const commit0 = await service.saveCheckpoint('Zeroth checkpoint');
+                    assert.ok(!commit0?.commit, 'Should not create commit without changes');
 
-            // Save a new checkpoint: Ahoy, world!
-            await fs.writeFile(newTestFile, 'Ahoy, world!');
-            const commit1 = await newService.saveCheckpoint('Ahoy, world!');
-            assert.ok(commit1?.commit, 'Should create commit');
-            assert.strictEqual(
-                await fs.readFile(newTestFile, 'utf-8'),
-                'Ahoy, world!',
-                'File content should be updated'
-            );
+                    await fs.writeFile(testFile, 'Ahoy, world!');
+                    const commit1 = await service.saveCheckpoint('First checkpoint');
+                    assert.ok(commit1?.commit, 'Should create commit with changes');
 
-            // Restore "Hello, world!"
-            await newService.restoreCheckpoint(newService.baseHash!);
-            assert.strictEqual(
-                await fs.readFile(newTestFile, 'utf-8'),
-                'Hello, world!',
-                'Should restore initial content'
-            );
+                    const commit2 = await service.saveCheckpoint('Second checkpoint');
+                    assert.ok(!commit2?.commit, 'Should not create commit without changes');
 
-            // Restore "Ahoy, world!"
-            await newService.restoreCheckpoint(commit1!.commit);
-            assert.strictEqual(
-                await fs.readFile(newTestFile, 'utf-8'),
-                'Ahoy, world!',
-                'Should restore updated content'
-            );
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
 
-            await fs.rm(newService.shadowDir, { recursive: true, force: true });
-            await fs.rm(newService.workspaceDir, { recursive: true, force: true });
-        });
-    });
-});
+    saveCheckpointSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'includes-untracked-files',
+            'includes untracked files in checkpoints',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
+
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
+                const testFile = repo.testFile;
+
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
+
+                    // Create an untracked file
+                    const untrackedFile = path.join(service.workspaceDir, 'untracked.txt');
+                    await fs.writeFile(untrackedFile, 'I am untracked!');
+
+                    // Save a checkpoint with the untracked file
+                    const commit1 = await service.saveCheckpoint('Checkpoint with untracked file');
+                    assert.ok(commit1?.commit, 'Should create commit');
+
+                    // Verify the untracked file was included in the checkpoint
+                    const details = await service.getDiff({ to: commit1!.commit });
+                    assert.ok(details[0].content.before.includes(''), 'Should show empty before content');
+                    assert.ok(details[0].content.after.includes('I am untracked!'), 'Should show new content');
+
+                    // Create another checkpoint with a different state
+                    await fs.writeFile(testFile, 'Changed tracked file');
+                    const commit2 = await service.saveCheckpoint('Second checkpoint');
+                    assert.ok(commit2?.commit, 'Should create second commit');
+
+                    // Restore first checkpoint and verify untracked file is preserved
+                    await service.restoreCheckpoint(commit1!.commit);
+                    assert.strictEqual(
+                        await fs.readFile(untrackedFile, 'utf-8'),
+                        'I am untracked!',
+                        'Should preserve untracked file'
+                    );
+                    assert.strictEqual(
+                        await fs.readFile(testFile, 'utf-8'),
+                        'Hello, world!',
+                        'Should restore tracked file'
+                    );
+
+                    // Restore second checkpoint and verify untracked file remains
+                    await service.restoreCheckpoint(commit2!.commit);
+                    assert.strictEqual(
+                        await fs.readFile(untrackedFile, 'utf-8'),
+                        'I am untracked!',
+                        'Should preserve untracked file'
+                    );
+                    assert.strictEqual(
+                        await fs.readFile(testFile, 'utf-8'),
+                        'Changed tracked file',
+                        'Should restore tracked file'
+                    );
+
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
+
+    saveCheckpointSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'handles-file-deletions',
+            'handles file deletions correctly',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
+
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace-${Date.now()}`);
+                const repo = await initRepo({ workspaceDir });
+                const testFile = repo.testFile;
+
+                try {
+                    const service = await CheckpointServiceFactory.create({
+                        strategy: 'shadow',
+                        options: { taskId, shadowDir, workspaceDir, log: () => {} }
+                    }) as ShadowCheckpointService;
+
+                    await fs.writeFile(testFile, 'I am tracked!');
+                    const untrackedFile = path.join(service.workspaceDir, 'new.txt');
+                    await fs.writeFile(untrackedFile, 'I am untracked!');
+                    const commit1 = await service.saveCheckpoint('First checkpoint');
+                    assert.ok(commit1?.commit, 'Should create first commit');
+
+                    await fs.unlink(testFile);
+                    await fs.unlink(untrackedFile);
+                    const commit2 = await service.saveCheckpoint('Second checkpoint');
+                    assert.ok(commit2?.commit, 'Should create second commit');
+
+                    // Verify files are gone
+                    await assert.rejects(
+                        () => fs.readFile(testFile, 'utf-8'),
+                        'Tracked file should be gone'
+                    );
+                    await assert.rejects(
+                        () => fs.readFile(untrackedFile, 'utf-8'),
+                        'Untracked file should be gone'
+                    );
+
+                    // Restore first checkpoint
+                    await service.restoreCheckpoint(commit1!.commit);
+                    assert.strictEqual(
+                        await fs.readFile(testFile, 'utf-8'),
+                        'I am tracked!',
+                        'Should restore tracked file'
+                    );
+                    assert.strictEqual(
+                        await fs.readFile(untrackedFile, 'utf-8'),
+                        'I am untracked!',
+                        'Should restore untracked file'
+                    );
+
+                    // Restore second checkpoint
+                    await service.restoreCheckpoint(commit2!.commit);
+                    await assert.rejects(
+                        () => fs.readFile(testFile, 'utf-8'),
+                        'Tracked file should be gone'
+                    );
+                    await assert.rejects(
+                        () => fs.readFile(untrackedFile, 'utf-8'),
+                        'Untracked file should be gone'
+                    );
+
+                    // Clean up
+                    await fs.rm(service.shadowDir, { recursive: true, force: true });
+                    await fs.rm(service.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
+
+    // create tests
+    createSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'initializes-git-repository',
+            'initializes a git repository if one does not already exist',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                // Reset globby mock
+                mockGlobby.globby = async () => [];
+
+                const taskId = 'test-task';
+                const shadowDir = path.join(os.tmpdir(), `shadow2-${Date.now()}`);
+                const workspaceDir = path.join(os.tmpdir(), `workspace2-${Date.now()}`);
+
+                try {
+                    await fs.mkdir(workspaceDir);
+
+                    const newTestFile = path.join(workspaceDir, 'test.txt');
+                    await fs.writeFile(newTestFile, 'Hello, world!');
+                    assert.strictEqual(
+                        await fs.readFile(newTestFile, 'utf-8'),
+                        'Hello, world!',
+                        'Initial file content should match'
+                    );
+
+                    // Ensure the git repository was initialized
+                    const gitDir = path.join(shadowDir, 'tasks', taskId, 'checkpoints', '.git');
+                    await assert.rejects(
+                        () => fs.stat(gitDir),
+                        'Git directory should not exist yet'
+                    );
+
+                    const newService = await ShadowCheckpointService.create({ 
+                        taskId, 
+                        shadowDir, 
+                        workspaceDir, 
+                        log: () => {} 
+                    });
+                    
+                    assert.ok(
+                        await fs.stat(gitDir),
+                        'Git directory should exist'
+                    );
+
+                    // Save a new checkpoint: Ahoy, world!
+                    await fs.writeFile(newTestFile, 'Ahoy, world!');
+                    const commit1 = await newService.saveCheckpoint('Ahoy, world!');
+                    assert.ok(commit1?.commit, 'Should create commit');
+                    assert.strictEqual(
+                        await fs.readFile(newTestFile, 'utf-8'),
+                        'Ahoy, world!',
+                        'File content should be updated'
+                    );
+
+                    // Restore "Hello, world!"
+                    await newService.restoreCheckpoint(newService.baseHash!);
+                    assert.strictEqual(
+                        await fs.readFile(newTestFile, 'utf-8'),
+                        'Hello, world!',
+                        'Should restore initial content'
+                    );
+
+                    // Restore "Ahoy, world!"
+                    await newService.restoreCheckpoint(commit1!.commit);
+                    assert.strictEqual(
+                        await fs.readFile(newTestFile, 'utf-8'),
+                        'Ahoy, world!',
+                        'Should restore updated content'
+                    );
+
+                    // Clean up
+                    await fs.rm(newService.shadowDir, { recursive: true, force: true });
+                    await fs.rm(newService.workspaceDir, { recursive: true, force: true });
+                } catch (error) {
+                    // Clean up even if test fails
+                    await fs.rm(shadowDir, { recursive: true, force: true });
+                    await fs.rm(workspaceDir, { recursive: true, force: true });
+                    throw error;
+                }
+            }
+        )
+    );
+}

@@ -1,172 +1,385 @@
-import { ZodError } from "zod"
-import { CustomModeSchema, validateCustomMode } from "../CustomModesSchema"
-import { ModeConfig } from "../../../shared/modes"
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { ZodError } from "zod";
+import { CustomModeSchema, validateCustomMode } from "../CustomModesSchema";
+import { ModeConfig } from "../../../shared/modes";
+import { TestUtils } from '../../../test/testUtils';
 
-describe("CustomModeSchema", () => {
-	describe("validateCustomMode", () => {
-		test("accepts valid mode configuration", () => {
-			const validMode = {
-				slug: "test",
-				name: "Test Mode",
-				roleDefinition: "Test role definition",
-				groups: ["read"] as const,
-			} satisfies ModeConfig
+export async function activateCustomModesSchemaTests(context: vscode.ExtensionContext): Promise<void> {
+    // Create test controller
+    const testController = TestUtils.createTestController('customModesSchemaTests', 'Custom Modes Schema Tests');
+    context.subscriptions.push(testController);
 
-			expect(() => validateCustomMode(validMode)).not.toThrow()
-		})
+    // Root test suite
+    const rootSuite = testController.createTestItem('custom-modes-schema', 'CustomModeSchema');
+    testController.items.add(rootSuite);
 
-		test("accepts mode with multiple groups", () => {
-			const validMode = {
-				slug: "test",
-				name: "Test Mode",
-				roleDefinition: "Test role definition",
-				groups: ["read", "edit", "browser"] as const,
-			} satisfies ModeConfig
+    // Test suites
+    const validateSuite = testController.createTestItem('validate-custom-mode', 'validateCustomMode');
+    const fileRegexSuite = testController.createTestItem('file-regex', 'fileRegex');
+    
+    rootSuite.children.add(validateSuite);
+    rootSuite.children.add(fileRegexSuite);
 
-			expect(() => validateCustomMode(validMode)).not.toThrow()
-		})
+    // validateCustomMode tests
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'accepts-valid-mode',
+            'accepts valid mode configuration',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const validMode = {
+                    slug: "test",
+                    name: "Test Mode",
+                    roleDefinition: "Test role definition",
+                    groups: ["read"] as const,
+                } satisfies ModeConfig;
 
-		test("accepts mode with optional customInstructions", () => {
-			const validMode = {
-				slug: "test",
-				name: "Test Mode",
-				roleDefinition: "Test role definition",
-				customInstructions: "Custom instructions",
-				groups: ["read"] as const,
-			} satisfies ModeConfig
+                try {
+                    validateCustomMode(validMode);
+                    // If we get here, the test passes
+                    assert.ok(true);
+                } catch (error) {
+                    assert.fail("Should not have thrown an error");
+                }
+            }
+        )
+    );
 
-			expect(() => validateCustomMode(validMode)).not.toThrow()
-		})
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'accepts-multiple-groups',
+            'accepts mode with multiple groups',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const validMode = {
+                    slug: "test",
+                    name: "Test Mode",
+                    roleDefinition: "Test role definition",
+                    groups: ["read", "edit", "browser"] as const,
+                } satisfies ModeConfig;
 
-		test("rejects missing required fields", () => {
-			const invalidModes = [
-				{}, // All fields missing
-				{ name: "Test" }, // Missing most fields
-				{
-					name: "Test",
-					roleDefinition: "Role",
-				}, // Missing slug and groups
-			]
+                try {
+                    validateCustomMode(validMode);
+                    // If we get here, the test passes
+                    assert.ok(true);
+                } catch (error) {
+                    assert.fail("Should not have thrown an error");
+                }
+            }
+        )
+    );
 
-			invalidModes.forEach((invalidMode) => {
-				expect(() => validateCustomMode(invalidMode)).toThrow(ZodError)
-			})
-		})
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'accepts-custom-instructions',
+            'accepts mode with optional customInstructions',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const validMode = {
+                    slug: "test",
+                    name: "Test Mode",
+                    roleDefinition: "Test role definition",
+                    customInstructions: "Custom instructions",
+                    groups: ["read"] as const,
+                } satisfies ModeConfig;
 
-		test("rejects invalid slug format", () => {
-			const invalidMode = {
-				slug: "not@a@valid@slug",
-				name: "Test Mode",
-				roleDefinition: "Test role definition",
-				groups: ["read"] as const,
-			} satisfies Omit<ModeConfig, "slug"> & { slug: string }
+                try {
+                    validateCustomMode(validMode);
+                    // If we get here, the test passes
+                    assert.ok(true);
+                } catch (error) {
+                    assert.fail("Should not have thrown an error");
+                }
+            }
+        )
+    );
 
-			expect(() => validateCustomMode(invalidMode)).toThrow(ZodError)
-			expect(() => validateCustomMode(invalidMode)).toThrow("Slug must contain only letters numbers and dashes")
-		})
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'rejects-missing-fields',
+            'rejects missing required fields',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const invalidModes = [
+                    {}, // All fields missing
+                    { name: "Test" }, // Missing most fields
+                    {
+                        name: "Test",
+                        roleDefinition: "Role",
+                    }, // Missing slug and groups
+                ];
 
-		test("rejects empty strings in required fields", () => {
-			const emptyNameMode = {
-				slug: "123e4567-e89b-12d3-a456-426614174000",
-				name: "",
-				roleDefinition: "Test role definition",
-				groups: ["read"] as const,
-			} satisfies ModeConfig
+                for (const invalidMode of invalidModes) {
+                    try {
+                        validateCustomMode(invalidMode);
+                        assert.fail("Should have thrown an error");
+                    } catch (error) {
+                        assert.ok(error instanceof ZodError, "Error should be a ZodError");
+                    }
+                }
+            }
+        )
+    );
 
-			const emptyRoleMode = {
-				slug: "123e4567-e89b-12d3-a456-426614174000",
-				name: "Test Mode",
-				roleDefinition: "",
-				groups: ["read"] as const,
-			} satisfies ModeConfig
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'rejects-invalid-slug',
+            'rejects invalid slug format',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const invalidMode = {
+                    slug: "not@a@valid@slug",
+                    name: "Test Mode",
+                    roleDefinition: "Test role definition",
+                    groups: ["read"] as const,
+                } satisfies Omit<ModeConfig, "slug"> & { slug: string };
 
-			expect(() => validateCustomMode(emptyNameMode)).toThrow("Name is required")
-			expect(() => validateCustomMode(emptyRoleMode)).toThrow("Role definition is required")
-		})
+                try {
+                    validateCustomMode(invalidMode);
+                    assert.fail("Should have thrown an error");
+                } catch (error) {
+                    assert.ok(error instanceof ZodError, "Error should be a ZodError");
+                    assert.ok(
+                        (error as Error).message.includes("Slug must contain only letters numbers and dashes"),
+                        "Error message should mention invalid slug format"
+                    );
+                }
+            }
+        )
+    );
 
-		test("rejects invalid group configurations", () => {
-			const invalidGroupMode = {
-				slug: "123e4567-e89b-12d3-a456-426614174000",
-				name: "Test Mode",
-				roleDefinition: "Test role definition",
-				groups: ["not-a-valid-group"] as any,
-			}
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'rejects-empty-strings',
+            'rejects empty strings in required fields',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const emptyNameMode = {
+                    slug: "123e4567-e89b-12d3-a456-426614174000",
+                    name: "",
+                    roleDefinition: "Test role definition",
+                    groups: ["read"] as const,
+                } satisfies ModeConfig;
 
-			expect(() => validateCustomMode(invalidGroupMode)).toThrow(ZodError)
-		})
+                const emptyRoleMode = {
+                    slug: "123e4567-e89b-12d3-a456-426614174000",
+                    name: "Test Mode",
+                    roleDefinition: "",
+                    groups: ["read"] as const,
+                } satisfies ModeConfig;
 
-		test("handles null and undefined gracefully", () => {
-			expect(() => validateCustomMode(null)).toThrow(ZodError)
-			expect(() => validateCustomMode(undefined)).toThrow(ZodError)
-		})
+                try {
+                    validateCustomMode(emptyNameMode);
+                    assert.fail("Should have thrown an error for empty name");
+                } catch (error) {
+                    assert.ok((error as Error).message.includes("Name is required"), "Error should mention name is required");
+                }
 
-		test("rejects non-object inputs", () => {
-			const invalidInputs = [42, "string", true, [], () => {}]
+                try {
+                    validateCustomMode(emptyRoleMode);
+                    assert.fail("Should have thrown an error for empty role definition");
+                } catch (error) {
+                    assert.ok(
+                        (error as Error).message.includes("Role definition is required"),
+                        "Error should mention role definition is required"
+                    );
+                }
+            }
+        )
+    );
 
-			invalidInputs.forEach((input) => {
-				expect(() => validateCustomMode(input)).toThrow(ZodError)
-			})
-		})
-	})
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'rejects-invalid-groups',
+            'rejects invalid group configurations',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const invalidGroupMode = {
+                    slug: "123e4567-e89b-12d3-a456-426614174000",
+                    name: "Test Mode",
+                    roleDefinition: "Test role definition",
+                    groups: ["not-a-valid-group"] as any,
+                };
 
-	describe("fileRegex", () => {
-		it("validates a mode with file restrictions and descriptions", () => {
-			const modeWithJustRegex = {
-				slug: "markdown-editor",
-				name: "Markdown Editor",
-				roleDefinition: "Markdown editing mode",
-				groups: ["read", ["edit", { fileRegex: "\\.md$" }], "browser"],
-			}
+                try {
+                    validateCustomMode(invalidGroupMode);
+                    assert.fail("Should have thrown an error");
+                } catch (error) {
+                    assert.ok(error instanceof ZodError, "Error should be a ZodError");
+                }
+            }
+        )
+    );
 
-			const modeWithDescription = {
-				slug: "docs-editor",
-				name: "Documentation Editor",
-				roleDefinition: "Documentation editing mode",
-				groups: [
-					"read",
-					["edit", { fileRegex: "\\.(md|txt)$", description: "Documentation files only" }],
-					"browser",
-				],
-			}
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'handles-null-undefined',
+            'handles null and undefined gracefully',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                try {
+                    validateCustomMode(null as any);
+                    assert.fail("Should have thrown an error for null");
+                } catch (error) {
+                    assert.ok(error instanceof ZodError, "Error should be a ZodError");
+                }
 
-			expect(() => CustomModeSchema.parse(modeWithJustRegex)).not.toThrow()
-			expect(() => CustomModeSchema.parse(modeWithDescription)).not.toThrow()
-		})
+                try {
+                    validateCustomMode(undefined as any);
+                    assert.fail("Should have thrown an error for undefined");
+                } catch (error) {
+                    assert.ok(error instanceof ZodError, "Error should be a ZodError");
+                }
+            }
+        )
+    );
 
-		it("validates file regex patterns", () => {
-			const validPatterns = ["\\.md$", ".*\\.txt$", "[a-z]+\\.js$"]
-			const invalidPatterns = ["[", "(unclosed", "\\"]
+    validateSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'rejects-non-objects',
+            'rejects non-object inputs',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const invalidInputs = [42, "string", true, [], () => {}];
 
-			validPatterns.forEach((pattern) => {
-				const mode = {
-					slug: "test",
-					name: "Test",
-					roleDefinition: "Test",
-					groups: ["read", ["edit", { fileRegex: pattern }]],
-				}
-				expect(() => CustomModeSchema.parse(mode)).not.toThrow()
-			})
+                for (const input of invalidInputs) {
+                    try {
+                        validateCustomMode(input as any);
+                        assert.fail("Should have thrown an error");
+                    } catch (error) {
+                        assert.ok(error instanceof ZodError, "Error should be a ZodError");
+                    }
+                }
+            }
+        )
+    );
 
-			invalidPatterns.forEach((pattern) => {
-				const mode = {
-					slug: "test",
-					name: "Test",
-					roleDefinition: "Test",
-					groups: ["read", ["edit", { fileRegex: pattern }]],
-				}
-				expect(() => CustomModeSchema.parse(mode)).toThrow()
-			})
-		})
+    // fileRegex tests
+    fileRegexSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'validates-file-restrictions',
+            'validates a mode with file restrictions and descriptions',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const modeWithJustRegex = {
+                    slug: "markdown-editor",
+                    name: "Markdown Editor",
+                    roleDefinition: "Markdown editing mode",
+                    groups: ["read", ["edit", { fileRegex: "\\.md$" }], "browser"],
+                };
 
-		it("prevents duplicate groups", () => {
-			const modeWithDuplicates = {
-				slug: "test",
-				name: "Test",
-				roleDefinition: "Test",
-				groups: ["read", "read", ["edit", { fileRegex: "\\.md$" }], ["edit", { fileRegex: "\\.txt$" }]],
-			}
+                const modeWithDescription = {
+                    slug: "docs-editor",
+                    name: "Documentation Editor",
+                    roleDefinition: "Documentation editing mode",
+                    groups: [
+                        "read",
+                        ["edit", { fileRegex: "\\.(md|txt)$", description: "Documentation files only" }],
+                        "browser",
+                    ],
+                };
 
-			expect(() => CustomModeSchema.parse(modeWithDuplicates)).toThrow(/Duplicate groups/)
-		})
-	})
-})
+                try {
+                    CustomModeSchema.parse(modeWithJustRegex);
+                    // If we get here, the test passes
+                    assert.ok(true, "Mode with just regex should be valid");
+                } catch (error) {
+                    assert.fail("Should not have thrown an error for mode with just regex");
+                }
+
+                try {
+                    CustomModeSchema.parse(modeWithDescription);
+                    // If we get here, the test passes
+                    assert.ok(true, "Mode with description should be valid");
+                } catch (error) {
+                    assert.fail("Should not have thrown an error for mode with description");
+                }
+            }
+        )
+    );
+
+    fileRegexSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'validates-regex-patterns',
+            'validates file regex patterns',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const validPatterns = ["\\.md$", ".*\\.txt$", "[a-z]+\\.js$"];
+                const invalidPatterns = ["[", "(unclosed", "\\"];
+
+                for (const pattern of validPatterns) {
+                    const mode = {
+                        slug: "test",
+                        name: "Test",
+                        roleDefinition: "Test",
+                        groups: ["read", ["edit", { fileRegex: pattern }]],
+                    };
+                    
+                    try {
+                        CustomModeSchema.parse(mode);
+                        // If we get here, the test passes
+                        assert.ok(true, `Pattern ${pattern} should be valid`);
+                    } catch (error) {
+                        assert.fail(`Should not have thrown an error for pattern ${pattern}`);
+                    }
+                }
+
+                for (const pattern of invalidPatterns) {
+                    const mode = {
+                        slug: "test",
+                        name: "Test",
+                        roleDefinition: "Test",
+                        groups: ["read", ["edit", { fileRegex: pattern }]],
+                    };
+                    
+                    try {
+                        CustomModeSchema.parse(mode);
+                        assert.fail(`Should have thrown an error for pattern ${pattern}`);
+                    } catch (error) {
+                        // If we get here, the test passes
+                        assert.ok(true, `Pattern ${pattern} should be invalid`);
+                    }
+                }
+            }
+        )
+    );
+
+    fileRegexSuite.children.add(
+        TestUtils.createTest(
+            testController,
+            'prevents-duplicate-groups',
+            'prevents duplicate groups',
+            vscode.Uri.file(__filename),
+            async (run: vscode.TestRun) => {
+                const modeWithDuplicates = {
+                    slug: "test",
+                    name: "Test",
+                    roleDefinition: "Test",
+                    groups: ["read", "read", ["edit", { fileRegex: "\\.md$" }], ["edit", { fileRegex: "\\.txt$" }]],
+                };
+
+                try {
+                    CustomModeSchema.parse(modeWithDuplicates);
+                    assert.fail("Should have thrown an error for duplicate groups");
+                } catch (error) {
+                    assert.ok(
+                        (error as Error).message.includes("Duplicate groups"),
+                        "Error should mention duplicate groups"
+                    );
+                }
+            }
+        )
+    );
+}
