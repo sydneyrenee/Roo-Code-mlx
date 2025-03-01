@@ -84,6 +84,28 @@ The extension is packaged using:
 - `vsce package` - Creates a VSIX file for distribution
 - Output directory: `bin/`
 
+#### .vscodeignore Configuration
+
+The `.vscodeignore` file specifies which files and directories should be excluded from the VSIX package. This is important to keep the package size small and exclude files that are not needed for the extension to run.
+
+Files and directories that should be excluded include:
+- Development files (`.github`, `.husky`, `.vscode`, etc.)
+- Source files (`src/**`, except for specific included files)
+- Test files and directories (`out-integration/**`, `test-results/**`, `coverage/**`)
+- Configuration files not needed at runtime (`.gitignore`, `.prettierrc.json`, etc.)
+- Temporary and log files (`output.txt`, `test-output.log`, etc.)
+- Nix configuration files (`flake.lock`, `flake.nix`)
+
+Files that should be included:
+- Compiled and bundled extension code (`dist/extension.js`)
+- Assets needed at runtime (`assets/icons/**`)
+- Required dependencies (specified with `!` prefix)
+
+To check what files will be included in the VSIX package:
+```bash
+npx vsce ls --tree
+```
+
 ## Environment Setup
 
 ### Development Environment
@@ -129,8 +151,26 @@ The extension is packaged using:
    npm run build
    ```
 
+## Troubleshooting
+
+### VSIX Package Size Issues
+
+If the VSIX package is too large or includes files that shouldn't be there:
+
+1. Check the `.vscodeignore` file to ensure all unnecessary files are excluded
+2. Use `npx vsce ls --tree` to see what files will be included in the package
+3. Add additional exclusions to `.vscodeignore` as needed
+4. Rebuild the VSIX package with `npm run vsix`
+
+### Common Issues
+
+- **Large VSIX file size**: Usually caused by missing exclusions in `.vscodeignore`
+- **Missing assets in the package**: Check for proper inclusion patterns (using `!` prefix)
+- **Build errors**: Check the TypeScript and esbuild configurations
+
 ## Additional Resources
 
 - [VS Code Extension Development](https://code.visualstudio.com/api)
 - [esbuild Documentation](https://esbuild.github.io/)
 - [VS Code Extension Packaging](https://code.visualstudio.com/api/working-with-extensions/publishing-extension)
+- [vsce Documentation](https://github.com/microsoft/vscode-vsce)
