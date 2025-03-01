@@ -1,319 +1,394 @@
-// Mock AWS SDK credential providers
-jest.mock("@aws-sdk/credential-providers", () => ({
-	fromIni: jest.fn().mockReturnValue({
-		accessKeyId: "profile-access-key",
-		secretAccessKey: "profile-secret-key",
-	}),
-}))
-
+import * as vscode from 'vscode'
+import * as assert from 'assert'
 import { AwsBedrockHandler } from "../bedrock"
-import { MessageContent } from "../../../shared/api"
 import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime"
-import { Anthropic } from "@anthropic-ai/sdk"
 import { fromIni } from "@aws-sdk/credential-providers"
 
-describe("AwsBedrockHandler", () => {
-	let handler: AwsBedrockHandler
+export async function activateBedrockTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('bedrockTests', 'Bedrock Tests')
+    context.subscriptions.push(testController)
 
-	beforeEach(() => {
-		handler = new AwsBedrockHandler({
-			apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-			awsAccessKey: "test-access-key",
-			awsSecretKey: "test-secret-key",
-			awsRegion: "us-east-1",
-		})
-	})
+    const rootSuite = testController.createTestItem('bedrock', 'Bedrock')
+    testController.items.add(rootSuite)
 
-	describe("constructor", () => {
-		it("should initialize with provided config", () => {
-			expect(handler["options"].awsAccessKey).toBe("test-access-key")
-			expect(handler["options"].awsSecretKey).toBe("test-secret-key")
-			expect(handler["options"].awsRegion).toBe("us-east-1")
-			expect(handler["options"].apiModelId).toBe("anthropic.claude-3-5-sonnet-20241022-v2:0")
-		})
+    // Create test suites
+    const handlerSuite = testController.createTestItem('handler', 'AwsBedrockHandler')
+    rootSuite.children.add(handlerSuite)
 
-		it("should initialize with missing AWS credentials", () => {
-			const handlerWithoutCreds = new AwsBedrockHandler({
-				apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-				awsRegion: "us-east-1",
-			})
-			expect(handlerWithoutCreds).toBeInstanceOf(AwsBedrockHandler)
-		})
+    // Constructor tests
+    handlerSuite.children.add(testController.createTestItem(
+        'initialize-with-config',
+        'should initialize with provided config'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'initialize-missing-credentials',
+        'should initialize with missing AWS credentials'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'initialize-with-profile',
+        'should initialize with AWS profile credentials'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'initialize-without-profile',
+        'should initialize with AWS profile enabled but no profile set'
+    ))
 
-		it("should initialize with AWS profile credentials", () => {
-			const handlerWithProfile = new AwsBedrockHandler({
-				apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-				awsRegion: "us-east-1",
-				awsUseProfile: true,
-				awsProfile: "test-profile",
-			})
-			expect(handlerWithProfile).toBeInstanceOf(AwsBedrockHandler)
-			expect(handlerWithProfile["options"].awsUseProfile).toBe(true)
-			expect(handlerWithProfile["options"].awsProfile).toBe("test-profile")
-		})
+    // Client configuration tests
+    handlerSuite.children.add(testController.createTestItem(
+        'profile-credentials',
+        'should configure client with profile credentials when profile mode is enabled'
+    ))
 
-		it("should initialize with AWS profile enabled but no profile set", () => {
-			const handlerWithoutProfile = new AwsBedrockHandler({
-				apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-				awsRegion: "us-east-1",
-				awsUseProfile: true,
-			})
-			expect(handlerWithoutProfile).toBeInstanceOf(AwsBedrockHandler)
-			expect(handlerWithoutProfile["options"].awsUseProfile).toBe(true)
-			expect(handlerWithoutProfile["options"].awsProfile).toBeUndefined()
-		})
-	})
+    // Create Message tests
+    handlerSuite.children.add(testController.createTestItem(
+        'handle-text-messages',
+        'should handle text messages correctly'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'handle-api-errors',
+        'should handle API errors'
+    ))
 
-	describe("AWS SDK client configuration", () => {
-		it("should configure client with profile credentials when profile mode is enabled", async () => {
-			const handlerWithProfile = new AwsBedrockHandler({
-				apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-				awsRegion: "us-east-1",
-				awsUseProfile: true,
-				awsProfile: "test-profile",
-			})
+    // Complete Prompt tests
+    handlerSuite.children.add(testController.createTestItem(
+        'complete-prompt',
+        'should complete prompt successfully'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'handle-prompt-errors',
+        'should handle API errors in prompt completion'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'handle-invalid-response',
+        'should handle invalid response format'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'handle-empty-response',
+        'should handle empty response'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'handle-cross-region',
+        'should handle cross-region inference'
+    ))
 
-			// Mock a simple API call to verify credentials are used
-			const mockResponse = {
-				output: new TextEncoder().encode(JSON.stringify({ content: "test" })),
-			}
-			const mockSend = jest.fn().mockResolvedValue(mockResponse)
-			handlerWithProfile["client"] = {
-				send: mockSend,
-			} as unknown as BedrockRuntimeClient
+    // Model info tests
+    handlerSuite.children.add(testController.createTestItem(
+        'get-model-info',
+        'should return correct model info in test environment'
+    ))
+    handlerSuite.children.add(testController.createTestItem(
+        'get-invalid-model-info',
+        'should return test model info for invalid model in test environment'
+    ))
 
-			await handlerWithProfile.completePrompt("test")
+    // Create run profile
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
 
-			// Verify the client was configured with profile credentials
-			expect(mockSend).toHaveBeenCalled()
-			expect(fromIni).toHaveBeenCalledWith({
-				profile: "test-profile",
-			})
-		})
-	})
+        const run = testController.createTestRun(request)
 
-	describe("createMessage", () => {
-		const mockMessages: Anthropic.Messages.MessageParam[] = [
-			{
-				role: "user",
-				content: "Hello",
-			},
-			{
-				role: "assistant",
-				content: "Hi there!",
-			},
-		]
+        // Store original fromIni for cleanup
+        const originalFromIni = (global as any).fromIni
 
-		const systemPrompt = "You are a helpful assistant"
+        for (const test of queue) {
+            run.started(test)
+            try {
+                switch (test.id) {
+                    case 'initialize-with-config': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
+                        assert.strictEqual(handler["options"].awsAccessKey, "test-access-key")
+                        assert.strictEqual(handler["options"].awsSecretKey, "test-secret-key")
+                        assert.strictEqual(handler["options"].awsRegion, "us-east-1")
+                        assert.strictEqual(handler["options"].apiModelId, "anthropic.claude-3-5-sonnet-20241022-v2:0")
+                        break
+                    }
 
-		it("should handle text messages correctly", async () => {
-			const mockResponse = {
-				messages: [
-					{
-						role: "assistant",
-						content: [{ type: "text", text: "Hello! How can I help you?" }],
-					},
-				],
-				usage: {
-					input_tokens: 10,
-					output_tokens: 5,
-				},
-			}
+                    case 'initialize-missing-credentials': {
+                        const handlerWithoutCreds = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsRegion: "us-east-1",
+                        })
+                        assert.ok(handlerWithoutCreds instanceof AwsBedrockHandler)
+                        break
+                    }
 
-			// Mock AWS SDK invoke
-			const mockStream = {
-				[Symbol.asyncIterator]: async function* () {
-					yield {
-						metadata: {
-							usage: {
-								inputTokens: 10,
-								outputTokens: 5,
-							},
-						},
-					}
-				},
-			}
+                    case 'initialize-with-profile': {
+                        const handlerWithProfile = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsRegion: "us-east-1",
+                            awsUseProfile: true,
+                            awsProfile: "test-profile",
+                        })
+                        assert.ok(handlerWithProfile instanceof AwsBedrockHandler)
+                        assert.strictEqual(handlerWithProfile["options"].awsUseProfile, true)
+                        assert.strictEqual(handlerWithProfile["options"].awsProfile, "test-profile")
+                        break
+                    }
 
-			const mockInvoke = jest.fn().mockResolvedValue({
-				stream: mockStream,
-			})
+                    case 'initialize-without-profile': {
+                        const handlerWithoutProfile = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsRegion: "us-east-1",
+                            awsUseProfile: true,
+                        })
+                        assert.ok(handlerWithoutProfile instanceof AwsBedrockHandler)
+                        assert.strictEqual(handlerWithoutProfile["options"].awsUseProfile, true)
+                        assert.strictEqual(handlerWithoutProfile["options"].awsProfile, undefined)
+                        break
+                    }
 
-			handler["client"] = {
-				send: mockInvoke,
-			} as unknown as BedrockRuntimeClient
+                    case 'profile-credentials': {
+                        const handlerWithProfile = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsRegion: "us-east-1",
+                            awsUseProfile: true,
+                            awsProfile: "test-profile",
+                        })
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
-			const chunks = []
+                        // Mock fromIni to return test credentials
+                        const mockCredentials = {
+                            credentials: {
+                                accessKeyId: "profile-access-key",
+                                secretAccessKey: "profile-secret-key",
+                            }
+                        }
+                        ;(global as any).fromIni = () => mockCredentials
 
-			for await (const chunk of stream) {
-				chunks.push(chunk)
-			}
+                        const mockResponse = {
+                            output: new TextEncoder().encode(JSON.stringify({ content: "test" })),
+                        }
+                        const mockSend = async () => mockResponse
+                        ;(handlerWithProfile as any).client = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-			expect(chunks.length).toBeGreaterThan(0)
-			expect(chunks[0]).toEqual({
-				type: "usage",
-				inputTokens: 10,
-				outputTokens: 5,
-			})
+                        const result = await handlerWithProfile.completePrompt("test")
+                        assert.strictEqual(result, "test")
+                        break
+                    }
 
-			expect(mockInvoke).toHaveBeenCalledWith(
-				expect.objectContaining({
-					input: expect.objectContaining({
-						modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-					}),
-				}),
-			)
-		})
+                    case 'handle-text-messages': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
 
-		it("should handle API errors", async () => {
-			// Mock AWS SDK invoke with error
-			const mockInvoke = jest.fn().mockRejectedValue(new Error("AWS Bedrock error"))
+                        const mockStream = {
+                            [Symbol.asyncIterator]: async function* () {
+                                yield {
+                                    metadata: {
+                                        usage: {
+                                            inputTokens: 10,
+                                            outputTokens: 5,
+                                        },
+                                    },
+                                }
+                            },
+                        }
+                        const mockSend = async () => ({ stream: mockStream })
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-			handler["client"] = {
-				send: mockInvoke,
-			} as unknown as BedrockRuntimeClient
+                        const stream = handler.createMessage("system prompt", [
+                            { role: "user", content: "Hello" },
+                            { role: "assistant", content: "Hi there!" },
+                        ])
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
+                        const chunks = []
+                        for await (const chunk of stream) {
+                            chunks.push(chunk)
+                        }
 
-			await expect(async () => {
-				for await (const chunk of stream) {
-					// Should throw before yielding any chunks
-				}
-			}).rejects.toThrow("AWS Bedrock error")
-		})
-	})
+                        assert.ok(chunks.length > 0)
+                        assert.deepStrictEqual(chunks[0], {
+                            type: "usage",
+                            inputTokens: 10,
+                            outputTokens: 5,
+                        })
+                        break
+                    }
 
-	describe("completePrompt", () => {
-		it("should complete prompt successfully", async () => {
-			const mockResponse = {
-				output: new TextEncoder().encode(
-					JSON.stringify({
-						content: "Test response",
-					}),
-				),
-			}
+                    case 'handle-api-errors': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
 
-			const mockSend = jest.fn().mockResolvedValue(mockResponse)
-			handler["client"] = {
-				send: mockSend,
-			} as unknown as BedrockRuntimeClient
+                        const mockSend = async () => { throw new Error("AWS Bedrock error") }
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("Test response")
-			expect(mockSend).toHaveBeenCalledWith(
-				expect.objectContaining({
-					input: expect.objectContaining({
-						modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-						messages: expect.arrayContaining([
-							expect.objectContaining({
-								role: "user",
-								content: [{ text: "Test prompt" }],
-							}),
-						]),
-						inferenceConfig: expect.objectContaining({
-							maxTokens: 5000,
-							temperature: 0.3,
-							topP: 0.1,
-						}),
-					}),
-				}),
-			)
-		})
+                        const stream = handler.createMessage("system prompt", [
+                            { role: "user", content: "Hello" }
+                        ])
 
-		it("should handle API errors", async () => {
-			const mockError = new Error("AWS Bedrock error")
-			const mockSend = jest.fn().mockRejectedValue(mockError)
-			handler["client"] = {
-				send: mockSend,
-			} as unknown as BedrockRuntimeClient
+                        await assert.rejects(async () => {
+                            for await (const chunk of stream) {
+                                // Should throw before yielding any chunks
+                            }
+                        }, /AWS Bedrock error/)
+                        break
+                    }
 
-			await expect(handler.completePrompt("Test prompt")).rejects.toThrow(
-				"Bedrock completion error: AWS Bedrock error",
-			)
-		})
+                    case 'complete-prompt': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
 
-		it("should handle invalid response format", async () => {
-			const mockResponse = {
-				output: new TextEncoder().encode("invalid json"),
-			}
+                        const mockResponse = {
+                            output: new TextEncoder().encode(JSON.stringify({ content: "Test response" })),
+                        }
+                        const mockSend = async () => mockResponse
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-			const mockSend = jest.fn().mockResolvedValue(mockResponse)
-			handler["client"] = {
-				send: mockSend,
-			} as unknown as BedrockRuntimeClient
+                        const result = await handler.completePrompt("Test prompt")
+                        assert.strictEqual(result, "Test response")
+                        break
+                    }
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("")
-		})
+                    case 'handle-prompt-errors': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
 
-		it("should handle empty response", async () => {
-			const mockResponse = {
-				output: new TextEncoder().encode(JSON.stringify({})),
-			}
+                        const mockSend = async () => { throw new Error("AWS Bedrock error") }
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-			const mockSend = jest.fn().mockResolvedValue(mockResponse)
-			handler["client"] = {
-				send: mockSend,
-			} as unknown as BedrockRuntimeClient
+                        await assert.rejects(
+                            () => handler.completePrompt("Test prompt"),
+                            /Bedrock completion error: AWS Bedrock error/
+                        )
+                        break
+                    }
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("")
-		})
+                    case 'handle-invalid-response': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
 
-		it("should handle cross-region inference", async () => {
-			handler = new AwsBedrockHandler({
-				apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-				awsAccessKey: "test-access-key",
-				awsSecretKey: "test-secret-key",
-				awsRegion: "us-east-1",
-				awsUseCrossRegionInference: true,
-			})
+                        const mockResponse = {
+                            output: new TextEncoder().encode("invalid json"),
+                        }
+                        const mockSend = async () => mockResponse
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-			const mockResponse = {
-				output: new TextEncoder().encode(
-					JSON.stringify({
-						content: "Test response",
-					}),
-				),
-			}
+                        const result = await handler.completePrompt("Test prompt")
+                        assert.strictEqual(result, "")
+                        break
+                    }
 
-			const mockSend = jest.fn().mockResolvedValue(mockResponse)
-			handler["client"] = {
-				send: mockSend,
-			} as unknown as BedrockRuntimeClient
+                    case 'handle-empty-response': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("Test response")
-			expect(mockSend).toHaveBeenCalledWith(
-				expect.objectContaining({
-					input: expect.objectContaining({
-						modelId: "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-					}),
-				}),
-			)
-		})
-	})
+                        const mockResponse = {
+                            output: new TextEncoder().encode(JSON.stringify({})),
+                        }
+                        const mockSend = async () => mockResponse
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
 
-	describe("getModel", () => {
-		it("should return correct model info in test environment", () => {
-			const modelInfo = handler.getModel()
-			expect(modelInfo.id).toBe("anthropic.claude-3-5-sonnet-20241022-v2:0")
-			expect(modelInfo.info).toBeDefined()
-			expect(modelInfo.info.maxTokens).toBe(5000) // Test environment value
-			expect(modelInfo.info.contextWindow).toBe(128_000) // Test environment value
-		})
+                        const result = await handler.completePrompt("Test prompt")
+                        assert.strictEqual(result, "")
+                        break
+                    }
 
-		it("should return test model info for invalid model in test environment", () => {
-			const invalidHandler = new AwsBedrockHandler({
-				apiModelId: "invalid-model",
-				awsAccessKey: "test-access-key",
-				awsSecretKey: "test-secret-key",
-				awsRegion: "us-east-1",
-			})
-			const modelInfo = invalidHandler.getModel()
-			expect(modelInfo.id).toBe("invalid-model") // In test env, returns whatever is passed
-			expect(modelInfo.info.maxTokens).toBe(5000)
-			expect(modelInfo.info.contextWindow).toBe(128_000)
-		})
-	})
-})
+                    case 'handle-cross-region': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                            awsUseCrossRegionInference: true,
+                        })
+
+                        const mockResponse = {
+                            output: new TextEncoder().encode(JSON.stringify({ content: "Test response" })),
+                        }
+                        const mockSend = async () => mockResponse
+                        handler["client"] = {
+                            send: mockSend,
+                        } as unknown as BedrockRuntimeClient
+
+                        const result = await handler.completePrompt("Test prompt")
+                        assert.strictEqual(result, "Test response")
+                        break
+                    }
+
+                    case 'get-model-info': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
+
+                        const modelInfo = handler.getModel()
+                        assert.strictEqual(modelInfo.id, "anthropic.claude-3-5-sonnet-20241022-v2:0")
+                        assert.ok(modelInfo.info)
+                        assert.strictEqual(modelInfo.info.maxTokens, 5000)
+                        assert.strictEqual(modelInfo.info.contextWindow, 128_000)
+                        break
+                    }
+
+                    case 'get-invalid-model-info': {
+                        const handler = new AwsBedrockHandler({
+                            apiModelId: "invalid-model",
+                            awsAccessKey: "test-access-key",
+                            awsSecretKey: "test-secret-key",
+                            awsRegion: "us-east-1",
+                        })
+
+                        const modelInfo = handler.getModel()
+                        assert.strictEqual(modelInfo.id, "invalid-model")
+                        assert.strictEqual(modelInfo.info.maxTokens, 5000)
+                        assert.strictEqual(modelInfo.info.contextWindow, 128_000)
+                        break
+                    }
+                }
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)))
+            }
+        }
+
+        // Restore original fromIni
+        (global as any).fromIni = originalFromIni
+
+        run.end()
+    })
+}

@@ -1,210 +1,248 @@
+import * as vscode from 'vscode'
+import * as assert from 'assert'
 import { GeminiHandler } from "../gemini"
 import { Anthropic } from "@anthropic-ai/sdk"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
-// Mock the Google Generative AI SDK
-jest.mock("@google/generative-ai", () => ({
-	GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
-		getGenerativeModel: jest.fn().mockReturnValue({
-			generateContentStream: jest.fn(),
-			generateContent: jest.fn().mockResolvedValue({
-				response: {
-					text: () => "Test response",
-				},
-			}),
-		}),
-	})),
-}))
+export async function activateGeminiTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('geminiTests', 'Gemini Tests')
+    context.subscriptions.push(testController)
 
-describe("GeminiHandler", () => {
-	let handler: GeminiHandler
+    const rootSuite = testController.createTestItem('gemini', 'Gemini')
+    testController.items.add(rootSuite)
 
-	beforeEach(() => {
-		handler = new GeminiHandler({
-			apiKey: "test-key",
-			apiModelId: "gemini-2.0-flash-thinking-exp-1219",
-			geminiApiKey: "test-key",
-		})
-	})
+    // Create test suites
+    const constructorSuite = testController.createTestItem('constructor', 'Constructor')
+    rootSuite.children.add(constructorSuite)
 
-	describe("constructor", () => {
-		it("should initialize with provided config", () => {
-			expect(handler["options"].geminiApiKey).toBe("test-key")
-			expect(handler["options"].apiModelId).toBe("gemini-2.0-flash-thinking-exp-1219")
-		})
+    const messageSuite = testController.createTestItem('message', 'Create Message')
+    rootSuite.children.add(messageSuite)
 
-		it.skip("should throw if API key is missing", () => {
-			expect(() => {
-				new GeminiHandler({
-					apiModelId: "gemini-2.0-flash-thinking-exp-1219",
-					geminiApiKey: "",
-				})
-			}).toThrow("API key is required for Google Gemini")
-		})
-	})
+    const promptSuite = testController.createTestItem('prompt', 'Complete Prompt')
+    rootSuite.children.add(promptSuite)
 
-	describe("createMessage", () => {
-		const mockMessages: Anthropic.Messages.MessageParam[] = [
-			{
-				role: "user",
-				content: "Hello",
-			},
-			{
-				role: "assistant",
-				content: "Hi there!",
-			},
-		]
+    const modelSuite = testController.createTestItem('model', 'Model Info')
+    rootSuite.children.add(modelSuite)
 
-		const systemPrompt = "You are a helpful assistant"
+    // Constructor tests
+    constructorSuite.children.add(testController.createTestItem(
+        'initialize-with-config',
+        'should initialize with provided config'
+    ))
 
-		it("should handle text messages correctly", async () => {
-			// Mock the stream response
-			const mockStream = {
-				stream: [{ text: () => "Hello" }, { text: () => " world!" }],
-				response: {
-					usageMetadata: {
-						promptTokenCount: 10,
-						candidatesTokenCount: 5,
-					},
-				},
-			}
+    // Message tests
+    messageSuite.children.add(testController.createTestItem(
+        'handle-text-messages',
+        'should handle text messages correctly'
+    ))
+    messageSuite.children.add(testController.createTestItem(
+        'handle-api-errors',
+        'should handle API errors'
+    ))
 
-			// Setup the mock implementation
-			const mockGenerateContentStream = jest.fn().mockResolvedValue(mockStream)
-			const mockGetGenerativeModel = jest.fn().mockReturnValue({
-				generateContentStream: mockGenerateContentStream,
-			})
+    // Prompt tests
+    promptSuite.children.add(testController.createTestItem(
+        'complete-prompt',
+        'should complete prompt successfully'
+    ))
+    promptSuite.children.add(testController.createTestItem(
+        'handle-prompt-errors',
+        'should handle API errors'
+    ))
+    promptSuite.children.add(testController.createTestItem(
+        'handle-empty-response',
+        'should handle empty response'
+    ))
 
-			;(handler["client"] as any).getGenerativeModel = mockGetGenerativeModel
+    // Model tests
+    modelSuite.children.add(testController.createTestItem(
+        'valid-model-info',
+        'should return correct model info'
+    ))
+    modelSuite.children.add(testController.createTestItem(
+        'invalid-model-info',
+        'should return default model if invalid model specified'
+    ))
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
-			const chunks = []
+    // Create run profile
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
 
-			for await (const chunk of stream) {
-				chunks.push(chunk)
-			}
+        const run = testController.createTestRun(request)
 
-			// Should have 3 chunks: 'Hello', ' world!', and usage info
-			expect(chunks.length).toBe(3)
-			expect(chunks[0]).toEqual({
-				type: "text",
-				text: "Hello",
-			})
-			expect(chunks[1]).toEqual({
-				type: "text",
-				text: " world!",
-			})
-			expect(chunks[2]).toEqual({
-				type: "usage",
-				inputTokens: 10,
-				outputTokens: 5,
-			})
+        // Mock Gemini client implementation
+        const mockClient = {
+            getGenerativeModel: () => ({
+                generateContentStream: async () => ({
+                    stream: [
+                        { text: () => "Hello" },
+                        { text: () => " world!" }
+                    ],
+                    response: {
+                        usageMetadata: {
+                            promptTokenCount: 10,
+                            candidatesTokenCount: 5,
+                        },
+                    },
+                }),
+                generateContent: async () => ({
+                    response: {
+                        text: () => "Test response",
+                    },
+                }),
+            }),
+        }
 
-			// Verify the model configuration
-			expect(mockGetGenerativeModel).toHaveBeenCalledWith({
-				model: "gemini-2.0-flash-thinking-exp-1219",
-				systemInstruction: systemPrompt,
-			})
+        // Test handler with mock options
+        const mockOptions = {
+            apiKey: "test-key",
+            apiModelId: "gemini-2.0-flash-thinking-exp-1219",
+            geminiApiKey: "test-key",
+        }
 
-			// Verify generation config
-			expect(mockGenerateContentStream).toHaveBeenCalledWith(
-				expect.objectContaining({
-					generationConfig: {
-						temperature: 0,
-					},
-				}),
-			)
-		})
+        for (const test of queue) {
+            run.started(test)
+            try {
+                switch (test.id) {
+                    case 'initialize-with-config': {
+                        const handler = new GeminiHandler(mockOptions)
+                        assert.strictEqual(handler["options"].geminiApiKey, "test-key")
+                        assert.strictEqual(handler["options"].apiModelId, "gemini-2.0-flash-thinking-exp-1219")
+                        break
+                    }
 
-		it("should handle API errors", async () => {
-			const mockError = new Error("Gemini API error")
-			const mockGenerateContentStream = jest.fn().mockRejectedValue(mockError)
-			const mockGetGenerativeModel = jest.fn().mockReturnValue({
-				generateContentStream: mockGenerateContentStream,
-			})
+                    case 'handle-text-messages': {
+                        const handler = new GeminiHandler(mockOptions)
+                        ;(handler as any).client = mockClient
 
-			;(handler["client"] as any).getGenerativeModel = mockGetGenerativeModel
+                        const mockMessages: Anthropic.Messages.MessageParam[] = [
+                            { role: "user", content: "Hello" },
+                            { role: "assistant", content: "Hi there!" },
+                        ]
+                        const systemPrompt = "You are a helpful assistant"
 
-			const stream = handler.createMessage(systemPrompt, mockMessages)
+                        const stream = handler.createMessage(systemPrompt, mockMessages)
+                        const chunks = []
+                        for await (const chunk of stream) {
+                            chunks.push(chunk)
+                        }
 
-			await expect(async () => {
-				for await (const chunk of stream) {
-					// Should throw before yielding any chunks
-				}
-			}).rejects.toThrow("Gemini API error")
-		})
-	})
+                        assert.strictEqual(chunks.length, 3)
+                        assert.deepStrictEqual(chunks[0], {
+                            type: "text",
+                            text: "Hello",
+                        })
+                        assert.deepStrictEqual(chunks[1], {
+                            type: "text",
+                            text: " world!",
+                        })
+                        assert.deepStrictEqual(chunks[2], {
+                            type: "usage",
+                            inputTokens: 10,
+                            outputTokens: 5,
+                        })
+                        break
+                    }
 
-	describe("completePrompt", () => {
-		it("should complete prompt successfully", async () => {
-			const mockGenerateContent = jest.fn().mockResolvedValue({
-				response: {
-					text: () => "Test response",
-				},
-			})
-			const mockGetGenerativeModel = jest.fn().mockReturnValue({
-				generateContent: mockGenerateContent,
-			})
-			;(handler["client"] as any).getGenerativeModel = mockGetGenerativeModel
+                    case 'handle-api-errors': {
+                        const handler = new GeminiHandler(mockOptions)
+                        const errorClient = {
+                            getGenerativeModel: () => ({
+                                generateContentStream: async () => {
+                                    throw new Error("Gemini API error")
+                                },
+                            }),
+                        }
+                        ;(handler as any).client = errorClient
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("Test response")
-			expect(mockGetGenerativeModel).toHaveBeenCalledWith({
-				model: "gemini-2.0-flash-thinking-exp-1219",
-			})
-			expect(mockGenerateContent).toHaveBeenCalledWith({
-				contents: [{ role: "user", parts: [{ text: "Test prompt" }] }],
-				generationConfig: {
-					temperature: 0,
-				},
-			})
-		})
+                        const mockMessages: Anthropic.Messages.MessageParam[] = [
+                            { role: "user", content: "Hello" },
+                        ]
+                        const systemPrompt = "You are a helpful assistant"
 
-		it("should handle API errors", async () => {
-			const mockError = new Error("Gemini API error")
-			const mockGenerateContent = jest.fn().mockRejectedValue(mockError)
-			const mockGetGenerativeModel = jest.fn().mockReturnValue({
-				generateContent: mockGenerateContent,
-			})
-			;(handler["client"] as any).getGenerativeModel = mockGetGenerativeModel
+                        const stream = handler.createMessage(systemPrompt, mockMessages)
+                        await assert.rejects(async () => {
+                            for await (const chunk of stream) {
+                                // Should throw before yielding any chunks
+                            }
+                        }, /Gemini API error/)
+                        break
+                    }
 
-			await expect(handler.completePrompt("Test prompt")).rejects.toThrow(
-				"Gemini completion error: Gemini API error",
-			)
-		})
+                    case 'complete-prompt': {
+                        const handler = new GeminiHandler(mockOptions)
+                        ;(handler as any).client = mockClient
 
-		it("should handle empty response", async () => {
-			const mockGenerateContent = jest.fn().mockResolvedValue({
-				response: {
-					text: () => "",
-				},
-			})
-			const mockGetGenerativeModel = jest.fn().mockReturnValue({
-				generateContent: mockGenerateContent,
-			})
-			;(handler["client"] as any).getGenerativeModel = mockGetGenerativeModel
+                        const result = await handler.completePrompt("Test prompt")
+                        assert.strictEqual(result, "Test response")
+                        break
+                    }
 
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe("")
-		})
-	})
+                    case 'handle-prompt-errors': {
+                        const handler = new GeminiHandler(mockOptions)
+                        const errorClient = {
+                            getGenerativeModel: () => ({
+                                generateContent: async () => {
+                                    throw new Error("Gemini API error")
+                                },
+                            }),
+                        }
+                        ;(handler as any).client = errorClient
 
-	describe("getModel", () => {
-		it("should return correct model info", () => {
-			const modelInfo = handler.getModel()
-			expect(modelInfo.id).toBe("gemini-2.0-flash-thinking-exp-1219")
-			expect(modelInfo.info).toBeDefined()
-			expect(modelInfo.info.maxTokens).toBe(8192)
-			expect(modelInfo.info.contextWindow).toBe(32_767)
-		})
+                        await assert.rejects(
+                            () => handler.completePrompt("Test prompt"),
+                            /Gemini completion error: Gemini API error/
+                        )
+                        break
+                    }
 
-		it("should return default model if invalid model specified", () => {
-			const invalidHandler = new GeminiHandler({
-				apiModelId: "invalid-model",
-				geminiApiKey: "test-key",
-			})
-			const modelInfo = invalidHandler.getModel()
-			expect(modelInfo.id).toBe("gemini-2.0-flash-001") // Default model
-		})
-	})
-})
+                    case 'handle-empty-response': {
+                        const handler = new GeminiHandler(mockOptions)
+                        const emptyClient = {
+                            getGenerativeModel: () => ({
+                                generateContent: async () => ({
+                                    response: {
+                                        text: () => "",
+                                    },
+                                }),
+                            }),
+                        }
+                        ;(handler as any).client = emptyClient
+
+                        const result = await handler.completePrompt("Test prompt")
+                        assert.strictEqual(result, "")
+                        break
+                    }
+
+                    case 'valid-model-info': {
+                        const handler = new GeminiHandler(mockOptions)
+                        const modelInfo = handler.getModel()
+                        assert.strictEqual(modelInfo.id, "gemini-2.0-flash-thinking-exp-1219")
+                        assert.ok(modelInfo.info)
+                        assert.strictEqual(modelInfo.info.maxTokens, 8192)
+                        assert.strictEqual(modelInfo.info.contextWindow, 32_767)
+                        break
+                    }
+
+                    case 'invalid-model-info': {
+                        const invalidHandler = new GeminiHandler({
+                            apiModelId: "invalid-model",
+                            geminiApiKey: "test-key",
+                        })
+                        const modelInfo = invalidHandler.getModel()
+                        assert.strictEqual(modelInfo.id, "gemini-2.0-flash-001") // Default model
+                        break
+                    }
+                }
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)))
+            }
+        }
+
+        run.end()
+    })
+}

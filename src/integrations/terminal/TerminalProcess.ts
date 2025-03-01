@@ -60,7 +60,7 @@ export class TerminalProcess extends EventEmitter<TerminalProcessEvents> {
 					// Once we've retrieved any potential output between sequences, we can remove everything up to end of the last sequence
 					// https://code.visualstudio.com/docs/terminal/shell-integration#_vs-code-custom-sequences-osc-633-st
 					const vscodeSequenceRegex = /\x1b\]633;.[^\x07]*\x07/g
-					const lastMatch = [...data.matchAll(vscodeSequenceRegex)].pop()
+					const lastMatch = Array.from(data.matchAll(vscodeSequenceRegex)).pop()
 					if (lastMatch && lastMatch.index !== undefined) {
 						data = data.slice(lastMatch.index + lastMatch[0].length)
 					}

@@ -22,6 +22,7 @@
             "mocha"
         ],
         "esModuleInterop": true,
+        "downlevelIteration": true,
         "baseUrl": "../../../.."
     },
     "include": [
