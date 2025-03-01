@@ -88,19 +88,49 @@ The extension is packaged using:
 
 The `.vscodeignore` file specifies which files and directories should be excluded from the VSIX package. This is important to keep the package size small and exclude files that are not needed for the extension to run.
 
-Files and directories that should be excluded include:
-- Development files (`.github`, `.husky`, `.vscode`, etc.)
-- Source files (`src/**`, except for specific included files)
-- Test files and directories (`out-integration/**`, `test-results/**`, `coverage/**`)
-- Configuration files not needed at runtime (`.gitignore`, `.prettierrc.json`, etc.)
-- Temporary and log files (`output.txt`, `test-output.log`, etc.)
-- Nix configuration files (`flake.lock`, `flake.nix`)
-- Backup files (`**/*.bak`)
+The file uses a combination of specific file paths and wildcards to ensure comprehensive exclusion of unnecessary files:
 
-Files that should be included:
-- Compiled and bundled extension code (`dist/extension.js`)
-- Assets needed at runtime (`assets/icons/**`)
-- Required dependencies (specified with `!` prefix)
+```
+# Default exclusions
+.github/**
+.vscode/**
+out/**
+node_modules/**
+src/**
+**/tsconfig.json
+**/.eslintrc.json
+**/*.map
+**/*.ts
+
+# Development files
+.git*
+.env*
+.nvmrc
+esbuild.js
+
+# Test files
+.vscode-test/**
+coverage/**
+out-integration/**
+test-results/**
+**/test-output*
+
+# Temporary and log files
+**/output.*
+**/*.log
+**/*.bak
+**/temp/**
+**/tmp/**
+
+# Include necessary files (prefixed with !)
+!node_modules/@vscode/codicons/dist/codicon.css
+!node_modules/@vscode/codicons/dist/codicon.ttf
+!src/integrations/theme/default-themes/**
+!assets/icons/**
+!audio/**
+```
+
+Using wildcards (e.g., `**/*.log`, `**/output.*`) ensures that any new files added to the project that match these patterns will automatically be excluded from the VSIX package, making the configuration more future-proof.
 
 To check what files will be included in the VSIX package:
 ```bash
@@ -185,6 +215,7 @@ If the VSIX package is too large or includes files that shouldn't be there:
 - **Missing assets in the package**: Check for proper inclusion patterns (using `!` prefix)
 - **Build errors**: Check the TypeScript and esbuild configurations
 - **Backup files included in package**: Add `**/*.bak` to `.vscodeignore`
+- **New files not being excluded**: Use wildcards in `.vscodeignore` for future-proofing
 
 ## Additional Resources
 
