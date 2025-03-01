@@ -29,35 +29,65 @@ const copyWasmFiles = {
 	name: "copy-wasm-files",
 	setup(build) {
 		build.onEnd(() => {
+			// Create dist directory if it doesn't exist
+			const targetDir = path.join(__dirname, "dist")
+			if (!fs.existsSync(targetDir)) {
+				fs.mkdirSync(targetDir, { recursive: true })
+			}
+
 			// tree sitter
 			const sourceDir = path.join(__dirname, "node_modules", "web-tree-sitter")
-			const targetDir = path.join(__dirname, "dist")
+			
+			// Copy tree-sitter.wasm if it exists
+			const treeSitterWasmPath = path.join(sourceDir, "tree-sitter.wasm")
+			if (fs.existsSync(treeSitterWasmPath)) {
+				fs.copyFileSync(treeSitterWasmPath, path.join(targetDir, "tree-sitter.wasm"))
+			}
 
-			// Copy tree-sitter.wasm
-			fs.copyFileSync(path.join(sourceDir, "tree-sitter.wasm"), path.join(targetDir, "tree-sitter.wasm"))
-
-			// Copy language-specific WASM files
+			// Copy language-specific WASM files if they exist
 			const languageWasmDir = path.join(__dirname, "node_modules", "tree-sitter-wasms", "out")
-			const languages = [
-				"typescript",
-				"tsx",
-				"python",
-				"rust",
-				"javascript",
-				"go",
-				"cpp",
-				"c",
-				"c_sharp",
-				"ruby",
-				"java",
-				"php",
-				"swift",
-			]
+			if (fs.existsSync(languageWasmDir)) {
+				const languages = [
+					"typescript",
+					"tsx",
+					"python",
+					"rust",
+					"javascript",
+					"go",
+					"cpp",
+					"c",
+					"c_sharp",
+					"ruby",
+					"java",
+					"php",
+					"swift",
+				]
 
-			languages.forEach((lang) => {
-				const filename = `tree-sitter-${lang}.wasm`
-				fs.copyFileSync(path.join(languageWasmDir, filename), path.join(targetDir, filename))
-			})
+				languages.forEach((lang) => {
+					const filename = `tree-sitter-${lang}.wasm`
+					const sourcePath = path.join(languageWasmDir, filename)
+					if (fs.existsSync(sourcePath)) {
+						fs.copyFileSync(sourcePath, path.join(targetDir, filename))
+					}
+				})
+			}
+		})
+	},
+}
+
+// Plugin to filter out test files
+const filterTestFiles = {
+	name: 'filter-test-files',
+	setup(build) {
+		// Filter out test files
+		build.onResolve({ filter: /\/__tests__\// }, args => {
+			return { path: args.path, external: true }
+		})
+		build.onResolve({ filter: /\.test\./ }, args => {
+			return { path: args.path, external: true }
+		})
+		build.onResolve({ filter: /\/test\// }, args => {
+			return { path: args.path, external: true }
 		})
 	},
 }
@@ -68,8 +98,8 @@ const extensionConfig = {
 	sourcemap: !production,
 	logLevel: "silent",
 	plugins: [
+		filterTestFiles,
 		copyWasmFiles,
-		/* add to the end of plugins array */
 		esbuildProblemMatcherPlugin,
 	],
 	entryPoints: ["src/extension.ts"],

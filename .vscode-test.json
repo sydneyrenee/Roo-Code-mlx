@@ -1,0 +1,104 @@
+[
+  {
+    "label": "basicTests",
+    "files": "out/test/suite/mocha-test.js",
+    "workspaceFolder": "src/test/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000,
+      "color": true
+    },
+    "launchArgs": [
+      "--enable-proposed-api=RooVeterinaryInc.roo-cline",
+      "src/test/workspace"
+    ],
+    "debug": true,
+    "verbose": true
+  },
+  {
+    "label": "coreTests",
+    "files": [
+      "out/test/suite/basic.test.js",
+      "out/test/suite/simple.test.js",
+      "out/test/suite/example.test.js",
+      "out/test/suite/task.test.js",
+      "out/test/suite/modes.test.js"
+    ],
+    "workspaceFolder": "src/test/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000,
+      "color": true
+    },
+    "launchArgs": [
+      "--enable-proposed-api=RooVeterinaryInc.roo-cline",
+      "src/test/workspace"
+    ],
+    "debug": true,
+    "verbose": true
+  },
+  {
+    "label": "extensionTests",
+    "files": "out/test/suite/extension.test.js",
+    "extensionTestsPath": "out/test/suite/index.js",
+    "workspaceFolder": "src/test/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000,
+      "color": true
+    },
+    "launchArgs": [
+      "--enable-proposed-api=RooVeterinaryInc.roo-cline",
+      "src/test/workspace"
+    ],
+    "debug": true,
+    "verbose": true
+  },
+  {
+    "label": "coreComponentTests",
+    "files": [
+      "out/test/suite/core/Cline.test.js",
+      "out/test/suite/core/CodeActionProvider.test.js",
+      "out/test/suite/core/EditorUtils.test.js",
+      "out/test/suite/core/mode-validator.test.js"
+    ],
+    "extensionTestsPath": "out/test/suite/core/extension.js",
+    "workspaceFolder": "src/test/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000,
+      "color": true
+    },
+    "launchArgs": [
+      "--enable-proposed-api=RooVeterinaryInc.roo-cline",
+      "src/test/workspace"
+    ],
+    "debug": true,
+    "verbose": true
+  },
+  {
+    "label": "allTests",
+    "files": [
+      "out/test/suite/mocha-test.js",
+      "out/test/suite/basic.test.js",
+      "out/test/suite/simple.test.js",
+      "out/test/suite/example.test.js",
+      "out/test/suite/task.test.js",
+      "out/test/suite/modes.test.js",
+      "out/test/suite/extension.test.js"
+    ],
+    "extensionTestsPath": "out/test/suite/index.js",
+    "workspaceFolder": "src/test/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000,
+      "color": true
+    },
+    "launchArgs": [
+      "--enable-proposed-api=RooVeterinaryInc.roo-cline",
+      "src/test/workspace"
+    ],
+    "debug": true,
+    "verbose": true
+  }
+]

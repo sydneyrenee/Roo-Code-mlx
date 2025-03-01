@@ -19,7 +19,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
@@ -30,7 +30,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p . --outDir out && node esbuild.js",
+    "compile:tsc": "tsc -p ./",
     "compile:test": "tsc -p ./src/test/tsconfig.test.json",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile:test && npm run lint",
@@ -71,6 +72,7 @@
     "delay": "^6.0.0",
     "diff": "^7.0.0",
     "diff-match-patch": "^1.0.5",
+    "esbuild": "^0.24.0",
     "eslint": "^8.56.0",
     "fastest-levenshtein": "^1.0.16",
     "glob": "^11.0.1",
@@ -83,10 +85,12 @@
     "os-name": "^6.0.0",
     "p-wait-for": "^5.0.2",
     "pdf-parse": "^1.1.1",
+    "puppeteer-chromium-resolver": "^23.0.0",
     "puppeteer-core": "^24.3.0",
     "simple-git": "^3.27.0",
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.3",
+    "tree-sitter-wasms": "^0.1.11",
     "ts-node": "^10.9.2",
     "turndown": "^7.2.0",
     "typescript": "^5.3.3",
