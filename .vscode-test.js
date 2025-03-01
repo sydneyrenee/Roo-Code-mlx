@@ -1,7 +1,7 @@
-import { defineConfig } from '@vscode/test-cli';
-import { resolve } from 'path';
+const { defineConfig } = require('@vscode/test-cli');
+const { resolve } = require('path');
 
-export default defineConfig([
+module.exports = defineConfig([
     {
         label: 'clineTests',
         files: resolve('out/test/suite/core/Cline.test.js'),

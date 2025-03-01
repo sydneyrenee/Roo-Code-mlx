@@ -15,9 +15,9 @@ Essential documentation for getting started with Roo Code:
 
 ### [Technical Documentation](./technical/index.md)
 Detailed technical documentation for developers:
-- Settings Configuration
-- Testing Guidelines
-- API Documentation
+- [Settings Configuration](./technical/settings/settings.md)
+- [Testing Guidelines](./technical/testing/testing-overview.md)
+- [API Documentation](./technical/api/index.md)
 - Implementation Details
 
 ### [Development Documentation](./development/index.md)
@@ -30,9 +30,25 @@ Documentation for ongoing development:
 ### [User Guides](./guides/index.md)
 Practical guides and tutorials:
 - Getting Started
-- Best Practices
+- [Best Practices](./guides/best-practices/code-quality-guidelines.md)
 - Common Use Cases
 - Troubleshooting
+
+## Testing Documentation
+
+- [Testing Overview](./technical/testing/testing-overview.md)
+- [Unit Testing Guide](./technical/testing/unit-tests.md)
+- [Integration Testing Guide](./technical/testing/integration-tests.md)
+- [Service Testing Guide](./technical/testing/service-tests.md)
+- [VS Code Test Runner Guide](./technical/testing/vscode-test-runner.md)
+- [VS Code Testing API Guide](./technical/testing/vscode-testing-api.md)
+- [VS Code Testing Guide](./technical/testing/vscode-testing-guide.md)
+- [Test Migration Plan](./technical/testing/test-migration-plan.md)
+- [Test Migration Implementation](./technical/testing/test-migration/register-tests-implementation-example.md)
+
+## Settings Documentation
+
+- [Adding a New Setting](./technical/settings/settings.md)
 
 ## Quick Links
 

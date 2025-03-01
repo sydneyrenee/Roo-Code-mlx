@@ -1,0 +1,27 @@
+# Technical Documentation
+
+This section contains detailed technical documentation for developers working with Roo Code.
+
+## Settings
+
+- [Settings Configuration](./settings/settings.md) - How to add and configure settings in Roo Code
+
+## Testing
+
+- [Testing Overview](./testing/testing-overview.md) - Overview of the testing approach
+- [Unit Testing Guide](./testing/unit-tests.md) - Guide for writing unit tests
+- [Integration Testing Guide](./testing/integration-tests.md) - Guide for writing integration tests
+- [Service Testing Guide](./testing/service-tests.md) - Guide for testing services
+- [VS Code Test Runner Guide](./testing/vscode-test-runner.md) - Guide for using the VS Code test runner
+- [VS Code Testing API Guide](./testing/vscode-testing-api.md) - Guide for using the VS Code Testing API
+- [VS Code Testing Guide](./testing/vscode-testing-guide.md) - Comprehensive guide for testing in VS Code
+- [Test Migration Plan](./testing/test-migration-plan.md) - Plan for migrating tests to the VS Code Testing API
+- [Test Migration Implementation](./testing/test-migration/register-tests-implementation-example.md) - Example implementation for test migration
+
+## API
+
+- [API Documentation](./api/fix-requesty-model-info.md) - Information about the API models and integration
+
+## Build and Test
+
+- [Build and Test Plan](./build-and-test-plan.md) - Plan for building and testing the project

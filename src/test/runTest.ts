@@ -10,7 +10,7 @@ async function main() {
         const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
         // The path to test workspace
-        const testWorkspacePath = path.resolve(__dirname, '../test-fixtures/workspace');
+        const testWorkspacePath = path.resolve(__dirname, './workspace');
 
         // Download VS Code, unzip it and run the integration test
         await runTests({
