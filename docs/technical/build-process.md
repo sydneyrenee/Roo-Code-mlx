@@ -95,6 +95,7 @@ Files and directories that should be excluded include:
 - Configuration files not needed at runtime (`.gitignore`, `.prettierrc.json`, etc.)
 - Temporary and log files (`output.txt`, `test-output.log`, etc.)
 - Nix configuration files (`flake.lock`, `flake.nix`)
+- Backup files (`**/*.bak`)
 
 Files that should be included:
 - Compiled and bundled extension code (`dist/extension.js`)
@@ -105,6 +106,22 @@ To check what files will be included in the VSIX package:
 ```bash
 npx vsce ls --tree
 ```
+
+### Backup Files
+
+The project may contain various backup files with the `.bak` extension. These are typically created when:
+- Testing different configurations
+- Making temporary changes
+- Preserving original versions of files before significant changes
+
+Examples of backup files in the project:
+- `.vscode-test.json.bak` - Backup of the VS Code test configuration
+- `.vscode-test.mjs.bak` - Backup of the ESM version of the test configuration
+
+These backup files should:
+- Be excluded from the VSIX package (via `.vscodeignore`)
+- Not be committed to the repository (add to `.gitignore` if needed)
+- Be cleaned up periodically to avoid confusion
 
 ## Environment Setup
 
@@ -167,6 +184,7 @@ If the VSIX package is too large or includes files that shouldn't be there:
 - **Large VSIX file size**: Usually caused by missing exclusions in `.vscodeignore`
 - **Missing assets in the package**: Check for proper inclusion patterns (using `!` prefix)
 - **Build errors**: Check the TypeScript and esbuild configurations
+- **Backup files included in package**: Add `**/*.bak` to `.vscodeignore`
 
 ## Additional Resources
 
