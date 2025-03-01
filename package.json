@@ -42,7 +42,9 @@
     "test:generate-migration": "node ./src/test/scripts/generate-test-migration.js",
     "test:run": "node ./src/test/scripts/run-tests.js",
     "test:run:verbose": "node ./src/test/scripts/run-tests.js --verbose",
-    "test:update-status": "node ./src/test/scripts/update-migration-status.js"
+    "test:update-status": "node ./src/test/scripts/update-migration-status.js",
+    "vsix": "rimraf bin && mkdirp bin && npx vsce package --out bin",
+    "build": "npm run compile && npm run vsix"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
@@ -65,6 +67,7 @@
     "@typescript-eslint/parser": "^6.15.0",
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^3.2.2",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "chokidar": "^4.0.3",
@@ -79,6 +82,7 @@
     "globby": "^14.1.0",
     "isbinaryfile": "^5.0.4",
     "mammoth": "^1.9.0",
+    "mkdirp": "^3.0.1",
     "mocha": "^11.1.0",
     "monaco-vscode-textmate-theme-converter": "^0.1.7",
     "openai": "^4.85.4",
@@ -87,6 +91,7 @@
     "pdf-parse": "^1.1.1",
     "puppeteer-chromium-resolver": "^23.0.0",
     "puppeteer-core": "^24.3.0",
+    "rimraf": "^6.0.1",
     "simple-git": "^3.27.0",
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.3",
