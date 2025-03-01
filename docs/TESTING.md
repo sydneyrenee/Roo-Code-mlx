@@ -8,7 +8,7 @@
 - Focus on individual components and utilities
 - Heavy use of mocking for dependencies
 - Fast execution
-- Currently using Jest, migrating to VS Code Testing API
+- Using VS Code Testing API and @vscode/test-cli
 
 ### 2. Integration Tests
 - Located in test/suite/integration/
@@ -74,21 +74,26 @@ featureTest.children.add(
 );
 ```
 
-## Testing Framework Migration
+## Testing Frameworks
 
-The project is currently migrating from Jest to VS Code's native Testing API, which provides:
-- Better integration with VS Code
-- Richer test discovery and execution
-- Improved result reporting
-- Native debugging capabilities
+The project uses two complementary testing frameworks:
 
-The migration follows a phased approach:
-1. Setup and preparation
-2. Migration execution
-3. Cleanup and documentation
+### 1. VS Code Testing API
+- Used for tests that need to interact with VS Code
+- Provides rich test discovery and execution
+- Enables tests to be run from the VS Code Test Explorer
+- Supports test decorations and commands
 
-For detailed information about the migration, refer to:
-- [Test Migration Plan](technical/testing/test-migration-plan.md)
+### 2. @vscode/test-cli
+- Command-line tool for running tests in a VS Code environment
+- Configured via `.vscode-test.js`, `.vscode-test.json`, or `.vscode-test.mjs`
+- Supports multiple test configurations
+- Enables CI/CD integration
+
+For detailed information about these frameworks, refer to:
+- [Testing Frameworks Overview](technical/testing/testing-frameworks.md)
+- [VS Code Testing API Guide](technical/testing/vscode-testing-api.md)
+- [VS Code Test Runner Guide](technical/testing/vscode-test-runner.md)
 
 ## Best Practices
 
@@ -138,6 +143,8 @@ npm test -- --coverage
 4. View test results and output
 
 ### Using Command Line
+
+#### VS Code Testing API
 ```bash
 # Run all tests
 npm test
@@ -150,6 +157,22 @@ npm run test:integration
 
 # Run specific test file
 npm run test:integration -- --grep "test name"
+```
+
+#### @vscode/test-cli
+```bash
+# Run all test configurations
+npx @vscode/test-cli
+
+# Run specific test configuration by label
+npx @vscode/test-cli --label basicTests
+npx @vscode/test-cli --label coreTests
+
+# Run with specific VS Code version
+npx @vscode/test-cli --version insiders
+
+# Get help with available options
+npx @vscode/test-cli --help
 ```
 
 ### Debug Tests
@@ -180,9 +203,11 @@ npm run test:integration -- --grep "test name"
 4. Check environment
 
 ## Additional Resources
+- [Testing Frameworks Overview](technical/testing/testing-frameworks.md)
 - [Unit Testing Guide](technical/testing/unit-tests.md)
 - [Integration Testing Guide](technical/testing/integration-tests.md)
 - [Service Testing Guide](technical/testing/service-tests.md)
-- [VSCode Test Runner Guide](technical/testing/vscode-test-runner.md)
-- [VS Code Testing API Guide](https://code.visualstudio.com/api/extension-guides/testing)
+- [VS Code Test Runner Guide](technical/testing/vscode-test-runner.md)
+- [VS Code Testing API Guide](technical/testing/vscode-testing-api.md)
+- [VS Code Testing API Documentation](https://code.visualstudio.com/api/extension-guides/testing)
 - [VS Code API Reference](https://code.visualstudio.com/api/references/vscode-api)

@@ -1,8 +1,8 @@
-# VSCode Test Runner Guide
+# VS Code Test Runner Guide
 
 ## Overview
 
-This guide documents the new VSCode Test Runner framework using `@vscode/test-cli` and `@vscode/test-electron`. This is the recommended approach for testing VSCode extensions, replacing the legacy test kit.
+This guide documents the VS Code Test Runner framework using `@vscode/test-cli` and `@vscode/test-electron`. This is the recommended approach for testing VS Code extensions, providing a robust and flexible testing environment.
 
 ## Setup
 
@@ -14,14 +14,30 @@ Required packages in package.json:
   "devDependencies": {
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.9",
-    "@types/mocha": "^10.0.6"
+    "@types/mocha": "^10.0.6",
+    "mocha": "^10.2.0"
+  }
+}
+```
+
+### NPM Scripts
+
+Add these scripts to your package.json:
+```json
+{
+  "scripts": {
+    "test": "vscode-test",
+    "test:unit": "vscode-test --label unitTests",
+    "test:integration": "vscode-test --label integrationTests"
   }
 }
 ```
 
 ### Test Configuration
 
-Create a `.vscode-test.mjs` configuration file in your project root:
+Create a `.vscode-test.mjs`, `.vscode-test.js`, or `.vscode-test.json` configuration file in your project root:
+
+#### JavaScript Format (ES Modules)
 
 ```javascript
 import { defineConfig } from '@vscode/test-cli';
@@ -35,6 +51,72 @@ export default defineConfig({
   }
 });
 ```
+
+#### JSON Format
+
+```json
+{
+  "label": "allTests",
+  "files": "out/test/**/*.test.js",
+  "workspaceFolder": "test-fixtures/workspace",
+  "mocha": {
+    "ui": "tdd",
+    "timeout": 20000,
+    "color": true
+  },
+  "launchArgs": [
+    "--enable-proposed-api=your.extension.id"
+  ],
+  "debug": true,
+  "verbose": true
+}
+```
+
+#### Multiple Test Configurations
+
+You can define multiple test configurations in a single file by using an array:
+
+```json
+[
+  {
+    "label": "basicTests",
+    "files": "out/test/suite/mocha-test.js",
+    "workspaceFolder": "path/to/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000
+    }
+  },
+  {
+    "label": "coreTests",
+    "files": [
+      "out/test/suite/core/**/*.test.js"
+    ],
+    "extensionTestsPath": "out/test/suite/core/extension.js",
+    "workspaceFolder": "path/to/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000
+    }
+  }
+]
+```
+
+This allows you to organize and run different types of tests separately.
+
+#### Configuration Parameters
+
+- `label`: A name for the test configuration, which can be used to run specific test configurations
+- `files`: Pattern(s) for test files to run (required)
+- `extensionTestsPath`: Path to the extension test runner script
+- `workspaceFolder`: Path to a workspace to open during tests
+- `mocha`: Configuration options for Mocha test runner
+  - `ui`: Test interface style ('bdd', 'tdd', etc.)
+  - `timeout`: Test timeout in milliseconds
+  - `color`: Enable/disable colored output
+- `launchArgs`: Additional arguments to pass to VS Code when launching
+- `debug`: Enable debug mode
+- `verbose`: Enable verbose output
 
 ## Writing Tests
 
@@ -116,12 +198,21 @@ suite('Extension Test Suite', () => {
 # Run all tests
 npm test
 
-# Run specific test file
-vscode-test --label unitTests
+# Run all test configurations
+npx @vscode/test-cli
+
+# Run specific test configuration by label
+npx @vscode/test-cli --label basicTests
+npx @vscode/test-cli --label coreTests
 
 # Run with specific VSCode version
-vscode-test --version insiders
+npx @vscode/test-cli --version insiders
+
+# Get help with available options
+npx @vscode/test-cli --help
 ```
+
+When using multiple test configurations, you can run them all at once or run specific configurations using the `--label` flag. This is particularly useful for running different types of tests separately during development or in CI/CD pipelines.
 
 ### VS Code Launch Configuration
 
@@ -251,41 +342,76 @@ suite('File Operation Tests', () => {
 });
 ```
 
-## Migration from Jest
+## Assertion and Test Structure Reference
 
-1. Replace Jest assertions with Node's assert:
-   ```typescript
-   // Jest
-   expect(value).toBe(expected);
-   
-   // Node assert
-   assert.strictEqual(value, expected);
-   ```
+### Assertions
 
-2. Update test structure:
-   ```typescript
-   // Jest
-   describe('suite', () => {
-       it('test', () => {});
-   });
-   
-   // Mocha
-   suite('suite', () => {
-       test('test', () => {});
-   });
-   ```
+VS Code tests use Node's built-in `assert` module:
 
-3. Update mocking patterns:
-   ```typescript
-   // Instead of Jest mocks, use TypeScript interfaces
-   interface MockDependency {
-       method: () => void;
-   }
-   
-   const mockDep: MockDependency = {
-       method: () => {}
-   };
-   ```
+```typescript
+import * as assert from 'assert';
+
+// Basic assertions
+assert.strictEqual(value, expected);
+assert.deepStrictEqual(obj1, obj2);
+assert.ok(value, 'Optional message');
+
+// Async assertions
+await assert.doesNotReject(async () => {
+    await someAsyncFunction();
+});
+
+// Error assertions
+assert.throws(() => {
+    throw new Error('Expected error');
+}, /Expected error/);
+```
+
+### Test Structure
+
+Tests are organized using Mocha's TDD interface:
+
+```typescript
+suite('Feature Name', () => {
+    // Setup and teardown
+    setup(() => {
+        // Run before each test
+    });
+    
+    teardown(() => {
+        // Run after each test
+    });
+    
+    // Test cases
+    test('should do something', async () => {
+        // Test code
+    });
+    
+    test('should handle errors', async () => {
+        // Test code
+    });
+});
+```
+
+### Mocking
+
+```typescript
+// Create interface for type safety
+interface MockService {
+    getData: () => Promise<string>;
+}
+
+// Create mock implementation
+const mockService: MockService = {
+    getData: async () => 'mock data'
+};
+
+// Use in tests
+test('uses service', async () => {
+    const result = await someFunction(mockService);
+    assert.strictEqual(result, 'expected result');
+});
+```
 
 ## Troubleshooting
 
@@ -293,6 +419,7 @@ suite('File Operation Tests', () => {
    - Verify test file naming (*.test.ts)
    - Check .vscode-test.mjs configuration
    - Ensure tests are compiled to out/test/
+   - Verify the test files are included in the `files` pattern
 
 2. **Test Timeouts**
    - Increase timeout in .vscode-test.mjs
@@ -303,3 +430,76 @@ suite('File Operation Tests', () => {
    - Ensure extension is activated
    - Check VSCode version compatibility
    - Verify API permissions in package.json
+
+4. **ES Module Issues**
+   - If you encounter errors like `Error [ERR_REQUIRE_ESM]: require() of ES Module ... not supported`, you may need to:
+     - Update dependencies to CommonJS versions
+     - Use dynamic imports (`import()`) instead of `require()`
+     - Isolate problematic dependencies in separate test configurations
+     - Use the `.mjs` extension for ES Module files
+
+5. **Multiple Test Configuration Issues**
+   - Ensure each configuration has a unique `label`
+   - Check for conflicts in file paths and workspace folders
+   - Run specific configurations using the `--label` flag to isolate issues
+
+## Organizing Test Configurations
+
+### Recommended Configuration Structure
+
+For larger projects, organizing tests into separate configurations can improve maintainability and test execution efficiency:
+
+```json
+[
+  {
+    "label": "unitTests",
+    "files": "out/test/suite/unit/**/*.test.js",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 10000
+    }
+  },
+  {
+    "label": "integrationTests",
+    "files": "out/test/suite/integration/**/*.test.js",
+    "extensionTestsPath": "out/test/suite/index.js",
+    "workspaceFolder": "test-fixtures/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000
+    }
+  },
+  {
+    "label": "serviceTests",
+    "files": "out/test/suite/services/**/*.test.js",
+    "extensionTestsPath": "out/test/suite/services/index.js",
+    "workspaceFolder": "test-fixtures/workspace",
+    "mocha": {
+      "ui": "tdd",
+      "timeout": 30000
+    }
+  }
+]
+```
+
+### Configuration Strategies
+
+1. **By Test Type**
+   - Separate unit, integration, and service tests
+   - Apply appropriate timeouts and settings for each type
+   - Enable faster feedback by running only unit tests during development
+
+2. **By Feature Area**
+   - Group tests by feature or component
+   - Isolate problematic areas during debugging
+   - Allow focused testing of new features
+
+3. **By Execution Environment**
+   - Create configurations for different VS Code versions
+   - Test with different extension settings
+   - Test with different workspace configurations
+
+4. **By Performance Characteristics**
+   - Fast tests for quick feedback
+   - Slow tests for thorough validation
+   - Resource-intensive tests for specific scenarios
