@@ -6,20 +6,28 @@ This project is migrating from Jest to VS Code's native Testing API. This docume
 
 ## Migration Status
 
-The migration is in progress. Some tests have been migrated to the VS Code Testing API, while others still use Jest.
+The migration is in progress. Many tests have been migrated to the VS Code Testing API format, but not all of them are registered in the `registerTests.ts` file. See [MIGRATION_STATUS.md](./MIGRATION_STATUS.md) for a detailed status of the migration.
 
-### Migrated Tests
+### Registered Tests
 
-Tests that have been migrated to the VS Code Testing API:
+Tests that have been migrated to the VS Code Testing API and are registered in `registerTests.ts`:
 
 - `src/core/__tests__/CodeActionProvider.test.ts`
 - `src/api/transform/__tests__/bedrock-converse-format.test.ts`
 - `src/shared/__tests__/vsCodeSelectorUtils.test.ts`
 - `src/shared/__tests__/checkExistApiConfig.test.ts`
+- `src/services/mcp/__tests__/McpHub.test.ts`
+- `src/utils/__tests__/git.test.ts`
+- `src/utils/__tests__/path.test.ts`
+- `src/utils/__tests__/shell.test.ts`
+
+### Migrated But Not Registered
+
+Many tests have been migrated to the VS Code Testing API format but are not yet registered in `registerTests.ts`. These tests need to be registered to be discovered and run.
 
 ### Tests Still Using Jest
 
-All other tests in `src/**/__tests__/` directories still use Jest.
+Some tests in `src/**/__tests__/` directories still use Jest and need to be migrated to the VS Code Testing API format.
 
 ## Migration Process
 
@@ -83,13 +91,31 @@ export async function activateMyTests(context: vscode.ExtensionContext): Promise
 }
 ```
 
+## How to Register a Test
+
+To register a test with the VS Code Testing API:
+
+1. Ensure your test file exports an activation function:
+   ```typescript
+   export async function activateYourTestName(context: vscode.ExtensionContext): Promise<void> {
+       const testController = vscode.tests.createTestController('yourTestId', 'Your Test Label')
+       // Test implementation
+       // ...
+   }
+   ```
+
+2. Add an import and registration call in `src/test/registerTests.ts`:
+   ```typescript
+   import { activateYourTestName } from '../path/to/your/test'
+   
+   export async function registerTests(context: vscode.ExtensionContext): Promise<void> {
+       // ...
+       await activateYourTestName(context)
+       // ...
+   }
+   ```
+
 ## Running Tests
-
-### Running Jest Tests
-
-```bash
-npm run test:jest
-```
 
 ### Running VS Code Testing API Tests
 
@@ -143,3 +169,17 @@ Tests are organized as follows:
 ## Test Discovery
 
 VS Code Testing API tests are registered in `src/test/registerTests.ts` and are automatically discovered when the extension activates in development mode.
+
+## Common Issues
+
+1. **Test Not Running**: If a test is not being discovered or run, check if it's properly registered in `registerTests.ts`.
+
+2. **Duplicate Controller IDs**: When multiple test files create controllers with the same ID, VS Code throws an error. Ensure each test controller has a unique ID.
+
+3. **Module System Incompatibilities**: Some dependencies (e.g., globby) are ES modules but are imported using CommonJS require(). This can cause errors when running tests.
+
+## Next Steps
+
+1. Continue registering migrated tests in `registerTests.ts`.
+2. Migrate remaining tests from Jest to VS Code Testing API.
+3. Update the MIGRATION_STATUS.md document as tests are registered and verified.

@@ -63,27 +63,31 @@ export class EditorUtils {
 		range: vscode.Range | vscode.Selection,
 	): EffectiveRange | null {
 		try {
+			// First check for non-empty selection
 			const selectedText = document.getText(range)
-			if (selectedText) {
+			if (selectedText.trim()) {
 				return { range, text: selectedText }
 			}
 
+			// Handle empty selection - get the current line
 			const currentLine = document.lineAt(range.start.line)
 			if (!currentLine.text.trim()) {
-				return null
+				return null // Return null for empty/whitespace-only lines
 			}
 
+			// For empty selection on non-empty line, expand to include adjacent lines
 			const startLineIndex = Math.max(0, currentLine.lineNumber - 1)
 			const endLineIndex = Math.min(document.lineCount - 1, currentLine.lineNumber + 1)
+			const endLine = document.lineAt(endLineIndex)
 
 			const effectiveRange = new vscode.Range(
 				new vscode.Position(startLineIndex, 0),
-				new vscode.Position(endLineIndex, document.lineAt(endLineIndex).text.length),
+				new vscode.Position(endLineIndex, endLine.text.length)
 			)
 
 			return {
 				range: effectiveRange,
-				text: document.getText(effectiveRange),
+				text: document.getText(effectiveRange)
 			}
 		} catch (error) {
 			console.error("Error getting effective range:", error)
@@ -148,13 +152,13 @@ export class EditorUtils {
 	static hasIntersectingRange(range1: vscode.Range, range2: vscode.Range): boolean {
 		if (
 			range1.end.line < range2.start.line ||
-			(range1.end.line === range2.start.line && range1.end.character <= range2.start.character)
+			(range1.end.line === range2.start.line && range1.end.character < range2.start.character)
 		) {
 			return false
 		}
 		if (
 			range2.end.line < range1.start.line ||
-			(range2.end.line === range1.start.line && range2.end.character <= range1.start.character)
+			(range2.end.line === range1.start.line && range2.end.character < range1.start.character)
 		) {
 			return false
 		}

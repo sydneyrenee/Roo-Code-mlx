@@ -24,7 +24,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
         'simple-text',
         'converts simple text messages correctly'
     ))
-    
+
     converterSuite.children.add(testController.createTestItem(
         'images',
         'converts messages with images correctly'
@@ -37,7 +37,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
 
     converterSuite.children.add(testController.createTestItem(
         'tool-result',
-        'converts tool result messages correctly' 
+        'converts tool result messages correctly'
     ))
 
     converterSuite.children.add(testController.createTestItem(
@@ -46,7 +46,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
     ))
 
     anthropicSuite.children.add(testController.createTestItem(
-        'metadata',
+        'metadata', 
         'converts metadata events correctly'
     ))
 
@@ -54,7 +54,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
         'content-block-start',
         'converts content block start events correctly'
     ))
-
+    
     anthropicSuite.children.add(testController.createTestItem(
         'content-block-delta',
         'converts content block delta events correctly'
@@ -65,6 +65,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
         'converts message stop events correctly'
     ))
 
+    // Create run profile
     testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
         const queue: vscode.TestItem[] = []
         if (request.include) {
@@ -91,7 +92,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
                                 content: [{ text: "Hello" }],
                                 usage: {
                                     input_tokens: 0,
-                                    output_tokens: 0, 
+                                    output_tokens: 0,
                                     cache_creation_input_tokens: null,
                                     cache_read_input_tokens: null
                                 }
@@ -168,7 +169,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
 
                         assert.ok(result[0] && result[0].content, "Expected result to have content")
                         assert.strictEqual(result[0].role, "assistant")
-                        
+
                         const toolBlock = result[0].content[0] as ContentBlock
                         if ("toolUse" in toolBlock && toolBlock.toolUse) {
                             assert.deepStrictEqual(toolBlock.toolUse, {
@@ -199,7 +200,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
 
                         assert.ok(result[0] && result[0].content, "Expected result to have content")
                         assert.strictEqual(result[0].role, "assistant")
-                        
+
                         const resultBlock = result[0].content[0] as ContentBlock
                         if ("toolResult" in resultBlock && resultBlock.toolResult) {
                             const expectedContent: ToolResultContentBlock[] = [{ text: "File contents here" }]
@@ -231,7 +232,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
                         assert.ok(result[0] && result[0].content, "Expected result to have content")
                         assert.strictEqual(result[0].role, "user")
                         assert.strictEqual(result[0].content.length, 1)
-                        
+
                         const textBlock = result[0].content[0] as ContentBlock
                         assert.deepStrictEqual(textBlock, { text: "Hello world" })
                         break
@@ -307,7 +308,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
                         assert.deepStrictEqual(result, {
                             type: "message",
                             role: "assistant",
-                            model: "test-model", 
+                            model: "test-model",
                             content: [{ type: "text", text: " world", citations: null }],
                             id: "",
                             stop_reason: null,
@@ -332,7 +333,7 @@ export async function activateBedrockConverseFormatTests(context: vscode.Extensi
 
                         assert.deepStrictEqual(result, {
                             type: "message",
-                            role: "assistant",
+                            role: "assistant", 
                             model: "test-model",
                             content: [],
                             id: "",

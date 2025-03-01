@@ -1,97 +1,172 @@
-import { calculateApiCost } from "../cost"
-import { ModelInfo } from "../../shared/api"
+import * as vscode from 'vscode'
+import * as assert from 'assert'
+import { calculateApiCost } from '../cost'
+import { ModelInfo } from '../../shared/api'
 
-describe("Cost Utility", () => {
-	describe("calculateApiCost", () => {
-		const mockModelInfo: ModelInfo = {
-			maxTokens: 8192,
-			contextWindow: 200_000,
-			supportsPromptCache: true,
-			inputPrice: 3.0, // $3 per million tokens
-			outputPrice: 15.0, // $15 per million tokens
-			cacheWritesPrice: 3.75, // $3.75 per million tokens
-			cacheReadsPrice: 0.3, // $0.30 per million tokens
-		}
+export async function activateCostTests(context: vscode.ExtensionContext): Promise<void> {
+    const testController = vscode.tests.createTestController('costTests', 'Cost Utility Tests')
+    context.subscriptions.push(testController)
 
-		it("should calculate basic input/output costs correctly", () => {
-			const cost = calculateApiCost(mockModelInfo, 1000, 500)
+    // Root test suite
+    const rootSuite = testController.createTestItem('cost-utils', 'Cost Utilities')
+    testController.items.add(rootSuite)
 
-			// Input cost: (3.0 / 1_000_000) * 1000 = 0.003
-			// Output cost: (15.0 / 1_000_000) * 500 = 0.0075
-			// Total: 0.003 + 0.0075 = 0.0105
-			expect(cost).toBe(0.0105)
-		})
+    // Test suites
+    const calculateCostSuite = testController.createTestItem('calculate-cost', 'calculateApiCost')
+    rootSuite.children.add(calculateCostSuite)
 
-		it("should handle cache writes cost", () => {
-			const cost = calculateApiCost(mockModelInfo, 1000, 500, 2000)
+    // Create run profile
+    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = []
+        if (request.include) {
+            request.include.forEach(test => queue.push(test))
+        }
 
-			// Input cost: (3.0 / 1_000_000) * 1000 = 0.003
-			// Output cost: (15.0 / 1_000_000) * 500 = 0.0075
-			// Cache writes: (3.75 / 1_000_000) * 2000 = 0.0075
-			// Total: 0.003 + 0.0075 + 0.0075 = 0.018
-			expect(cost).toBeCloseTo(0.018, 6)
-		})
+        const run = testController.createTestRun(request)
 
-		it("should handle cache reads cost", () => {
-			const cost = calculateApiCost(mockModelInfo, 1000, 500, undefined, 3000)
+        const mockModelInfo: ModelInfo = {
+            maxTokens: 8192,
+            contextWindow: 200_000,
+            supportsPromptCache: true,
+            inputPrice: 3.0, // $3 per million tokens
+            outputPrice: 15.0, // $15 per million tokens
+            cacheWritesPrice: 3.75, // $3.75 per million tokens
+            cacheReadsPrice: 0.3, // $0.30 per million tokens
+        }
 
-			// Input cost: (3.0 / 1_000_000) * 1000 = 0.003
-			// Output cost: (15.0 / 1_000_000) * 500 = 0.0075
-			// Cache reads: (0.3 / 1_000_000) * 3000 = 0.0009
-			// Total: 0.003 + 0.0075 + 0.0009 = 0.0114
-			expect(cost).toBe(0.0114)
-		})
+        for (const test of queue) {
+            run.started(test)
+            try {
+                switch (test.id) {
+                    case 'basic-cost': {
+                        const cost = calculateApiCost(mockModelInfo, 1000, 500)
+                        // Input cost: (3.0 / 1_000_000) * 1000 = 0.003
+                        // Output cost: (15.0 / 1_000_000) * 500 = 0.0075
+                        // Total: 0.003 + 0.0075 = 0.0105
+                        assert.strictEqual(cost, 0.0105)
+                        break
+                    }
 
-		it("should handle all cost components together", () => {
-			const cost = calculateApiCost(mockModelInfo, 1000, 500, 2000, 3000)
+                    case 'cache-writes': {
+                        const cost = calculateApiCost(mockModelInfo, 1000, 500, 2000)
+                        // Input cost: (3.0 / 1_000_000) * 1000 = 0.003
+                        // Output cost: (15.0 / 1_000_000) * 500 = 0.0075
+                        // Cache writes: (3.75 / 1_000_000) * 2000 = 0.0075
+                        // Total: 0.003 + 0.0075 + 0.0075 = 0.018
+                        const expectedCost = 0.018
+                        const delta = Math.abs(cost - expectedCost)
+                        assert.ok(delta < 0.000001, `Cost ${cost} should be close to ${expectedCost}`)
+                        break
+                    }
 
-			// Input cost: (3.0 / 1_000_000) * 1000 = 0.003
-			// Output cost: (15.0 / 1_000_000) * 500 = 0.0075
-			// Cache writes: (3.75 / 1_000_000) * 2000 = 0.0075
-			// Cache reads: (0.3 / 1_000_000) * 3000 = 0.0009
-			// Total: 0.003 + 0.0075 + 0.0075 + 0.0009 = 0.0189
-			expect(cost).toBe(0.0189)
-		})
+                    case 'cache-reads': {
+                        const cost = calculateApiCost(mockModelInfo, 1000, 500, undefined, 3000)
+                        // Input cost: (3.0 / 1_000_000) * 1000 = 0.003
+                        // Output cost: (15.0 / 1_000_000) * 500 = 0.0075
+                        // Cache reads: (0.3 / 1_000_000) * 3000 = 0.0009
+                        // Total: 0.003 + 0.0075 + 0.0009 = 0.0114
+                        assert.strictEqual(cost, 0.0114)
+                        break
+                    }
 
-		it("should handle missing prices gracefully", () => {
-			const modelWithoutPrices: ModelInfo = {
-				maxTokens: 8192,
-				contextWindow: 200_000,
-				supportsPromptCache: true,
-			}
+                    case 'all-components': {
+                        const cost = calculateApiCost(mockModelInfo, 1000, 500, 2000, 3000)
+                        // Input cost: (3.0 / 1_000_000) * 1000 = 0.003
+                        // Output cost: (15.0 / 1_000_000) * 500 = 0.0075
+                        // Cache writes: (3.75 / 1_000_000) * 2000 = 0.0075
+                        // Cache reads: (0.3 / 1_000_000) * 3000 = 0.0009
+                        // Total: 0.003 + 0.0075 + 0.0075 + 0.0009 = 0.0189
+                        assert.strictEqual(cost, 0.0189)
+                        break
+                    }
 
-			const cost = calculateApiCost(modelWithoutPrices, 1000, 500, 2000, 3000)
-			expect(cost).toBe(0)
-		})
+                    case 'missing-prices': {
+                        const modelWithoutPrices: ModelInfo = {
+                            maxTokens: 8192,
+                            contextWindow: 200_000,
+                            supportsPromptCache: true,
+                        }
+                        const cost = calculateApiCost(modelWithoutPrices, 1000, 500, 2000, 3000)
+                        assert.strictEqual(cost, 0)
+                        break
+                    }
 
-		it("should handle zero tokens", () => {
-			const cost = calculateApiCost(mockModelInfo, 0, 0, 0, 0)
-			expect(cost).toBe(0)
-		})
+                    case 'zero-tokens': {
+                        const cost = calculateApiCost(mockModelInfo, 0, 0, 0, 0)
+                        assert.strictEqual(cost, 0)
+                        break
+                    }
 
-		it("should handle undefined cache values", () => {
-			const cost = calculateApiCost(mockModelInfo, 1000, 500)
+                    case 'undefined-cache': {
+                        const cost = calculateApiCost(mockModelInfo, 1000, 500)
+                        // Input cost: (3.0 / 1_000_000) * 1000 = 0.003
+                        // Output cost: (15.0 / 1_000_000) * 500 = 0.0075
+                        // Total: 0.003 + 0.0075 = 0.0105
+                        assert.strictEqual(cost, 0.0105)
+                        break
+                    }
 
-			// Input cost: (3.0 / 1_000_000) * 1000 = 0.003
-			// Output cost: (15.0 / 1_000_000) * 500 = 0.0075
-			// Total: 0.003 + 0.0075 = 0.0105
-			expect(cost).toBe(0.0105)
-		})
+                    case 'missing-cache-prices': {
+                        const modelWithoutCachePrices: ModelInfo = {
+                            ...mockModelInfo,
+                            cacheWritesPrice: undefined,
+                            cacheReadsPrice: undefined,
+                        }
+                        const cost = calculateApiCost(modelWithoutCachePrices, 1000, 500, 2000, 3000)
+                        // Should only include input and output costs
+                        // Input cost: (3.0 / 1_000_000) * 1000 = 0.003
+                        // Output cost: (15.0 / 1_000_000) * 500 = 0.0075
+                        // Total: 0.003 + 0.0075 = 0.0105
+                        assert.strictEqual(cost, 0.0105)
+                        break
+                    }
+                }
+                run.passed(test)
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)))
+            }
+        }
+        run.end()
+    })
 
-		it("should handle missing cache prices", () => {
-			const modelWithoutCachePrices: ModelInfo = {
-				...mockModelInfo,
-				cacheWritesPrice: undefined,
-				cacheReadsPrice: undefined,
-			}
-
-			const cost = calculateApiCost(modelWithoutCachePrices, 1000, 500, 2000, 3000)
-
-			// Should only include input and output costs
-			// Input cost: (3.0 / 1_000_000) * 1000 = 0.003
-			// Output cost: (15.0 / 1_000_000) * 500 = 0.0075
-			// Total: 0.003 + 0.0075 = 0.0105
-			expect(cost).toBe(0.0105)
-		})
-	})
-})
+    // Add test cases
+    calculateCostSuite.children.add(testController.createTestItem(
+        'basic-cost',
+        'should calculate basic input/output costs correctly'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'cache-writes',
+        'should handle cache writes cost'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'cache-reads',
+        'should handle cache reads cost'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'all-components',
+        'should handle all cost components together'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'missing-prices',
+        'should handle missing prices gracefully'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'zero-tokens',
+        'should handle zero tokens'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'undefined-cache',
+        'should handle undefined cache values'
+    ))
+    
+    calculateCostSuite.children.add(testController.createTestItem(
+        'missing-cache-prices',
+        'should handle missing cache prices'
+    ))
+}

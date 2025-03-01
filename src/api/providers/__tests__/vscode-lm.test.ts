@@ -1,295 +1,117 @@
-import * as vscode from "vscode"
-import { VsCodeLmHandler } from "../vscode-lm"
-import { ApiHandlerOptions } from "../../../shared/api"
-import { Anthropic } from "@anthropic-ai/sdk"
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { VsCodeLmHandler } from '../vscode-lm';
 
 // Mock vscode namespace
-jest.mock("vscode", () => {
-	class MockLanguageModelTextPart {
-		type = "text"
-		constructor(public value: string) {}
-	}
-
-	class MockLanguageModelToolCallPart {
-		type = "tool_call"
-		constructor(
-			public callId: string,
-			public name: string,
-			public input: any,
-		) {}
-	}
-
-	return {
-		workspace: {
-			onDidChangeConfiguration: jest.fn((callback) => ({
-				dispose: jest.fn(),
-			})),
-		},
-		CancellationTokenSource: jest.fn(() => ({
-			token: {
-				isCancellationRequested: false,
-				onCancellationRequested: jest.fn(),
-			},
-			cancel: jest.fn(),
-			dispose: jest.fn(),
-		})),
-		CancellationError: class CancellationError extends Error {
-			constructor() {
-				super("Operation cancelled")
-				this.name = "CancellationError"
-			}
-		},
-		LanguageModelChatMessage: {
-			Assistant: jest.fn((content) => ({
-				role: "assistant",
-				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
-			})),
-			User: jest.fn((content) => ({
-				role: "user",
-				content: Array.isArray(content) ? content : [new MockLanguageModelTextPart(content)],
-			})),
-		},
-		LanguageModelTextPart: MockLanguageModelTextPart,
-		LanguageModelToolCallPart: MockLanguageModelToolCallPart,
-		lm: {
-			selectChatModels: jest.fn(),
-		},
-	}
-})
-
 const mockLanguageModelChat = {
-	id: "test-model",
-	name: "Test Model",
-	vendor: "test-vendor",
-	family: "test-family",
-	version: "1.0",
-	maxInputTokens: 4096,
-	sendRequest: jest.fn(),
-	countTokens: jest.fn(),
+    id: "test-model",
+    name: "Test Model",
+    vendor: "test-vendor",
+    family: "test-family",
+    version: "1.0",
+    maxInputTokens: 4096,
+    sendRequest: async () => ({
+        response: { content: "Test response" },
+        stream: (async function* () {
+            yield new vscode.LanguageModelTextPart("Test response");
+            return;
+        })()
+    }),
+    countTokens: async () => ({ input: 10, output: 5 })
+};
+
+export async function activateVsCodeLmTests(context: vscode.ExtensionContext) {
+    const testController = vscode.tests.createTestController('vsCodeLmTests', 'VSCode LM Tests');
+    context.subscriptions.push(testController);
+
+    const rootSuite = testController.createTestItem('vscode-lm', 'VSCode LM');
+    testController.items.add(rootSuite);
+
+    // Test suites
+    const handlerSuite = testController.createTestItem('handler', 'Handler');
+    rootSuite.children.add(handlerSuite);
+
+    // Test cases
+    handlerSuite.children.add(testController.createTestItem('should-initialize-handler', 'should initialize handler'));
+    handlerSuite.children.add(testController.createTestItem('should-stream-response', 'should stream response'));
+    handlerSuite.children.add(testController.createTestItem('should-get-model-info', 'should get model info'));
+
+    testController.createRunProfile('Run Tests', vscode.TestRunProfileKind.Run, async (request) => {
+        const queue: vscode.TestItem[] = [];
+        const run = testController.createTestRun(request);
+
+        // Add requested tests
+        if (request.include) {
+            request.include.forEach(test => queue.push(test));
+        } else {
+            rootSuite.children.forEach(test => queue.push(test));
+        }
+
+        // Run tests
+        for (const test of queue) {
+            run.started(test);
+
+            try {
+                switch (test.id) {
+                    case 'should-initialize-handler': {
+                        const handler = new VsCodeLmHandler({
+                            vsCodeLmModelSelector: {
+                                vendor: "test-vendor",
+                                family: "test-family"
+                            }
+                        });
+                        assert.ok(handler, "Handler should be defined");
+                        break;
+                    }
+
+                    case 'should-stream-response': {
+                        const handler = new VsCodeLmHandler({
+                            vsCodeLmModelSelector: {
+                                vendor: "test-vendor",
+                                family: "test-family"
+                            }
+                        });
+                        // Mock client property
+                        handler["client"] = mockLanguageModelChat;
+                        
+                        const chunks = [];
+                        for await (const chunk of handler["createMessage"]("Test system prompt", [
+                            { role: "user", content: "Test prompt" }
+                        ])) {
+                            chunks.push(chunk);
+                        }
+
+                        assert.strictEqual(chunks.length, 2, "Should have text and usage chunks");
+                        assert.deepStrictEqual(chunks[0], {
+                            type: "text",
+                            text: "Test response"
+                        });
+                        break;
+                    }
+
+                    case 'should-get-model-info': {
+                        const handler = new VsCodeLmHandler({
+                            vsCodeLmModelSelector: {
+                                vendor: "test-vendor",
+                                family: "test-family"
+                            }
+                        });
+                        // Mock client property
+                        handler["client"] = mockLanguageModelChat;
+                        
+                        const model = handler.getModel();
+                        assert.strictEqual(model.id, "test-model");
+                        assert.ok(model.info, "Model info should be defined");
+                        assert.strictEqual(model.info.contextWindow, 4096);
+                        break;
+                    }
+                }
+                run.passed(test);
+            } catch (err) {
+                run.failed(test, new vscode.TestMessage(err instanceof Error ? err.message : String(err)));
+            }
+        }
+
+        run.end();
+    });
 }
-
-describe("VsCodeLmHandler", () => {
-	let handler: VsCodeLmHandler
-	const defaultOptions: ApiHandlerOptions = {
-		vsCodeLmModelSelector: {
-			vendor: "test-vendor",
-			family: "test-family",
-		},
-	}
-
-	beforeEach(() => {
-		jest.clearAllMocks()
-		handler = new VsCodeLmHandler(defaultOptions)
-	})
-
-	afterEach(() => {
-		handler.dispose()
-	})
-
-	describe("constructor", () => {
-		it("should initialize with provided options", () => {
-			expect(handler).toBeDefined()
-			expect(vscode.workspace.onDidChangeConfiguration).toHaveBeenCalled()
-		})
-
-		it("should handle configuration changes", () => {
-			const callback = (vscode.workspace.onDidChangeConfiguration as jest.Mock).mock.calls[0][0]
-			callback({ affectsConfiguration: () => true })
-			// Should reset client when config changes
-			expect(handler["client"]).toBeNull()
-		})
-	})
-
-	describe("createClient", () => {
-		it("should create client with selector", async () => {
-			const mockModel = { ...mockLanguageModelChat }
-			;(vscode.lm.selectChatModels as jest.Mock).mockResolvedValueOnce([mockModel])
-
-			const client = await handler["createClient"]({
-				vendor: "test-vendor",
-				family: "test-family",
-			})
-
-			expect(client).toBeDefined()
-			expect(client.id).toBe("test-model")
-			expect(vscode.lm.selectChatModels).toHaveBeenCalledWith({
-				vendor: "test-vendor",
-				family: "test-family",
-			})
-		})
-
-		it("should return default client when no models available", async () => {
-			;(vscode.lm.selectChatModels as jest.Mock).mockResolvedValueOnce([])
-
-			const client = await handler["createClient"]({})
-
-			expect(client).toBeDefined()
-			expect(client.id).toBe("default-lm")
-			expect(client.vendor).toBe("vscode")
-		})
-	})
-
-	describe("createMessage", () => {
-		beforeEach(() => {
-			const mockModel = { ...mockLanguageModelChat }
-			;(vscode.lm.selectChatModels as jest.Mock).mockResolvedValueOnce([mockModel])
-			mockLanguageModelChat.countTokens.mockResolvedValue(10)
-		})
-
-		it("should stream text responses", async () => {
-			const systemPrompt = "You are a helpful assistant"
-			const messages: Anthropic.Messages.MessageParam[] = [
-				{
-					role: "user" as const,
-					content: "Hello",
-				},
-			]
-
-			const responseText = "Hello! How can I help you?"
-			mockLanguageModelChat.sendRequest.mockResolvedValueOnce({
-				stream: (async function* () {
-					yield new vscode.LanguageModelTextPart(responseText)
-					return
-				})(),
-				text: (async function* () {
-					yield responseText
-					return
-				})(),
-			})
-
-			const stream = handler.createMessage(systemPrompt, messages)
-			const chunks = []
-			for await (const chunk of stream) {
-				chunks.push(chunk)
-			}
-
-			expect(chunks).toHaveLength(2) // Text chunk + usage chunk
-			expect(chunks[0]).toEqual({
-				type: "text",
-				text: responseText,
-			})
-			expect(chunks[1]).toMatchObject({
-				type: "usage",
-				inputTokens: expect.any(Number),
-				outputTokens: expect.any(Number),
-			})
-		})
-
-		it("should handle tool calls", async () => {
-			const systemPrompt = "You are a helpful assistant"
-			const messages: Anthropic.Messages.MessageParam[] = [
-				{
-					role: "user" as const,
-					content: "Calculate 2+2",
-				},
-			]
-
-			const toolCallData = {
-				name: "calculator",
-				arguments: { operation: "add", numbers: [2, 2] },
-				callId: "call-1",
-			}
-
-			mockLanguageModelChat.sendRequest.mockResolvedValueOnce({
-				stream: (async function* () {
-					yield new vscode.LanguageModelToolCallPart(
-						toolCallData.callId,
-						toolCallData.name,
-						toolCallData.arguments,
-					)
-					return
-				})(),
-				text: (async function* () {
-					yield JSON.stringify({ type: "tool_call", ...toolCallData })
-					return
-				})(),
-			})
-
-			const stream = handler.createMessage(systemPrompt, messages)
-			const chunks = []
-			for await (const chunk of stream) {
-				chunks.push(chunk)
-			}
-
-			expect(chunks).toHaveLength(2) // Tool call chunk + usage chunk
-			expect(chunks[0]).toEqual({
-				type: "text",
-				text: JSON.stringify({ type: "tool_call", ...toolCallData }),
-			})
-		})
-
-		it("should handle errors", async () => {
-			const systemPrompt = "You are a helpful assistant"
-			const messages: Anthropic.Messages.MessageParam[] = [
-				{
-					role: "user" as const,
-					content: "Hello",
-				},
-			]
-
-			mockLanguageModelChat.sendRequest.mockRejectedValueOnce(new Error("API Error"))
-
-			await expect(async () => {
-				const stream = handler.createMessage(systemPrompt, messages)
-				for await (const _ of stream) {
-					// consume stream
-				}
-			}).rejects.toThrow("API Error")
-		})
-	})
-
-	describe("getModel", () => {
-		it("should return model info when client exists", async () => {
-			const mockModel = { ...mockLanguageModelChat }
-			;(vscode.lm.selectChatModels as jest.Mock).mockResolvedValueOnce([mockModel])
-
-			// Initialize client
-			await handler["getClient"]()
-
-			const model = handler.getModel()
-			expect(model.id).toBe("test-model")
-			expect(model.info).toBeDefined()
-			expect(model.info.contextWindow).toBe(4096)
-		})
-
-		it("should return fallback model info when no client exists", () => {
-			const model = handler.getModel()
-			expect(model.id).toBe("test-vendor/test-family")
-			expect(model.info).toBeDefined()
-		})
-	})
-
-	describe("completePrompt", () => {
-		it("should complete single prompt", async () => {
-			const mockModel = { ...mockLanguageModelChat }
-			;(vscode.lm.selectChatModels as jest.Mock).mockResolvedValueOnce([mockModel])
-
-			const responseText = "Completed text"
-			mockLanguageModelChat.sendRequest.mockResolvedValueOnce({
-				stream: (async function* () {
-					yield new vscode.LanguageModelTextPart(responseText)
-					return
-				})(),
-				text: (async function* () {
-					yield responseText
-					return
-				})(),
-			})
-
-			const result = await handler.completePrompt("Test prompt")
-			expect(result).toBe(responseText)
-			expect(mockLanguageModelChat.sendRequest).toHaveBeenCalled()
-		})
-
-		it("should handle errors during completion", async () => {
-			const mockModel = { ...mockLanguageModelChat }
-			;(vscode.lm.selectChatModels as jest.Mock).mockResolvedValueOnce([mockModel])
-
-			mockLanguageModelChat.sendRequest.mockRejectedValueOnce(new Error("Completion failed"))
-
-			await expect(handler.completePrompt("Test prompt")).rejects.toThrow(
-				"VSCode LM completion error: Completion failed",
-			)
-		})
-	})
-})

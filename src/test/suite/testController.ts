@@ -1,7 +1,21 @@
 import * as vscode from 'vscode';
 
+// Keep track of created controllers to ensure unique IDs
+const createdControllers = new Set<string>();
+
 export function createTestController(id: string, label: string) {
-    const controller = vscode.tests.createTestController(id, label);
+    // Ensure unique ID by adding a suffix if needed
+    let uniqueId = id;
+    let counter = 1;
+    
+    while (createdControllers.has(uniqueId)) {
+        uniqueId = `${id}_${counter++}`;
+    }
+    
+    // Remember this ID has been used
+    createdControllers.add(uniqueId);
+    
+    const controller = vscode.tests.createTestController(uniqueId, label);
     
     controller.createRunProfile(
         'Run Tests',

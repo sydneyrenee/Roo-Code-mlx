@@ -9,10 +9,11 @@ export interface TestDefinition {
 
 export class TestInfrastructure {
     private static controllers = new Map<string, vscode.TestController>();
+    private static testRunFunctions = new Map<string, (run: vscode.TestRun) => Promise<void>>();
 
     static getController(id: string, label: string): vscode.TestController {
         if (!this.controllers.has(id)) {
-            const controller = vscode.test.createTestController(id, label);
+            const controller = vscode.tests.createTestController(id, label);
             this.controllers.set(id, controller);
         }
         return this.controllers.get(id)!;
@@ -30,14 +31,17 @@ export class TestInfrastructure {
 
     static createTest(
         suite: vscode.TestItem,
-        definition: TestDefinition
+        definition: TestDefinition,
+        controller: vscode.TestController
     ): vscode.TestItem {
-        const test = suite.controller.createTestItem(
+        const test = controller.createTestItem(
             definition.id,
             definition.label,
             suite.uri
         );
-        test.run = async run => {
+        
+        // Store the run function in the map instead of directly on the test item
+        this.testRunFunctions.set(test.id, async (run: vscode.TestRun) => {
             run.started(test);
             try {
                 await definition.run(run);
@@ -45,7 +49,8 @@ export class TestInfrastructure {
             } catch (err) {
                 run.failed(test, new vscode.TestMessage(`${err}`));
             }
-        };
+        });
+        
         return test;
     }
 
@@ -64,7 +69,10 @@ export class TestInfrastructure {
 
                 const run = controller.createTestRun(request);
                 for (const test of queue) {
-                    await test.run!(run);
+                    const runFunction = this.testRunFunctions.get(test.id);
+                    if (runFunction) {
+                        await runFunction(run);
+                    }
                 }
                 run.end();
             }

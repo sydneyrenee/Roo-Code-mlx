@@ -1,42 +1,33 @@
 import * as path from 'path';
-import Mocha = require('mocha');
-import * as glob from 'glob';
+import * as Mocha from 'mocha';
+import { glob } from 'glob';
+import * as vscode from 'vscode';
+import { activateBasicTests } from './basic.test';
+import { activatePathTests } from '../../utils/__tests__/path.test.migrated.migrated';
 
-export async function run(): Promise<void> {
-    // Create the mocha test
-    const mocha = new Mocha({
-        ui: 'tdd',
-        color: true,
-        timeout: 60000
-    });
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+    // Register test modules
+    await activateBasicTests(context);
+    await activatePathTests(context);
+}
 
-    const testsRoot = path.resolve(__dirname, '.');
+// This will be called by the test runner to bootstrap tests
+export function run(): Promise<void> {
+    // Create a simple extension host
+    const context = {
+        subscriptions: [],
+        workspaceState: new Map(),
+        globalState: new Map(),
+        extensionPath: __dirname,
+        asAbsolutePath: (relativePath: string) => relativePath,
+        storagePath: __dirname,
+        logPath: __dirname,
+        globalStoragePath: __dirname,
+        extensionUri: vscode.Uri.file(__dirname),
+        environmentVariableCollection: new Map(),
+        extensionMode: vscode.ExtensionMode.Test,
+        secrets: new Map(),
+    };
 
-    // Add files to the test suite
-    const files = await glob.sync('**/mock-cline.test.js', { cwd: testsRoot });
-    
-    // No files found
-    if (files.length === 0) {
-        throw new Error('No test files found');
-    }
-
-    // Add all files to mocha
-    files.forEach(f => {
-        console.log(`Adding test file: ${f}`);
-        mocha.addFile(path.resolve(testsRoot, f));
-    });
-
-    try {
-        // Run the mocha test
-        const failures = await new Promise<number>((resolve) => {
-            mocha.run(resolve);
-        });
-
-        if (failures > 0) {
-            throw new Error(`${failures} tests failed.`);
-        }
-    } catch (err) {
-        console.error('Test run failed:', err);
-        throw err;
-    }
+    return activate(context as unknown as vscode.ExtensionContext);
 }

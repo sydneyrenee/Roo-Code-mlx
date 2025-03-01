@@ -1,63 +1,65 @@
-import * as vscode from 'vscode'
-import * as assert from 'assert'
-import { VertexCacheRefresh } from "../../../../services/vertex/cache-refresh"
-import { VertexHandler } from "../../../../api/providers/vertex"
-import { ApiStream } from "../../../../api/transform/stream"
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { VertexCacheRefresh } from "../../../../services/vertex/cache-refresh";
+import { VertexHandler } from "../../../../api/providers/vertex";
+import { ApiStream } from "../../../../api/transform/stream";
+import { createTestController } from '../../testController';
+import { TestUtils } from '../../../testUtils';
 
 interface MockMessage {
-    type: string
-    text: string
+    type: string;
+    text: string;
 }
 
 // Mock handler class
 class MockVertexHandler {
-    private mockImplementation: () => AsyncGenerator<MockMessage>
-    private _calls: { systemPrompt: string; messages: { role: string; content: string }[] }[] = []
+    private mockImplementation: () => AsyncGenerator<MockMessage>;
+    private _calls: { systemPrompt: string; messages: { role: string; content: string }[] }[] = [];
 
     constructor() {
         this.mockImplementation = async function* () {
-            yield { type: "text", text: "Response" }
-        }
+            yield { type: "text", text: "Response" };
+        };
 
         // Bind the method to ensure correct 'this' context
-        this.createMessage = this.createMessage.bind(this)
+        this.createMessage = this.createMessage.bind(this);
     }
 
     async *createMessage(
         systemPrompt: string,
         messages: { role: string; content: string }[]
     ): AsyncGenerator<MockMessage> {
-        this._calls.push({ systemPrompt, messages })
-        yield* this.mockImplementation()
+        this._calls.push({ systemPrompt, messages });
+        yield* this.mockImplementation();
     }
 
     setMockImplementation(impl: () => AsyncGenerator<MockMessage>): void {
-        this.mockImplementation = impl
+        this.mockImplementation = impl;
     }
 
     getCalls(): { systemPrompt: string; messages: { role: string; content: string }[] }[] {
-        return this._calls
+        return this._calls;
     }
 
     reset(): void {
-        this._calls = []
+        this._calls = [];
     }
 }
 
 // Timer mock class
 class TimerMock {
-    private currentTime: number = 0
-    private timers: { callback: Function; delay: number; nextRun: number }[] = []
+    private currentTime: number = 0;
+    private timers: { callback: Function; delay: number; nextRun: number }[] = [];
 
     advanceTimersByTime(ms: number): void {
-        this.currentTime += ms
+        this.currentTime += ms;
         this.timers = this.timers.filter(timer => {
             if (timer.nextRun <= this.currentTime) {
-                timer.callback()
-                return false
+                timer.callback();
+                return false;
             }
-            return true
-        })
+            return true;
+        });
     }
 
     setTimeout(callback: Function, delay: number): void {
@@ -65,173 +67,204 @@ class TimerMock {
             callback,
             delay,
             nextRun: this.currentTime + delay
-        })
+        });
     }
 
     clearAllTimers(): void {
-        this.timers = []
-        this.currentTime = 0
+        this.timers = [];
+        this.currentTime = 0;
     }
 }
 
-export async function activateVertexCacheRefreshTests(context: vscode.ExtensionContext): Promise<void> {
-    const testController = vscode.tests.createTestController('vertexCacheRefreshTests', 'Vertex Cache Refresh Tests')
-    context.subscriptions.push(testController)
+const controller = createTestController('vertexCacheRefreshTests', 'Vertex Cache Refresh Tests');
 
-    const rootSuite = testController.createTestItem('vertexCacheRefresh', 'Vertex Cache Refresh')
-    testController.items.add(rootSuite)
+// Root test item for Vertex Cache Refresh
+const vertexCacheRefreshTests = controller.createTestItem('vertexCacheRefresh', 'Vertex Cache Refresh', vscode.Uri.file(__filename));
+controller.items.add(vertexCacheRefreshTests);
 
-    // Mock objects
-    const mockHandler = new MockVertexHandler()
-    const timerMock = new TimerMock()
-    const originalSetTimeout = global.setTimeout
-    const originalConsoleError = console.error
+// Mock objects
+const mockHandler = new MockVertexHandler();
+const timerMock = new TimerMock();
+const originalSetTimeout = global.setTimeout;
+const originalConsoleError = console.error;
 
-    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
-        const queue: vscode.TestItem[] = []
+// Schedule tests
+const scheduleTests = controller.createTestItem('schedule', 'Schedule Refresh', vscode.Uri.file(__filename));
+vertexCacheRefreshTests.children.add(scheduleTests);
 
-        if (request.include) {
-            request.include.forEach(test => queue.push(test))
-        }
-
-        const run = testController.createTestRun(request)
-
-        for (const test of queue) {
-            run.started(test)
-
+// Test for scheduling periodic refresh
+scheduleTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'basic',
+        'should schedule periodic refresh',
+        vscode.Uri.file(__filename),
+        async run => {
             try {
-                // Setup for each test
-                let cacheRefresh = new VertexCacheRefresh()
-                mockHandler.reset()
-                timerMock.clearAllTimers()
-                global.setTimeout = timerMock.setTimeout.bind(timerMock) as any
-                console.error = () => {}
+                // Setup for test
+                let cacheRefresh = new VertexCacheRefresh();
+                mockHandler.reset();
+                timerMock.clearAllTimers();
+                global.setTimeout = timerMock.setTimeout.bind(timerMock) as any;
+                console.error = () => {};
 
-                switch (test.id) {
-                    case 'schedule.basic': {
-                        const cacheId = cacheRefresh.scheduleRefresh(
-                            mockHandler as unknown as VertexHandler,
-                            "System prompt",
-                            "Test context"
-                        )
+                const cacheId = cacheRefresh.scheduleRefresh(
+                    mockHandler as unknown as VertexHandler,
+                    "System prompt",
+                    "Test context"
+                );
 
-                        assert.ok(cacheId, "Cache ID should be defined")
-                        assert.strictEqual(cacheRefresh.isRefreshing(cacheId), true)
+                assert.ok(cacheId, "Cache ID should be defined");
+                assert.strictEqual(cacheRefresh.isRefreshing(cacheId), true);
 
-                        timerMock.advanceTimersByTime(4 * 60 * 1000)
+                timerMock.advanceTimersByTime(4 * 60 * 1000);
 
-                        const calls = mockHandler.getCalls()
-                        assert.ok(calls.some(call => 
-                            call.systemPrompt === "System prompt" &&
-                            call.messages[0].content === "Continue"
-                        ))
-                        break
-                    }
-
-                    case 'schedule.multiple': {
-                        const cacheId1 = cacheRefresh.scheduleRefresh(
-                            mockHandler as unknown as VertexHandler,
-                            "System 1",
-                            "Context 1"
-                        )
-
-                        const cacheId2 = cacheRefresh.scheduleRefresh(
-                            mockHandler as unknown as VertexHandler,
-                            "System 2",
-                            "Context 2"
-                        )
-
-                        assert.strictEqual(cacheRefresh.getActiveRefreshCount(), 2)
-
-                        timerMock.advanceTimersByTime(4 * 60 * 1000)
-
-                        const calls = mockHandler.getCalls()
-                        assert.ok(calls.some(call => call.systemPrompt === "System 1"))
-                        assert.ok(calls.some(call => call.systemPrompt === "System 2"))
-                        break
-                    }
-
-                    case 'stop.specific': {
-                        const cacheId = cacheRefresh.scheduleRefresh(
-                            mockHandler as unknown as VertexHandler,
-                            "System prompt",
-                            "Test context"
-                        )
-
-                        cacheRefresh.stopRefresh(cacheId)
-
-                        timerMock.advanceTimersByTime(4 * 60 * 1000)
-
-                        assert.strictEqual(mockHandler.getCalls().length, 0)
-                        assert.strictEqual(cacheRefresh.isRefreshing(cacheId), false)
-                        break
-                    }
-
-                    case 'dispose.all': {
-                        cacheRefresh.scheduleRefresh(
-                            mockHandler as unknown as VertexHandler,
-                            "System 1",
-                            "Context 1"
-                        )
-
-                        cacheRefresh.scheduleRefresh(
-                            mockHandler as unknown as VertexHandler,
-                            "System 2",
-                            "Context 2"
-                        )
-
-                        cacheRefresh.dispose()
-
-                        timerMock.advanceTimersByTime(4 * 60 * 1000)
-
-                        assert.strictEqual(mockHandler.getCalls().length, 0)
-                        assert.strictEqual(cacheRefresh.getActiveRefreshCount(), 0)
-                        break
-                    }
-                }
-
-                run.passed(test)
-            } catch (err) {
-                run.failed(test, new vscode.TestMessage(`Test failed: ${err}`))
+                const calls = mockHandler.getCalls();
+                assert.ok(calls.some(call => 
+                    call.systemPrompt === "System prompt" &&
+                    call.messages[0].content === "Continue"
+                ));
             } finally {
-                // Cleanup after each test
-                global.setTimeout = originalSetTimeout
-                console.error = originalConsoleError
+                // Cleanup after test
+                global.setTimeout = originalSetTimeout;
+                console.error = originalConsoleError;
             }
         }
+    )
+);
 
-        run.end()
-    })
+// Test for maintaining multiple refreshes
+scheduleTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'multiple',
+        'should maintain multiple refreshes',
+        vscode.Uri.file(__filename),
+        async run => {
+            try {
+                // Setup for test
+                let cacheRefresh = new VertexCacheRefresh();
+                mockHandler.reset();
+                timerMock.clearAllTimers();
+                global.setTimeout = timerMock.setTimeout.bind(timerMock) as any;
+                console.error = () => {};
 
-    // Schedule tests
-    const scheduleSuite = testController.createTestItem('schedule', 'Schedule Refresh')
-    rootSuite.children.add(scheduleSuite)
+                const cacheId1 = cacheRefresh.scheduleRefresh(
+                    mockHandler as unknown as VertexHandler,
+                    "System 1",
+                    "Context 1"
+                );
 
-    scheduleSuite.children.add(testController.createTestItem(
-        'schedule.basic',
-        'should schedule periodic refresh'
-    ))
+                const cacheId2 = cacheRefresh.scheduleRefresh(
+                    mockHandler as unknown as VertexHandler,
+                    "System 2",
+                    "Context 2"
+                );
 
-    scheduleSuite.children.add(testController.createTestItem(
-        'schedule.multiple',
-        'should maintain multiple refreshes'
-    ))
+                assert.strictEqual(cacheRefresh.getActiveRefreshCount(), 2);
 
-    // Stop tests
-    const stopSuite = testController.createTestItem('stop', 'Stop Refresh')
-    rootSuite.children.add(stopSuite)
+                timerMock.advanceTimersByTime(4 * 60 * 1000);
 
-    stopSuite.children.add(testController.createTestItem(
-        'stop.specific',
-        'should stop specific refresh'
-    ))
+                const calls = mockHandler.getCalls();
+                assert.ok(calls.some(call => call.systemPrompt === "System 1"));
+                assert.ok(calls.some(call => call.systemPrompt === "System 2"));
+            } finally {
+                // Cleanup after test
+                global.setTimeout = originalSetTimeout;
+                console.error = originalConsoleError;
+            }
+        }
+    )
+);
 
-    // Dispose tests
-    const disposeSuite = testController.createTestItem('dispose', 'Dispose')
-    rootSuite.children.add(disposeSuite)
+// Stop tests
+const stopTests = controller.createTestItem('stop', 'Stop Refresh', vscode.Uri.file(__filename));
+vertexCacheRefreshTests.children.add(stopTests);
 
-    disposeSuite.children.add(testController.createTestItem(
-        'dispose.all',
-        'should stop all refreshes'
-    ))
+// Test for stopping specific refresh
+stopTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'specific',
+        'should stop specific refresh',
+        vscode.Uri.file(__filename),
+        async run => {
+            try {
+                // Setup for test
+                let cacheRefresh = new VertexCacheRefresh();
+                mockHandler.reset();
+                timerMock.clearAllTimers();
+                global.setTimeout = timerMock.setTimeout.bind(timerMock) as any;
+                console.error = () => {};
+
+                const cacheId = cacheRefresh.scheduleRefresh(
+                    mockHandler as unknown as VertexHandler,
+                    "System prompt",
+                    "Test context"
+                );
+
+                cacheRefresh.stopRefresh(cacheId);
+
+                timerMock.advanceTimersByTime(4 * 60 * 1000);
+
+                assert.strictEqual(mockHandler.getCalls().length, 0);
+                assert.strictEqual(cacheRefresh.isRefreshing(cacheId), false);
+            } finally {
+                // Cleanup after test
+                global.setTimeout = originalSetTimeout;
+                console.error = originalConsoleError;
+            }
+        }
+    )
+);
+
+// Dispose tests
+const disposeTests = controller.createTestItem('dispose', 'Dispose', vscode.Uri.file(__filename));
+vertexCacheRefreshTests.children.add(disposeTests);
+
+// Test for stopping all refreshes
+disposeTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'all',
+        'should stop all refreshes',
+        vscode.Uri.file(__filename),
+        async run => {
+            try {
+                // Setup for test
+                let cacheRefresh = new VertexCacheRefresh();
+                mockHandler.reset();
+                timerMock.clearAllTimers();
+                global.setTimeout = timerMock.setTimeout.bind(timerMock) as any;
+                console.error = () => {};
+
+                cacheRefresh.scheduleRefresh(
+                    mockHandler as unknown as VertexHandler,
+                    "System 1",
+                    "Context 1"
+                );
+
+                cacheRefresh.scheduleRefresh(
+                    mockHandler as unknown as VertexHandler,
+                    "System 2",
+                    "Context 2"
+                );
+
+                cacheRefresh.dispose();
+
+                timerMock.advanceTimersByTime(4 * 60 * 1000);
+
+                assert.strictEqual(mockHandler.getCalls().length, 0);
+                assert.strictEqual(cacheRefresh.getActiveRefreshCount(), 0);
+            } finally {
+                // Cleanup after test
+                global.setTimeout = originalSetTimeout;
+                console.error = originalConsoleError;
+            }
+        }
+    )
+);
+
+export function activate() {
+    return controller;
 }

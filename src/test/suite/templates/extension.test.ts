@@ -1,5 +1,5 @@
-import * as vscode from 'vscode'
-import * as assert from 'assert'
+import * as vscode from 'vscode';
+import * as assert from 'assert';
 import { 
     TEST_TIMEOUTS,
     waitForCondition,
@@ -7,164 +7,163 @@ import {
     cleanupTestWorkspace,
     resetExtensionState,
     assertions
-} from '../utils/test-setup'
-import { ClineProvider } from '../../../core/webview/ClineProvider'
+} from '../utils/test-setup';
+import { ClineProvider } from '../../../core/webview/ClineProvider';
+import { createTestController } from '../testController';
+import { TestUtils } from '../../testUtils';
 
 // Extend globalThis with our extension types
 declare global {
     var provider: {
-        viewLaunched: boolean
+        viewLaunched: boolean;
         messages: Array<{
-            type: string
-            text?: string
-        }>
-        updateGlobalState(key: string, value: any): Promise<void>
-    }
+            type: string;
+            text?: string;
+        }>;
+        updateGlobalState(key: string, value: any): Promise<void>;
+    };
 }
 
-export async function activateExtensionTests(context: vscode.ExtensionContext): Promise<void> {
-    const testController = vscode.tests.createTestController('extensionTests', 'Extension Tests')
-    context.subscriptions.push(testController)
+const controller = createTestController('extensionTests', 'Extension Tests');
 
-    const rootSuite = testController.createTestItem('extension', 'Extension')
-    testController.items.add(rootSuite)
+// Root test item for Extension
+const extensionTests = controller.createTestItem('extension', 'Extension', vscode.Uri.file(__filename));
+controller.items.add(extensionTests);
 
-    // Create workspace URI for tests
-    let workspaceUri: vscode.Uri | undefined
+// Test for extension presence
+extensionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'present',
+        'Extension should be present',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test setup
+            await resetExtensionState(globalThis.provider as unknown as ClineProvider);
 
-    testController.createRunProfile('run', vscode.TestRunProfileKind.Run, async (request) => {
-        const queue: vscode.TestItem[] = []
-
-        if (request.include) {
-            request.include.forEach(test => queue.push(test))
+            const extension = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline');
+            assert.ok(extension, 'Extension should be available');
         }
+    )
+);
 
-        const run = testController.createTestRun(request)
+// Test for extension activation
+extensionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'activate',
+        'Extension should activate',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test setup
+            await resetExtensionState(globalThis.provider as unknown as ClineProvider);
 
-        try {
-            // Suite setup
-            workspaceUri = await createTestWorkspace()
+            const extension = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline');
+            await extension?.activate();
+            assert.ok(extension?.isActive, 'Extension should be active');
+        }
+    )
+);
 
-            for (const test of queue) {
-                run.started(test)
+// Test for command registration
+extensionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'commands',
+        'Commands should be registered',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test setup
+            await resetExtensionState(globalThis.provider as unknown as ClineProvider);
 
-                try {
-                    // Test setup
-                    await resetExtensionState(globalThis.provider as unknown as ClineProvider)
+            await assertions.commandExists('roo-cline.plusButtonClicked');
+            await assertions.commandExists('roo-cline.mcpButtonClicked');
+            await assertions.commandExists('roo-cline.startNewTask');
+        }
+    )
+);
 
-                    switch (test.id) {
-                        case 'extension.present': {
-                            const extension = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline')
-                            assert.ok(extension, 'Extension should be available')
-                            break
-                        }
+// Test for workspace operations
+extensionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'workspace',
+        'Should handle workspace operations',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test setup
+            await resetExtensionState(globalThis.provider as unknown as ClineProvider);
 
-                        case 'extension.activate': {
-                            const extension = vscode.extensions.getExtension('RooVeterinaryInc.roo-cline')
-                            await extension?.activate()
-                            assert.ok(extension?.isActive, 'Extension should be active')
-                            break
-                        }
+            const files = {
+                'test.txt': 'Initial content'
+            };
+            const testWorkspace = await createTestWorkspace(files);
 
-                        case 'extension.commands': {
-                            await assertions.commandExists('roo-cline.plusButtonClicked')
-                            await assertions.commandExists('roo-cline.mcpButtonClicked')
-                            await assertions.commandExists('roo-cline.startNewTask')
-                            break
-                        }
+            try {
+                const testFile = vscode.Uri.joinPath(testWorkspace, 'test.txt');
+                const content = await vscode.workspace.fs.readFile(testFile);
+                assert.strictEqual(Buffer.from(content).toString(), 'Initial content');
 
-                        case 'extension.workspace': {
-                            const files = {
-                                'test.txt': 'Initial content'
-                            }
-                            const testWorkspace = await createTestWorkspace(files)
+                const edit = new vscode.WorkspaceEdit();
+                edit.insert(testFile, new vscode.Position(0, 0), 'Modified ');
+                await vscode.workspace.applyEdit(edit);
 
-                            try {
-                                const testFile = vscode.Uri.joinPath(testWorkspace, 'test.txt')
-                                const content = await vscode.workspace.fs.readFile(testFile)
-                                assert.strictEqual(Buffer.from(content).toString(), 'Initial content')
-
-                                const edit = new vscode.WorkspaceEdit()
-                                edit.insert(testFile, new vscode.Position(0, 0), 'Modified ')
-                                await vscode.workspace.applyEdit(edit)
-
-                                const document = await vscode.workspace.openTextDocument(testFile)
-                                assertions.textDocumentContains(document, 'Modified Initial content')
-                            } finally {
-                                await cleanupTestWorkspace(testWorkspace)
-                            }
-                            break
-                        }
-
-                        case 'extension.config': {
-                            const config = vscode.workspace.getConfiguration('roo-code')
-                            await config.update('setting', 'test-value', vscode.ConfigurationTarget.Global)
-
-                            await assertions.configurationEquals('setting', 'test-value')
-
-                            await config.update('setting', undefined, vscode.ConfigurationTarget.Global)
-                            break
-                        }
-
-                        case 'extension.async': {
-                            let operationComplete = false
-                            setTimeout(() => { operationComplete = true }, 1000)
-
-                            await waitForCondition(
-                                () => operationComplete,
-                                TEST_TIMEOUTS.SHORT,
-                                100,
-                                'Operation did not complete in time'
-                            )
-
-                            assert.ok(operationComplete, 'Operation should complete')
-                            break
-                        }
-                    }
-
-                    run.passed(test)
-                } catch (err) {
-                    run.failed(test, new vscode.TestMessage(`Test failed: ${err}`))
-                }
-            }
-        } finally {
-            // Suite teardown
-            if (workspaceUri) {
-                await cleanupTestWorkspace(workspaceUri)
+                const document = await vscode.workspace.openTextDocument(testFile);
+                assertions.textDocumentContains(document, 'Modified Initial content');
+            } finally {
+                await cleanupTestWorkspace(testWorkspace);
             }
         }
+    )
+);
 
-        run.end()
-    })
+// Test for configuration changes
+extensionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'config',
+        'Should handle configuration changes',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test setup
+            await resetExtensionState(globalThis.provider as unknown as ClineProvider);
 
-    // Add test items
-    rootSuite.children.add(testController.createTestItem(
-        'extension.present',
-        'Extension should be present'
-    ))
+            const config = vscode.workspace.getConfiguration('roo-code');
+            await config.update('setting', 'test-value', vscode.ConfigurationTarget.Global);
 
-    rootSuite.children.add(testController.createTestItem(
-        'extension.activate',
-        'Extension should activate'
-    ))
+            await assertions.configurationEquals('setting', 'test-value');
 
-    rootSuite.children.add(testController.createTestItem(
-        'extension.commands',
-        'Commands should be registered'
-    ))
+            await config.update('setting', undefined, vscode.ConfigurationTarget.Global);
+        }
+    )
+);
 
-    rootSuite.children.add(testController.createTestItem(
-        'extension.workspace',
-        'Should handle workspace operations'
-    ))
+// Test for async operations
+extensionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'async',
+        'Should handle async operations',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test setup
+            await resetExtensionState(globalThis.provider as unknown as ClineProvider);
 
-    rootSuite.children.add(testController.createTestItem(
-        'extension.config',
-        'Should handle configuration changes'
-    ))
+            let operationComplete = false;
+            setTimeout(() => { operationComplete = true; }, 1000);
 
-    rootSuite.children.add(testController.createTestItem(
-        'extension.async',
-        'Should handle async operations'
-    ))
+            await waitForCondition(
+                () => operationComplete,
+                TEST_TIMEOUTS.SHORT,
+                100,
+                'Operation did not complete in time'
+            );
+
+            assert.ok(operationComplete, 'Operation should complete');
+        }
+    )
+);
+
+export function activate() {
+    return controller;
 }

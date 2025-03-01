@@ -20,14 +20,26 @@
         "esModuleInterop": true,
         "sourceMap": true,
         "noEmit": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": false,
+        "noImplicitOverride": true,
+        "experimentalDecorators": true,
+        "useUnknownInCatchVariables": false,
+        "forceConsistentCasingInFileNames": true,
         "types": [
             "node",
             "vscode",
             "mocha"
-        ]
+        ],
+        "rootDir": "..",
+        "outDir": "../../out/test"
     },
     "include": [
         "./suite/core/Cline.test.ts",
-        "./suite/utils/mock-helpers.ts"
-    ]
+        "./suite/utils/mock-helpers.ts",
+        ".",
+        "../**/*.d.ts"
+    ],
+    "exclude": ["../webview-ui"]
 }

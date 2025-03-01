@@ -1,0 +1,13 @@
+{
+  "files": "out/test/**/*.test.js",
+  "version": "stable",
+  "workspaceFolder": "src/test/workspace",
+  "extensionDevelopmentPath": ".",
+  "mocha": {
+    "ui": "tdd",
+    "timeout": 20000
+  },
+  "launchArgs": [
+    "/Volumes/stuff/Projects/Roo-Code-mlx/src/test/workspace"
+  ]
+}
