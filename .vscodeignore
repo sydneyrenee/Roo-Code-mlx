@@ -27,17 +27,20 @@ demo.gif
 coverage/**
 out-integration/**
 test-results/**
-output.txt
-test-output.log
-flake.lock
-flake.nix
-.git-blame-ignore-revs
-.gitconfig
-.env.integration.example
+**/test-output*
+**/output.*
+**/*.log
+flake.*
+.git*
+.env*
 none/**
 
 # Backup files
 **/*.bak
+
+# Temporary files
+**/temp/**
+**/tmp/**
 
 # Fix issue where codicons don't get packaged (https://github.com/microsoft/vscode-extension-samples/issues/692)
 !node_modules/@vscode/codicons/dist/codicon.css
@@ -48,3 +51,6 @@ none/**
 
 # Include icons
 !assets/icons/**
+
+# Include audio files
+!audio/**
