@@ -22,6 +22,20 @@ demo.gif
 .gitattributes
 .prettierignore
 
+# Additional exclusions
+.changeset/**
+coverage/**
+out-integration/**
+test-results/**
+output.txt
+test-output.log
+flake.lock
+flake.nix
+.git-blame-ignore-revs
+.gitconfig
+.env.integration.example
+none/**
+
 # Fix issue where codicons don't get packaged (https://github.com/microsoft/vscode-extension-samples/issues/692)
 !node_modules/@vscode/codicons/dist/codicon.css
 !node_modules/@vscode/codicons/dist/codicon.ttf
