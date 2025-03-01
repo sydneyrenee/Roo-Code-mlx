@@ -5,35 +5,13 @@
 	"tasks": [
 		{
 			"label": "watch",
-			"dependsOn": ["npm: dev", "npm: watch:tsc", "npm: watch:esbuild"],
+			"dependsOn": ["npm: watch:tsc", "npm: watch:esbuild"],
 			"presentation": {
 				"reveal": "never"
 			},
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
-		},
-		{
-			"label": "npm: dev",
-			"type": "npm",
-			"script": "dev",
-			"group": "build",
-			"problemMatcher": {
-				"owner": "vite",
-				"pattern": {
-					"regexp": "^$"
-				},
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": ".*VITE.*",
-					"endsPattern": ".*Local:.*"
-				}
-			},
-			"isBackground": true,
-			"presentation": {
-				"group": "webview-ui",
-				"reveal": "always"
 			}
 		},
 		{
