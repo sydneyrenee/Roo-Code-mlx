@@ -1,140 +1,69 @@
-# Testing Documentation
+# Testing Documentation Overview
 
-Welcome to the Roo Code testing documentation. This guide provides comprehensive information about testing practices, requirements, and guidelines.
+This document provides a high-level overview of the testing documentation available in the Roo Code project. For comprehensive testing guidelines, please refer to the [main Testing Guide](../../TESTING.md).
 
-## Test Types
+## Available Documentation
 
-### [Unit Tests](./unit-tests.md)
-- Located in `src/**/__tests__/`
-- Test individual components
-- Heavy use of mocking
-- Fast execution
+- [Testing Guide](../../TESTING.md) - Main testing guide with comprehensive information
+- [Testing Frameworks Overview](./testing-frameworks.md) - Detailed explanation of testing frameworks
+- [VS Code Test Runner Guide](./vscode-test-runner.md) - Guide for the VS Code test runner
+- [VS Code Testing API Guide](./vscode-testing-api.md) - Guide for the VS Code Testing API
+- [VS Code Test Configuration](./vscode-test-config.md) - Detailed documentation of the .vscode-test.json configuration
+- [Unit Testing Guide](./unit-tests.md) - Guide for writing unit tests
+- [Integration Testing Guide](./integration-tests.md) - Guide for writing integration tests
+- [Service Testing Guide](./service-tests.md) - Guide for writing service tests
 
-### [Integration Tests](./integration-tests.md)
-- Located in `src/test/suite/`
-- Test VSCode integration
-- Minimal mocking
-- Real VSCode instance
+## Quick Reference
 
-### [Service Tests](./service-tests.md)
-- Located in `src/test/suite/services/`
-- Test service boundaries
-- Mix of unit and integration
-- Service-specific documentation
+### Test Types
 
-## Directory Structure
+| Type | Location | Purpose | Documentation |
+|------|----------|---------|--------------|
+| Unit Tests | `src/**/__tests__/` | Test individual components | [Unit Testing Guide](./unit-tests.md) |
+| Integration Tests | `src/test/suite/` | Test VSCode integration | [Integration Testing Guide](./integration-tests.md) |
+| Service Tests | `src/test/suite/services/` | Test service boundaries | [Service Testing Guide](./service-tests.md) |
 
-```
-src/
-├── services/           # Service implementations
-│   └── service-name/   # Individual service
-│       └── __tests__/ # Unit tests
-├── test/
-│   ├── suite/         # Integration tests
-│   │   └── services/  # Service integration tests
-│   │       └── service-name/
-│   │           ├── feature.test.ts
-│   │           └── README.md
-```
+### Testing Frameworks
 
-## Coverage Requirements
+| Framework | Purpose | Documentation |
+|-----------|---------|--------------|
+| VS Code Testing API | Interactive testing in VS Code | [VS Code Testing API Guide](./vscode-testing-api.md) |
+| @vscode/test-cli | Command-line and CI/CD testing | [VS Code Test Runner Guide](./vscode-test-runner.md) |
 
-All tests must maintain:
-- Statements: 80%
-- Branches: 80%
-- Functions: 80%
-- Lines: 80%
-
-Check coverage:
-```bash
-npm test -- --coverage
-```
-
-## Running Tests
+### Common Commands
 
 ```bash
 # Run all tests
 npm test
 
+# Run unit tests
+npm run test:unit
+
 # Run integration tests
 npm run test:integration
 
-# Run specific tests
-npx jest path/to/test
+# Run specific test configuration
+npx @vscode/test-cli --label basicTests
 ```
 
-## Best Practices
+### Key Requirements
 
-### 1. Test Organization
-- Group related tests
-- Clear descriptions
-- Independent tests
-- Follow AAA pattern (Arrange, Act, Assert)
+- Test coverage: 80% (statements, branches, functions, lines)
+- Test isolation: Each test should be independent
+- Documentation: Each service should have a README.md
 
-### 2. Mocking
-- Mock external dependencies
-- Reset between tests
-- Document mock behavior
-- Use __mocks__ directory
+## Directory Structure
 
-### 3. Assertions
-- Be specific
-- Test edge cases
-- Handle errors
-- Include timeouts
+```
+docs/technical/testing/
+├── testing-frameworks.md   # Testing frameworks overview
+├── testing-overview.md     # This file
+├── unit-tests.md           # Unit testing guide
+├── integration-tests.md    # Integration testing guide
+├── service-tests.md        # Service testing guide
+├── vscode-test-runner.md   # VS Code test runner guide
+├── vscode-testing-api.md   # VS Code Testing API guide
+└── vscode-test-config.md   # VS Code test configuration guide
+```
 
-### 4. Documentation
-- Update README files
-- Document patterns
-- Include examples
-- Explain setup
-
-## Common Issues
-
-### Test Failures
-1. Check test isolation
-2. Verify mocks
-3. Check async operations
-4. Review error handling
-
-### Coverage Issues
-1. Add missing test cases
-2. Check edge cases
-3. Include error paths
-4. Test async flows
-
-### Integration Test Issues
-1. Check VSCode version
-2. Verify extension setup
-3. Review timeouts
-4. Check environment
-
-## Getting Help
-
-1. Review documentation:
-   - [Unit Testing Guide](./unit-tests.md)
-   - [Integration Testing Guide](./integration-tests.md)
-   - [Service Testing Guide](./service-tests.md)
-
-2. Check examples:
-   - Existing test files
-   - Mock examples
-   - Test templates
-
-3. Get support:
-   - Open an issue
-   - Tag with 'question'
-   - Include relevant code
-
-## Contributing
-
-1. Follow guidelines
-2. Use templates
-3. Add documentation
-4. Maintain coverage
-5. Submit PR
-
-For detailed information about specific test types, please refer to their respective documentation:
-- [Unit Testing Guide](./unit-tests.md)
-- [Integration Testing Guide](./integration-tests.md)
-- [Service Testing Guide](./service-tests.md)
+For detailed information about testing practices, requirements, and guidelines, please refer to the [main Testing Guide](../../TESTING.md).

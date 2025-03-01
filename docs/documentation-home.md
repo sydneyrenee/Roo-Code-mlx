@@ -18,6 +18,7 @@ Detailed technical documentation for developers:
 - [Settings Configuration](./technical/settings/settings.md)
 - [Testing Guidelines](./technical/testing/testing-overview.md)
 - [API Documentation](./technical/api/index.md)
+- [Build Process](./technical/build-process.md)
 - Implementation Details
 
 ### [Development Documentation](./development/index.md)
@@ -37,14 +38,17 @@ Practical guides and tutorials:
 ## Testing Documentation
 
 - [Testing Overview](./technical/testing/testing-overview.md)
+- [Testing Frameworks Overview](./technical/testing/testing-frameworks.md)
 - [Unit Testing Guide](./technical/testing/unit-tests.md)
 - [Integration Testing Guide](./technical/testing/integration-tests.md)
 - [Service Testing Guide](./technical/testing/service-tests.md)
 - [VS Code Test Runner Guide](./technical/testing/vscode-test-runner.md)
 - [VS Code Testing API Guide](./technical/testing/vscode-testing-api.md)
-- [VS Code Testing Guide](./technical/testing/vscode-testing-guide.md)
-- [Test Migration Plan](./technical/testing/test-migration-plan.md)
-- [Test Migration Implementation](./technical/testing/test-migration/register-tests-implementation-example.md)
+
+## Build and Configuration Documentation
+
+- [Build Process](./technical/build-process.md)
+- [Build and Test Plan](./technical/build-and-test-plan.md)
 
 ## Settings Documentation
 
