@@ -93,7 +93,7 @@ export class Cline {
 	private lastMessageTs?: number
 	private consecutiveMistakeCount: number = 0
 	private consecutiveMistakeCountForApplyDiff: Map<string, number> = new Map()
-	private providerRef: WeakRef<ClineProvider>
+	private providerRef: any // Using any as a temporary fix for WeakRef type issues
 	private abort: boolean = false
 	didFinishAbortingStream = false
 	abandoned = false
@@ -142,7 +142,7 @@ export class Cline {
 		this.customInstructions = customInstructions
 		this.diffEnabled = enableDiff ?? false
 		this.fuzzyMatchThreshold = fuzzyMatchThreshold ?? 1.0
-		this.providerRef = new WeakRef(provider)
+		this.providerRef = { deref: () => provider } // Using a simple object with deref method instead of WeakRef
 		this.diffViewProvider = new DiffViewProvider(cwd)
 		this.checkpointsEnabled = enableCheckpoints ?? false
 
@@ -2346,9 +2346,9 @@ export class Cline {
 								const toolResultPretty =
 									(toolResult?.isError ? "Error:\n" : "") +
 										toolResult?.content
-											.map((item) => {
+											.map((item: { type: string; text?: string; resource?: any }) => {
 												if (item.type === "text") {
-													return item.text
+													return item.text || ""
 												}
 												if (item.type === "resource") {
 													const { blob, ...rest } = item.resource
@@ -2412,7 +2412,7 @@ export class Cline {
 									?.readResource(server_name, uri)
 								const resourceResultPretty =
 									resourceResult?.contents
-										.map((item) => {
+										.map((item: { text?: string }) => {
 											if (item.text) {
 												return item.text
 											}
@@ -3172,7 +3172,7 @@ export class Cline {
 		/*
 		let diagnosticsDetails = ""
 		const diagnostics = await this.diagnosticsMonitor.getCurrentDiagnostics(this.didEditFile || terminalWasBusy) // if cline ran a command (ie npm install) or edited the workspace then wait a bit for updated diagnostics
-		for (const [uri, fileDiagnostics] of diagnostics) {
+		for (const [uri, fileDiagnostics] of Array.from(diagnostics.entries())) {
 			const problems = fileDiagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error)
 			if (problems.length > 0) {
 				diagnosticsDetails += `\n## ${path.relative(cwd, uri.fsPath)}`
@@ -3213,7 +3213,7 @@ export class Cline {
 			}
 			if (inactiveTerminalOutputs.size > 0) {
 				terminalDetails += "\n\n# Inactive Terminals"
-				for (const [terminalId, newOutput] of inactiveTerminalOutputs) {
+				for (const [terminalId, newOutput] of Array.from(inactiveTerminalOutputs.entries())) {
 					const inactiveTerminal = inactiveTerminals.find((t) => t.id === terminalId)
 					if (inactiveTerminal) {
 						terminalDetails += `\n## ${inactiveTerminal.lastCommand}`

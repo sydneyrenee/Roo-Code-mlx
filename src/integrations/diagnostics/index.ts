@@ -9,7 +9,7 @@ export function getNewDiagnostics(
 	const newProblems: [vscode.Uri, vscode.Diagnostic[]][] = []
 	const oldMap = new Map(oldDiagnostics)
 
-	for (const [uri, newDiags] of newDiagnostics) {
+	for (const [uri, newDiags] of Array.from(newDiagnostics)) {
 		const oldDiags = oldMap.get(uri) || []
 		const newProblemsForUri = newDiags.filter((newDiag) => !oldDiags.some((oldDiag) => deepEqual(oldDiag, newDiag)))
 
@@ -76,7 +76,7 @@ export function diagnosticsToProblemsString(
 	cwd: string,
 ): string {
 	let result = ""
-	for (const [uri, fileDiagnostics] of diagnostics) {
+	for (const [uri, fileDiagnostics] of Array.from(diagnostics)) {
 		const problems = fileDiagnostics.filter((d) => severities.includes(d.severity))
 		if (problems.length > 0) {
 			result += `\n\n${path.relative(cwd, uri.fsPath).toPosix()}`

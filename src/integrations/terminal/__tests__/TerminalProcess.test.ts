@@ -262,7 +262,7 @@ export async function activateTerminalProcessTests(context: vscode.ExtensionCont
                             ["no artifacts", "no artifacts"],
                         ]
                         
-                        for (const [input, expected] of cases) {
+                        for (const [input, expected] of Array.from(cases)) {
                             assert.strictEqual(terminalProcess["removeLastLineArtifacts"](input), expected)
                         }
                         break

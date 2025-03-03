@@ -242,7 +242,7 @@ export function mergePromise(process: TerminalProcess, promise: Promise<void>): 
 	const descriptors = ["then", "catch", "finally"].map(
 		(property) => [property, Reflect.getOwnPropertyDescriptor(nativePromisePrototype, property)] as const,
 	)
-	for (const [property, descriptor] of descriptors) {
+	for (const [property, descriptor] of Array.from(descriptors)) {
 		if (descriptor) {
 			const value = descriptor.value.bind(promise)
 			Reflect.defineProperty(process, property, { ...descriptor, value })

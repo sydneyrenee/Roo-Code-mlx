@@ -1,0 +1,42 @@
+{
+  "extension": {
+    "name": "roo-cline",
+    "displayName": "Roo Code",
+    "description": "An AI-powered autonomous coding agent that lives in your editor.",
+    "version": "3.3.20",
+    "publisher": "RooVeterinaryInc",
+    "author": {
+      "name": "Roo Vet"
+    }
+  },
+  "repository": {
+    "url": "https://github.com/RooVetGit/Roo-Code",
+    "homepage": "https://github.com/RooVetGit/Roo-Code"
+  },
+  "branding": {
+    "commandPrefix": "Roo Code",
+    "activityBarTitle": "Roo Code",
+    "colors": {
+      "galleryBanner": "#617A91",
+      "theme": "dark"
+    },
+    "icons": {
+      "extension": "assets/icons/rocket.png",
+      "activityBar": "$(rocket)"
+    }
+  },
+  "keywords": [
+    "cline",
+    "claude",
+    "dev",
+    "mcp",
+    "openrouter",
+    "coding",
+    "agent",
+    "autonomous",
+    "chatgpt",
+    "sonnet",
+    "ai",
+    "llama"
+  ]
+}

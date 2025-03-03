@@ -1,180 +1,280 @@
 # Unit Testing Guide
 
-This guide covers writing and running unit tests for Roo Code using Jest.
+This guide covers writing and running unit tests for Roo Code using the VS Code Testing API.
 
 ## Overview
 
 Unit tests in Roo Code:
-- Use Jest as the testing framework
-- Are located next to the implementation in `__tests__` directories
+- Use the VS Code Testing API as the testing framework
+- Run in a real VS Code environment with full access to the VS Code API
 - Focus on testing individual components in isolation
-- Heavily utilize mocking for dependencies
+- Use the Node.js assert module for assertions
 
 ## Writing Unit Tests
 
 ### Basic Test Structure
 
 ```typescript
-describe('ComponentName', () => {
-    beforeEach(() => {
-        // Setup for each test
-    });
+import * as vscode from 'vscode';
+import * as assert from 'assert';
+import { createTestController } from '../testController';
+import { TestUtils } from '../../testUtils';
 
-    afterEach(() => {
-        // Cleanup after each test
-        jest.resetAllMocks();
-    });
+// Create a test controller for component tests
+const controller = createTestController('componentTests', 'Component Tests');
 
-    it('should perform specific action', () => {
-        // Arrange
-        const input = 'test';
+// Root test item for component tests
+const componentTests = controller.createTestItem('component', 'Component', vscode.Uri.file(__filename));
+controller.items.add(componentTests);
 
-        // Act
-        const result = someFunction(input);
+// Test for specific functionality
+componentTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'functionality',
+        'Should perform specific action',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Arrange
+            const input = 'test';
 
-        // Assert
-        expect(result).toBe('expected');
-    });
-});
+            // Act
+            const result = someFunction(input);
+
+            // Assert
+            assert.strictEqual(result, 'expected', 'Function should return expected value');
+        }
+    )
+);
+
+// Export the controller
+export function activate() {
+    return controller;
+}
 ```
 
 ### Mocking
 
 #### 1. Function Mocks
 ```typescript
-jest.mock('../path/to/module', () => ({
-    someFunction: jest.fn().mockReturnValue('mocked value')
-}));
+// Create a mock function
+const mockFunction = () => 'mocked value';
+
+// Replace the original function with the mock
+const originalFunction = module.someFunction;
+module.someFunction = mockFunction;
+
+// Restore the original function after the test
+afterEach(() => {
+    module.someFunction = originalFunction;
+});
 ```
 
 #### 2. Class Mocks
 ```typescript
-jest.mock('../path/to/class', () => {
-    return jest.fn().mockImplementation(() => ({
-        method: jest.fn().mockResolvedValue('result')
-    }));
+// Create a mock class
+class MockClass {
+    method() {
+        return Promise.resolve('result');
+    }
+}
+
+// Replace the original class with the mock
+const originalClass = module.SomeClass;
+module.SomeClass = MockClass;
+
+// Restore the original class after the test
+afterEach(() => {
+    module.SomeClass = originalClass;
 });
 ```
 
 #### 3. VSCode API Mocks
 ```typescript
-jest.mock('vscode', () => ({
-    window: {
-        showInformationMessage: jest.fn()
-    },
-    workspace: {
-        getConfiguration: jest.fn()
-    }
-}), { virtual: true });
+// Store original functions
+const originalShowInformationMessage = vscode.window.showInformationMessage;
+const originalGetConfiguration = vscode.workspace.getConfiguration;
+
+// Replace with mocks
+vscode.window.showInformationMessage = () => Promise.resolve('OK');
+vscode.workspace.getConfiguration = () => ({
+    get: () => 'config value',
+    update: () => Promise.resolve()
+});
+
+// Restore original functions after the test
+afterEach(() => {
+    vscode.window.showInformationMessage = originalShowInformationMessage;
+    vscode.workspace.getConfiguration = originalGetConfiguration;
+});
 ```
 
 ### Async Testing
 
 ```typescript
-it('should handle async operations', async () => {
-    // Arrange
-    const mockData = { result: 'success' };
-    jest.spyOn(api, 'fetch').mockResolvedValue(mockData);
+TestUtils.createTest(
+    controller,
+    'async',
+    'Should handle async operations',
+    vscode.Uri.file(__filename),
+    async run => {
+        // Arrange
+        const mockData = { result: 'success' };
+        const originalFetch = api.fetch;
+        api.fetch = () => Promise.resolve(mockData);
 
-    // Act
-    const result = await someAsyncFunction();
+        try {
+            // Act
+            const result = await someAsyncFunction();
 
-    // Assert
-    expect(result).toEqual(mockData);
-    expect(api.fetch).toHaveBeenCalled();
-});
+            // Assert
+            assert.deepStrictEqual(result, mockData, 'Should return mock data');
+        } finally {
+            // Restore original function
+            api.fetch = originalFetch;
+        }
+    }
+);
 ```
 
 ## Test Organization
 
 ### File Structure
 ```
-src/
-└── component/
-    ├── index.ts
-    └── __tests__/
-        └── index.test.ts
+test/
+└── suite/
+    ├── index.ts           # Test suite loader
+    ├── basic.test.ts      # Basic tests
+    └── component.test.ts  # Component-specific tests
 ```
 
 ### Test Grouping
 ```typescript
-describe('ComponentName', () => {
-    describe('methodName', () => {
-        describe('when condition', () => {
-            it('should behavior', () => {
-                // Test
-            });
-        });
-    });
-});
+// Create a test controller
+const controller = createTestController('componentTests', 'Component Tests');
+
+// Root test item
+const componentTests = controller.createTestItem('component', 'Component', vscode.Uri.file(__filename));
+controller.items.add(componentTests);
+
+// Method-specific tests
+const methodTests = controller.createTestItem('method', 'Method', vscode.Uri.file(__filename));
+componentTests.children.add(methodTests);
+
+// Condition-specific tests
+const conditionTests = controller.createTestItem('condition', 'When condition', vscode.Uri.file(__filename));
+methodTests.children.add(conditionTests);
+
+// Specific test
+conditionTests.children.add(
+    TestUtils.createTest(
+        controller,
+        'behavior',
+        'Should exhibit behavior',
+        vscode.Uri.file(__filename),
+        async run => {
+            // Test implementation
+        }
+    )
+);
 ```
 
 ## Best Practices
 
 ### 1. Test Isolation
 - Each test should be independent
-- Reset mocks between tests
-- Clean up any side effects
+- Clean up any mocks or side effects after each test
+- Use unique IDs for test controllers to avoid conflicts
 
 ### 2. Naming Conventions
-- Describe blocks: component/feature name
-- It blocks: specific behavior
-- Use clear, descriptive names
+- Test controller IDs: camelCase, descriptive of the component being tested
+- Test item IDs: camelCase, descriptive of the functionality being tested
+- Test item labels: Clear, descriptive sentences
 
 ### 3. Assertions
+- Use the Node.js assert module for assertions
 - Test one concept per test
 - Make specific assertions
 - Include edge cases
 - Test error conditions
 
 ### 4. Mocking
-- Mock at the lowest level possible
+- Store original functions/objects before mocking
+- Restore original functions/objects after testing
 - Document mock behavior
-- Verify mock calls when relevant
-- Reset mocks after each test
+- Clean up mocks after each test
 
 ## Common Patterns
 
 ### 1. Testing Error Handling
 ```typescript
-it('should handle errors', async () => {
-    // Arrange
-    const error = new Error('Test error');
-    jest.spyOn(api, 'fetch').mockRejectedValue(error);
+TestUtils.createTest(
+    controller,
+    'errorHandling',
+    'Should handle errors',
+    vscode.Uri.file(__filename),
+    async run => {
+        // Arrange
+        const error = new Error('Test error');
+        const originalFetch = api.fetch;
+        api.fetch = () => Promise.reject(error);
 
-    // Act & Assert
-    await expect(someAsyncFunction()).rejects.toThrow('Test error');
-});
+        try {
+            // Act & Assert
+            await assert.rejects(
+                async () => await someAsyncFunction(),
+                error,
+                'Should reject with the expected error'
+            );
+        } finally {
+            // Restore original function
+            api.fetch = originalFetch;
+        }
+    }
+);
 ```
 
 ### 2. Testing Event Handlers
 ```typescript
-it('should handle events', () => {
-    // Arrange
-    const handler = jest.fn();
-    const component = new Component();
-    component.on('event', handler);
+TestUtils.createTest(
+    controller,
+    'eventHandling',
+    'Should handle events',
+    vscode.Uri.file(__filename),
+    async run => {
+        // Arrange
+        let eventData = null;
+        const handler = (data) => { eventData = data; };
+        const component = new Component();
+        component.on('event', handler);
 
-    // Act
-    component.emit('event', 'data');
+        // Act
+        component.emit('event', 'data');
 
-    // Assert
-    expect(handler).toHaveBeenCalledWith('data');
-});
+        // Assert
+        assert.strictEqual(eventData, 'data', 'Event handler should receive data');
+    }
+);
 ```
 
 ### 3. Testing State Changes
 ```typescript
-it('should update state', () => {
-    // Arrange
-    const component = new Component();
-    
-    // Act
-    component.setState({ value: 'new' });
+TestUtils.createTest(
+    controller,
+    'stateChanges',
+    'Should update state',
+    vscode.Uri.file(__filename),
+    async run => {
+        // Arrange
+        const component = new Component();
+        
+        // Act
+        component.setState({ value: 'new' });
 
-    // Assert
-    expect(component.getState()).toEqual({ value: 'new' });
-});
+        // Assert
+        assert.deepStrictEqual(component.getState(), { value: 'new' }, 'State should be updated');
+    }
+);
 ```
 
 ## Running Tests
@@ -184,14 +284,8 @@ it('should update state', () => {
 # Run all tests
 npm test
 
-# Run specific test file
-npm test path/to/test
-
-# Run with coverage
-npm test -- --coverage
-
-# Run in watch mode
-npm test -- --watch
+# Run VS Code tests
+npm run test:vscode
 ```
 
 ### Coverage Requirements
@@ -204,23 +298,21 @@ npm test -- --watch
 
 ### Common Issues
 
-1. **Mocks Not Working**
-   - Check mock path is correct
-   - Verify mock is before test
-   - Check for proper reset
+1. **Duplicate Controller IDs**
+   - Use the createTestController function from testController.ts
+   - Ensure unique IDs for test controllers
 
-2. **Async Test Failures**
-   - Use proper async/await
-   - Check promise chains
-   - Verify timeout settings
+2. **Module System Errors**
+   - Use dynamic imports for ES modules
+   - Check for compatibility issues between CommonJS and ES modules
 
-3. **Coverage Issues**
-   - Check for untested branches
-   - Verify error paths
-   - Test edge cases
+3. **Tests Not Running**
+   - Check that test files are being compiled to JavaScript
+   - Verify that test files are being loaded by the index.ts file
+   - Look for errors in the VS Code Developer Tools console
 
 ## Resources
 
-- [Jest Documentation](https://jestjs.io/docs/getting-started)
-- [Testing Examples](../../../src/__tests__/)
-- [Mock Examples](../../../src/__mocks__)
+- [VS Code Testing API Documentation](https://code.visualstudio.com/api/extension-guides/testing)
+- [Node.js Assert Documentation](https://nodejs.org/api/assert.html)
+- [VS Code Extension Testing Guide](https://code.visualstudio.com/api/working-with-extensions/testing-extension)

@@ -430,6 +430,7 @@ export const mistralDefaultModelId: MistralModelId = "codestral-latest"
 export const openAiNativeDefaultModelId: OpenAiNativeModelId = "gpt-4o"
 export const openRouterDefaultModelId = "anthropic/claude-3.5-sonnet:beta"
 export const requestyDefaultModelId = "anthropic/claude-3-sonnet"
+export const requestyDefaultModelInfo = requestyModelInfoSaneDefaults
 export const unboundDefaultModelId = "anthropic/claude-3-5-sonnet-20241022"
 export const vertexDefaultModelId: VertexModelId = "claude-3-5-sonnet@20240620"
 

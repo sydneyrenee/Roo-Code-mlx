@@ -9,13 +9,13 @@ const MAX_INITIAL_FILES = 1_000
 
 // Note: this is not a drop-in replacement for listFiles at the start of tasks, since that will be done for Desktops when there is no workspace selected
 class WorkspaceTracker {
-	private providerRef: WeakRef<ClineProvider>
+	private providerRef: { deref: () => ClineProvider | undefined }
 	private disposables: vscode.Disposable[] = []
 	private filePaths: Set<string> = new Set()
 	private updateTimer: NodeJS.Timeout | null = null
 
 	constructor(provider: ClineProvider) {
-		this.providerRef = new WeakRef(provider)
+		this.providerRef = { deref: () => provider }
 		this.registerListeners()
 	}
 

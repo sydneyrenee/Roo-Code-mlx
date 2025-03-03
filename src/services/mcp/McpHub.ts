@@ -49,7 +49,7 @@ const McpSettingsSchema = z.object({
 })
 
 export class McpHub {
-	private providerRef: WeakRef<ClineProvider>
+	private providerRef: { deref: () => ClineProvider | undefined }
 	private disposables: vscode.Disposable[] = []
 	private settingsWatcher?: vscode.FileSystemWatcher
 	private fileWatchers: Map<string, FSWatcher> = new Map()
@@ -57,7 +57,7 @@ export class McpHub {
 	isConnecting: boolean = false
 
 	constructor(provider: ClineProvider) {
-		this.providerRef = new WeakRef(provider)
+		this.providerRef = { deref: () => provider }
 		this.watchMcpSettingsFile()
 		this.initializeMcpServers()
 	}
@@ -339,7 +339,7 @@ export class McpHub {
 		const newNames = new Set(Object.keys(newServers))
 
 		// Delete removed servers
-		for (const name of currentNames) {
+		for (const name of Array.from(currentNames)) {
 			if (!newNames.has(name)) {
 				await this.deleteConnection(name)
 				console.log(`Deleted MCP server: ${name}`)

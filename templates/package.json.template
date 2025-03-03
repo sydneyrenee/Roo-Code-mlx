@@ -1,0 +1,116 @@
+{
+  "name": "{{extension.name}}",
+  "displayName": "{{extension.displayName}}",
+  "description": "{{extension.description}}",
+  "version": "{{extension.version}}",
+  "publisher": "{{extension.publisher}}",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "{{repository.url}}"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "{{extension.name}}.start",
+        "title": "Start {{extension.displayName}}"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p . --outDir out && node esbuild.js",
+    "compile:tsc": "tsc -p ./",
+    "compile:test": "tsc -p ./src/test/tsconfig.test.json",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile:test && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "test:vscode": "node ./out/test/runTest.js",
+    "test:find-unregistered": "node ./src/test/scripts/find-unregistered-tests.js",
+    "test:generate-migration": "node ./src/test/scripts/generate-test-migration.js",
+    "test:run": "node ./src/test/scripts/run-tests.js",
+    "test:run:verbose": "node ./src/test/scripts/run-tests.js --verbose",
+    "test:update-status": "node ./src/test/scripts/update-migration-status.js",
+    "update-branding": "node scripts/update-branding.js",
+    "process-templates": "node scripts/process-templates.js",
+    "test:branding": "node scripts/test-branding-system.js",
+    "prebuild": "npm run update-branding && npm run process-templates",
+    "vsix": "rimraf bin && mkdirp bin && npx vsce package --out bin",
+    "build": "npm run compile && npm run vsix"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.36.3",
+    "@aws-sdk/client-bedrock-runtime": "^3.751.0",
+    "@aws-sdk/credential-providers": "^3.750.0",
+    "@google/generative-ai": "^0.22.0",
+    "@mistralai/mistralai": "^1.5.0",
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "@types/clone-deep": "^4.0.4",
+    "@types/diff": "^7.0.1",
+    "@types/diff-match-patch": "^1.0.36",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/string-similarity": "^4.0.2",
+    "@types/tmp": "^0.2.6",
+    "@types/turndown": "^5.0.5",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^3.2.2",
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "chokidar": "^4.0.3",
+    "default-shell": "^2.2.0",
+    "delay": "^6.0.0",
+    "diff": "^7.0.0",
+    "diff-match-patch": "^1.0.5",
+    "esbuild": "^0.24.0",
+    "eslint": "^8.56.0",
+    "fastest-levenshtein": "^1.0.16",
+    "glob": "^11.0.1",
+    "globby": "^14.1.0",
+    "isbinaryfile": "^5.0.4",
+    "mammoth": "^1.9.0",
+    "mkdirp": "^3.0.1",
+    "mocha": "^11.1.0",
+    "monaco-vscode-textmate-theme-converter": "^0.1.7",
+    "openai": "^4.85.4",
+    "os-name": "^6.0.0",
+    "p-wait-for": "^5.0.2",
+    "pdf-parse": "^1.1.1",
+    "puppeteer-chromium-resolver": "^23.0.0",
+    "puppeteer-core": "^24.3.0",
+    "rimraf": "^6.0.1",
+    "simple-git": "^3.27.0",
+    "string-similarity": "^4.0.4",
+    "tmp": "^0.2.3",
+    "tree-sitter-wasms": "^0.1.11",
+    "ts-node": "^10.9.2",
+    "turndown": "^7.2.0",
+    "typescript": "^5.3.3",
+    "uuid": "^11.1.0",
+    "web-tree-sitter": "^0.25.2",
+    "zod": "^3.24.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/vertex-sdk": "^0.7.0",
+    "clone-deep": "^4.0.1",
+    "get-folder-size": "^5.0.0",
+    "serialize-error": "^12.0.0"
+  }
+}
